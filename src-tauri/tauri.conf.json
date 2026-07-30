@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "NutriBum",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "identifier": "it.nutrition.nutribum",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -40,6 +40,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "createUpdaterArtifacts": true,
     "category": "Utility",
     "copyright": "Copyright © 2026 Andrea Leone",
     "shortDescription": "Traccia calorie, macronutrienti e peso corporeo",
@@ -51,6 +52,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "resources": ["resources/campione-alimenti.json"],
     "macOS": {
       "signingIdentity": "-"
     },
