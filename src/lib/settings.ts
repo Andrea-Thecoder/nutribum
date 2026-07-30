@@ -6,10 +6,14 @@ const SETTINGS_FILE = "settings.json";
 
 export interface Impostazioni {
   margineObiettivoPesoKg: number;
+  // Default disattivato: la ricerca aggiornamenti richiede una connessione a internet, va attivata
+  // esplicitamente dall'utente (vedi useAggiornamenti.ts) — non deve mai partire da sola al primo avvio.
+  aggiornamentiAutomatici: boolean;
 }
 
-const IMPOSTAZIONI_DEFAULT: Impostazioni = {
+export const IMPOSTAZIONI_DEFAULT: Impostazioni = {
   margineObiettivoPesoKg: 5,
+  aggiornamentiAutomatici: false,
 };
 
 async function assicuraDirDati(): Promise<void> {
@@ -30,9 +34,14 @@ export async function caricaImpostazioni(): Promise<Impostazioni> {
   return { ...IMPOSTAZIONI_DEFAULT, ...(JSON.parse(contenuto) as Partial<Impostazioni>) };
 }
 
-export async function salvaImpostazioni(impostazioni: Impostazioni): Promise<void> {
+// Accetta una patch parziale (non l'oggetto intero): fa read-modify-write sul file esistente, così
+// un chiamante che vuole aggiornare un solo campo (es. aggiornamentiAutomatici) non deve conoscere né
+// ripassare gli altri, e non rischia di sovrascriverli con un valore vecchio/stantio.
+export async function salvaImpostazioni(patch: Partial<Impostazioni>): Promise<void> {
   await assicuraDirDati();
-  await writeTextFile(SETTINGS_FILE, JSON.stringify(impostazioni, null, 2), {
+  const attuali = await caricaImpostazioni();
+  const aggiornate: Impostazioni = { ...attuali, ...patch };
+  await writeTextFile(SETTINGS_FILE, JSON.stringify(aggiornate, null, 2), {
     baseDir: BaseDirectory.AppData,
   });
 }

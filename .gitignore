@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Database e segreti locali
+*.sqlite
+*.sqlite3
+*.db
+.env
+.env.*
+
 # Tauri / Rust build output
 src-tauri/target
 

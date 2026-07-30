@@ -38,6 +38,15 @@ export type GiornoImport = z.infer<typeof GiornoImportSchema>;
 type PastoImport = GiornoImport["pasti"][number];
 type AlimentoImport = PastoImport["alimenti"][number];
 
+// Forma prodotta da "Esporta storico diario in JSON" (l'intero storico multi-giorno, non un
+// singolo giorno): { schemaVersion, giorni: [...] }. GiornoImportSchema non è "strict", quindi
+// ogni elemento di "giorni" (che porta anche un suo schemaVersion, campo extra qui ignorato)
+// valida comunque contro di essa senza bisogno di rimappare nulla.
+export const StoricoImportSchema = z.object({
+  giorni: z.array(GiornoImportSchema).min(1),
+});
+export type StoricoImport = z.infer<typeof StoricoImportSchema>;
+
 export interface EsitoImportGiorno {
   vociInserite: number;
   avvisiMismatch: string[];

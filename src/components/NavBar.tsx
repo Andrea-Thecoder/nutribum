@@ -27,6 +27,9 @@ import {
 } from "../lib/weight";
 import { ProfileModal } from "./ProfileModal";
 import { ReportPdfModal } from "./report/ReportPdfModal";
+import { EsportaPrimaDiCancellareModal } from "./EsportaPrimaDiCancellareModal";
+import { useConferma } from "./ConfermaModal";
+import { useAggiornamenti } from "../lib/useAggiornamenti";
 import type { PuntoStoricoObiettivoPeso } from "../lib/weight";
 import type { PuntoStoricoProfilo, PuntoStoricoFitness } from "../lib/profile";
 
@@ -60,6 +63,13 @@ interface NavBarProps {
   onExportWeightCsv: () => void;
   onApriInserimentoPeso: () => void;
   onApriObiettivoPeso: () => void;
+  onAzzeraImpostazioni: () => void;
+  onSvuotaDiario: () => Promise<void>;
+  onCancellaTuttiIDati: () => Promise<void>;
+  onEsportaBackupCompletoJson: () => Promise<boolean>;
+  onEsportaDiarioJsonPreCancellazione: () => Promise<boolean>;
+  onEsportaDiarioCsvPreCancellazione: () => Promise<boolean>;
+  onImportaBackupCompleto: () => Promise<void>;
 }
 
 const SOGLIA_SERIE_CONSECUTIVA = 5;
@@ -148,6 +158,13 @@ export function NavBar({
   onExportWeightCsv,
   onApriInserimentoPeso,
   onApriObiettivoPeso,
+  onAzzeraImpostazioni,
+  onSvuotaDiario,
+  onCancellaTuttiIDati,
+  onEsportaBackupCompletoJson,
+  onEsportaDiarioJsonPreCancellazione,
+  onEsportaDiarioCsvPreCancellazione,
+  onImportaBackupCompleto,
 }: NavBarProps) {
   const menu = useMenuApribile();
   const [settingsSubmenuOpen, setSettingsSubmenuOpen] = useState(false);
@@ -164,6 +181,20 @@ export function NavBar({
   const [dettaglioCarenzaAperto, setDettaglioCarenzaAperto] = useState<"serie" | "mese" | null>(null);
   const [profileModalAperta, setProfileModalAperta] = useState(false);
   const [reportPdfModalAperta, setReportPdfModalAperta] = useState(false);
+  // Flusso di sicurezza a 2 passi per le azioni distruttive: "diario"/"tutto" apre il secondo
+  // passo (EsportaPrimaDiCancellareModal) dopo che il primo (chiedi() sotto) è già stato confermato.
+  const [flussoCancellazione, setFlussoCancellazione] = useState<"diario" | "tutto" | null>(null);
+  const [caricamentoBackup, setCaricamentoBackup] = useState(false);
+  const [esitoBackup, setEsitoBackup] = useState<{ tipo: "successo" | "errore"; messaggio: string } | null>(null);
+  const { chiedi, elemento: modaleConferma } = useConferma();
+  const {
+    aggiornamentiAutomatici,
+    controlloInCorso: controlloAggiornamentiInCorso,
+    esito: esitoAggiornamento,
+    chiudiEsito: chiudiEsitoAggiornamento,
+    cercaAggiornamenti,
+    toggleAggiornamentiAutomatici,
+  } = useAggiornamenti(chiedi);
 
   useEffect(() => {
     elencaStoricoObiettivo()
@@ -270,6 +301,69 @@ export function NavBar({
     }
   }
 
+  // Non tocca dati utente (solo layout/margine/movimento libero), ma resta un avviso semplice:
+  // l'utente potrebbe aver personalizzato la dashboard e non vuole perderla senza saperlo.
+  async function handleClickAzzeraImpostazioni() {
+    closeAll();
+    const ok = await chiedi(
+      "Questa azione riporterà il layout della dashboard, il margine obiettivo peso e il movimento libero ai valori di default (i dati — alimenti, diario, peso, obiettivi, profilo — non vengono toccati). Continuare?",
+      { distruttivo: true },
+    );
+    if (ok) onAzzeraImpostazioni();
+  }
+
+  // Primo passo del flusso di sicurezza (conferma semplice, useConferma già usato altrove); solo se
+  // confermato si apre il secondo passo (EsportaPrimaDiCancellareModal, che offre l'export prima di
+  // procedere davvero). Le due azioni vere e proprie (svuota/cancella) restano dentro quella modale.
+  async function handleClickSvuotaDiario() {
+    closeAll();
+    const ok = await chiedi(
+      "Questa azione cancellerà definitivamente TUTTE le voci di TUTTI i giorni del diario alimentare (il catalogo alimenti, le ricette e il resto non vengono toccati). Continuare?",
+      { distruttivo: true },
+    );
+    if (ok) setFlussoCancellazione("diario");
+  }
+
+  async function handleClickCancellaTuttiIDati() {
+    closeAll();
+    const ok = await chiedi(
+      "Questa azione cancellerà DEFINITIVAMENTE tutti i dati dell'app: catalogo alimenti, diario, ricette, peso, obiettivi e profilo. Continuare?",
+      { distruttivo: true },
+    );
+    if (ok) setFlussoCancellazione("tutto");
+  }
+
+  function handleClickCercaAggiornamenti() {
+    closeAll();
+    cercaAggiornamenti();
+  }
+
+  function handleClickToggleAggiornamentiAutomatici() {
+    closeAll();
+    toggleAggiornamentiAutomatici();
+  }
+
+  async function handleClickReimportaBackup() {
+    closeAll();
+    const ok = await chiedi(
+      "Importare un backup sovrascriverà TUTTI i dati attuali dell'app con quelli del file scelto. Continuare?",
+      { distruttivo: true },
+    );
+    if (!ok) return;
+    setCaricamentoBackup(true);
+    try {
+      await onImportaBackupCompleto();
+      setEsitoBackup({ tipo: "successo", messaggio: "Backup importato correttamente." });
+    } catch (err) {
+      setEsitoBackup({
+        tipo: "errore",
+        messaggio: err instanceof Error ? err.message : "Errore durante l'importazione del backup",
+      });
+    } finally {
+      setCaricamentoBackup(false);
+    }
+  }
+
   return (
     <div className="relative border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-black">
       {(menu.isAperto("file") ||
@@ -310,10 +404,10 @@ export function NavBar({
                     <button
                       onClick={onToggleAncoraGriglia}
                       title="Se attivo, trascinamento e ridimensionamento seguono liberamente il mouse e si allineano alla griglia solo al rilascio; se disattivo, scattano a step interi di griglia durante il movimento"
-                      className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
-                      <span className="w-4 shrink-0 text-center">{!ancoraGriglia ? "✓" : ""}</span>
                       Movimento libero
+                      <span className="w-4 shrink-0 text-center">{!ancoraGriglia ? "✓" : ""}</span>
                     </button>
 
                     <button
@@ -325,6 +419,63 @@ export function NavBar({
                       className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Reimposta layout pannelli
+                    </button>
+
+                    <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
+
+                    <button
+                      onClick={handleClickCercaAggiornamenti}
+                      disabled={controlloAggiornamentiInCorso}
+                      title="Controlla se è disponibile una nuova versione di NutriBum (richiede una connessione a internet; nessun dato dell'app viene inviato online)"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      {controlloAggiornamentiInCorso ? "Ricerca in corso…" : "Cerca aggiornamenti"}
+                    </button>
+
+                    <button
+                      onClick={handleClickToggleAggiornamentiAutomatici}
+                      title="Se attivo, l'app verifica da sola ad ogni avvio se è disponibile una nuova versione (richiede una connessione a internet; nessun dato dell'app viene inviato online)"
+                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      Aggiornamenti automatici
+                      <span className="w-4 shrink-0 text-center">{aggiornamentiAutomatici ? "✓" : ""}</span>
+                    </button>
+
+                    <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
+
+                    <button
+                      onClick={handleClickReimportaBackup}
+                      disabled={caricamentoBackup}
+                      title="Carica un backup completo esportato da NutriBum e sovrascrive tutti i dati attuali"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      {caricamentoBackup ? "Importazione…" : "Reimporta backup completo…"}
+                    </button>
+
+                    <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
+
+                    <button
+                      onClick={handleClickAzzeraImpostazioni}
+                      title="Riporta layout dashboard, margine obiettivo peso e movimento libero ai valori di default — non tocca alimenti/diario/peso/obiettivi/profilo"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                    >
+                      Azzera impostazioni
+                    </button>
+
+                    <button
+                      onClick={handleClickSvuotaDiario}
+                      title="Cancella definitivamente tutte le voci di tutti i giorni del diario alimentare (non tocca il resto)"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                    >
+                      Svuota diario alimentare
+                    </button>
+
+                    <button
+                      onClick={handleClickCancellaTuttiIDati}
+                      title="Cancella definitivamente tutti i dati dell'app (alimenti, diario, ricette, peso, obiettivi, profilo)"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+                    >
+                      Cancella tutti i dati
                     </button>
                   </div>
                 )}
@@ -1048,6 +1199,45 @@ export function NavBar({
           peso={peso}
           onChiudi={() => setObiettivoModaleAperto(null)}
           onSalvato={onObiettivoSalvato}
+        />
+      )}
+
+      {modaleConferma}
+
+      {flussoCancellazione === "diario" && (
+        <EsportaPrimaDiCancellareModal
+          titolo="Svuota diario alimentare"
+          messaggio="Puoi esportare un backup del diario prima di cancellarlo definitivamente, oppure procedere senza esportare."
+          opzioniExport={[
+            { chiave: "json", etichetta: "Esporta in JSON e cancella", onEsporta: onEsportaDiarioJsonPreCancellazione },
+            { chiave: "csv", etichetta: "Esporta in CSV e cancella", onEsporta: onEsportaDiarioCsvPreCancellazione },
+          ]}
+          onProcedi={onSvuotaDiario}
+          onChiudi={() => setFlussoCancellazione(null)}
+        />
+      )}
+
+      {flussoCancellazione === "tutto" && (
+        <EsportaPrimaDiCancellareModal
+          titolo="Cancella tutti i dati"
+          messaggio="Puoi esportare un backup completo (alimenti, diario, ricette, peso, obiettivi, profilo) prima di cancellare tutto, oppure procedere senza esportare."
+          opzioniExport={[
+            { chiave: "json", etichetta: "Esporta backup in JSON e cancella", onEsporta: onEsportaBackupCompletoJson },
+          ]}
+          onProcedi={onCancellaTuttiIDati}
+          onChiudi={() => setFlussoCancellazione(null)}
+        />
+      )}
+
+      {esitoBackup && (
+        <EsitoPopup tipo={esitoBackup.tipo} messaggio={esitoBackup.messaggio} onChiudi={() => setEsitoBackup(null)} />
+      )}
+
+      {esitoAggiornamento && (
+        <EsitoPopup
+          tipo={esitoAggiornamento.tipo}
+          messaggio={esitoAggiornamento.messaggio}
+          onChiudi={chiudiEsitoAggiornamento}
         />
       )}
     </div>

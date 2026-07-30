@@ -185,12 +185,12 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato }: AlimentoFor
               <input className={CAMPO} type="number" min={0} step="0.1" value={carboidrati} onChange={(e) => setCarboidrati(e.target.value)} />
             </label>
             <label className="flex flex-col gap-0.5">
-              Grassi (g)
-              <input className={CAMPO} type="number" min={0} step="0.1" value={grassi} onChange={(e) => setGrassi(e.target.value)} />
-            </label>
-            <label className="flex flex-col gap-0.5">
               di cui zuccheri (g)
               <input className={CAMPO} type="number" min={0} step="0.1" value={zuccheri} onChange={(e) => setZuccheri(e.target.value)} />
+            </label>
+            <label className="flex flex-col gap-0.5">
+              Grassi (g)
+              <input className={CAMPO} type="number" min={0} step="0.1" value={grassi} onChange={(e) => setGrassi(e.target.value)} />
             </label>
             <label className="flex flex-col gap-0.5">
               di cui saturi (g)

@@ -18,6 +18,8 @@
     "sql:allow-select",
     "sql:allow-load",
     "sql:allow-close",
+    "updater:default",
+    "process:allow-restart",
     {
       "identifier": "fs:scope",
       "allow": [

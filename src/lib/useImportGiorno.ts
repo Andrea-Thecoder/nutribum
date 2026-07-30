@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readTextFile } from "@tauri-apps/plugin-fs";
-import { GiornoImportSchema, importaGiorno, parseGiornoCsv, importaGiorniCsv } from "./importazione";
+import {
+  GiornoImportSchema,
+  StoricoImportSchema,
+  importaGiorno,
+  parseGiornoCsv,
+  importaGiorniCsv,
+  type GiornoImport,
+} from "./importazione";
 
 export type EsitoImport =
   | { tipo: "successo"; messaggio: string }
@@ -45,20 +52,33 @@ export function useImportGiorno(onImportato: () => void) {
           }
 
           const parsato = JSON.parse(contenuto);
-          const risultato = GiornoImportSchema.safeParse(parsato);
-          if (!risultato.success) {
-            const dettagli = risultato.error.issues
-              .map((i) => `${i.path.join(".")}: ${i.message}`)
-              .join("; ");
-            throw new Error(`JSON non valido — ${dettagli}`);
+
+          // Un file può essere UN giorno solo ({data, pasti} — l'export di un singolo giorno) o
+          // l'intero storico ({giorni: [...]}  — prodotto da "Esporta storico diario in JSON"):
+          // si prova prima la forma singola, poi quella multi-giorno, invece di richiedere
+          // all'utente di sapere quale delle due ha in mano.
+          let giorniDaImportare: GiornoImport[];
+          const comeGiornoSingolo = GiornoImportSchema.safeParse(parsato);
+          if (comeGiornoSingolo.success) {
+            giorniDaImportare = [comeGiornoSingolo.data];
+          } else {
+            const comeStorico = StoricoImportSchema.safeParse(parsato);
+            if (!comeStorico.success) {
+              const dettagli = comeGiornoSingolo.error.issues
+                .map((i) => `${i.path.join(".")}: ${i.message}`)
+                .join("; ");
+              throw new Error(`JSON non valido — ${dettagli}`);
+            }
+            giorniDaImportare = comeStorico.data.giorni;
           }
 
-          const giorno = risultato.data;
-          const esitoImport = await importaGiorno(giorno);
-          giorniImportati++;
-          vociInserite += esitoImport.vociInserite;
-          if (esitoImport.avvisiMismatch.length > 0) {
-            avvisiMismatch.push(`${giorno.data}: ${esitoImport.avvisiMismatch.join(" · ")}`);
+          for (const giorno of giorniDaImportare) {
+            const esitoImport = await importaGiorno(giorno);
+            giorniImportati++;
+            vociInserite += esitoImport.vociInserite;
+            if (esitoImport.avvisiMismatch.length > 0) {
+              avvisiMismatch.push(`${giorno.data}: ${esitoImport.avvisiMismatch.join(" · ")}`);
+            }
           }
         } catch (err) {
           erroriFile.push({

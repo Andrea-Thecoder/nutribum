@@ -3,8 +3,8 @@ import ReactGridLayout, { useContainerWidth, noCompactor } from "react-grid-layo
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { invoke } from "@tauri-apps/api/core";
-import { save } from "@tauri-apps/plugin-dialog";
-import { writeTextFile } from "@tauri-apps/plugin-fs";
+import { save, open } from "@tauri-apps/plugin-dialog";
+import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
 import "./App.css";
 import { NavBar } from "./components/NavBar";
 import { PanelChrome } from "./components/PanelChrome";
@@ -48,7 +48,14 @@ import { foodsToJson, foodsToCsv } from "./lib/exportFoods";
 import { historyToCsv } from "./lib/exportDiary";
 import { weightToJson, weightToCsv } from "./lib/exportWeight";
 import { caricaLayout, salvaLayout } from "./lib/layoutStorage";
-import { caricaImpostazioni, salvaImpostazioni } from "./lib/settings";
+import { caricaImpostazioni, salvaImpostazioni, IMPOSTAZIONI_DEFAULT } from "./lib/settings";
+import {
+  esportaBackupCompleto,
+  validaBackupJson,
+  ripristinaBackupCompleto,
+  svuotaTuttiIDati,
+  svuotaDiario,
+} from "./lib/backup";
 import { registraErroreFataleEChiudi, registraErroreNonBloccante } from "./lib/errorLog";
 import { useDragResize } from "./lib/useDragResize";
 import { COLS, ROW_HEIGHT, CAP_ALTEZZA_PX, MARGIN } from "./lib/gridConstants";
@@ -660,6 +667,77 @@ function App() {
     });
   }, [persistiLayout]);
 
+  // "Azzera impostazioni": tutto ciò che è preferenza dell'app (layout dashboard, margine
+  // obiettivo peso, movimento libero), non un dato nutrizionale — quello resta a "Cancella tutti i
+  // dati" più sotto. ancoraGriglia non è mai persistito su file (torna già a true ad ogni riavvio,
+  // vedi la sua dichiarazione), ma va azzerato comunque qui per riflettersi subito nella sessione
+  // corrente, non solo al prossimo avvio.
+  const handleAzzeraImpostazioni = useCallback(async () => {
+    handleResetLayout();
+    // Patch mirata solo al margine (non tutto IMPOSTAZIONI_DEFAULT): "aggiornamenti automatici" è una
+    // scelta esplicita e a parte dell'utente (vedi useAggiornamenti.ts), non una preferenza di
+    // layout/aspetto — non deve essere azzerata da un'azione che promette di toccare solo quelle.
+    await salvaImpostazioni({ margineObiettivoPesoKg: IMPOSTAZIONI_DEFAULT.margineObiettivoPesoKg });
+    setMargineObiettivoPesoKg(IMPOSTAZIONI_DEFAULT.margineObiettivoPesoKg);
+    setAncoraGriglia(true);
+  }, [handleResetLayout]);
+
+  const handleSvuotaDiario = useCallback(async () => {
+    await svuotaDiario();
+    await ricaricaStorico();
+  }, [ricaricaStorico]);
+
+  // DELETE, non DROP: lo schema resta intatto, si azzerano solo le righe (vedi svuotaTuttiIDati).
+  const handleCancellaTuttiIDati = useCallback(async () => {
+    await svuotaTuttiIDati();
+    await Promise.all([ricaricaStorico(), ricaricaAlimenti(), ricaricaRicette(), ricaricaPeso(), ricaricaStoricoTDEE()]);
+    setVersioneObiettivi((v) => v + 1);
+  }, [ricaricaStorico, ricaricaAlimenti, ricaricaRicette, ricaricaPeso, ricaricaStoricoTDEE]);
+
+  async function handleEsportaBackupCompletoJson(): Promise<boolean> {
+    const percorso = await save({
+      defaultPath: "nutribum-backup-completo.json",
+      filters: [{ name: "JSON", extensions: ["json"] }],
+    });
+    if (!percorso) return false;
+    const backup = await esportaBackupCompleto();
+    await writeTextFile(percorso, JSON.stringify(backup, null, 2));
+    return true;
+  }
+
+  async function handleEsportaDiarioJsonPreCancellazione(): Promise<boolean> {
+    const percorso = await save({
+      defaultPath: "diario-nutrizione.json",
+      filters: [{ name: "JSON", extensions: ["json"] }],
+    });
+    if (!percorso) return false;
+    await writeTextFile(percorso, JSON.stringify(storico ?? { schemaVersion: "1.0", giorni: [] }, null, 2));
+    return true;
+  }
+
+  async function handleEsportaDiarioCsvPreCancellazione(): Promise<boolean> {
+    const percorso = await save({
+      defaultPath: "diario-nutrizione.csv",
+      filters: [{ name: "CSV", extensions: ["csv"] }],
+    });
+    if (!percorso) return false;
+    await writeTextFile(percorso, historyToCsv(storico ?? { schemaVersion: "1.0", giorni: [] }));
+    return true;
+  }
+
+  async function handleImportaBackupCompleto(): Promise<void> {
+    const percorso = await open({
+      multiple: false,
+      filters: [{ name: "JSON", extensions: ["json"] }],
+    });
+    if (!percorso || Array.isArray(percorso)) return;
+    const contenuto = await readTextFile(percorso);
+    const backup = validaBackupJson(contenuto);
+    await ripristinaBackupCompleto(backup);
+    await Promise.all([ricaricaStorico(), ricaricaAlimenti(), ricaricaRicette(), ricaricaPeso(), ricaricaStoricoTDEE()]);
+    setVersioneObiettivi((v) => v + 1);
+  }
+
   const handleStoricoSalvato = useCallback(() => {
     ricaricaStorico().catch((err) =>
       registraErroreNonBloccante(err, "Ricarico storico diario (dopo salvataggio pasto) fallito"),
@@ -733,6 +811,13 @@ function App() {
         onExportHistoryJson={handleExportHistoryJson}
         onExportHistoryCsv={handleExportHistoryCsv}
         onResetLayout={handleResetLayout}
+        onAzzeraImpostazioni={handleAzzeraImpostazioni}
+        onSvuotaDiario={handleSvuotaDiario}
+        onCancellaTuttiIDati={handleCancellaTuttiIDati}
+        onEsportaBackupCompletoJson={handleEsportaBackupCompletoJson}
+        onEsportaDiarioJsonPreCancellazione={handleEsportaDiarioJsonPreCancellazione}
+        onEsportaDiarioCsvPreCancellazione={handleEsportaDiarioCsvPreCancellazione}
+        onImportaBackupCompleto={handleImportaBackupCompleto}
         onNuovoAlimento={() => setModaleAlimentoAperta(true)}
         onNuovaRicetta={() => setModaleRicettaAperta(true)}
         onAlimentiImportati={ricaricaAlimenti}

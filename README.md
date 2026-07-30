@@ -47,8 +47,14 @@ Per il dettaglio di architettura, schema database e stato del progetto vedi
 
 ```bash
 npm install
-npm run tauri dev
+npm run tauri:dev
 ```
+
+`npm run tauri:dev` usa `src-tauri/tauri.dev.conf.json`, che sovrascrive `identifier`
+e `productName` rispetto alla build di produzione. Così l'app in sviluppo
+(`it.nutrition.nutribum.dev`) scrive in una cartella dati completamente separata da
+quella usata dalle build installate (`it.nutrition.nutribum`) — i dati di test non si
+mescolano mai con quelli di una build reale installata sulla stessa macchina.
 
 `npm run dev` avvia solo il frontend Vite (senza Tauri) — utile per iterare sulla UI,
 ma le funzionalità che dipendono dai plugin Tauri (SQLite, dialog, filesystem) non
