@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" rx="220" fill="#0f172a"/>
+
+  <!-- top bun -->
+  <path d="M 260 460
+           C 260 340 370 260 512 260
+           C 654 260 764 340 764 460
+           L 764 480
+           L 260 480
+           Z"
+        fill="#f59e0b"/>
+  <!-- sesame seeds -->
+  <ellipse cx="420" cy="360" rx="10" ry="16" fill="#fef3c7" transform="rotate(-20 420 360)"/>
+  <ellipse cx="500" cy="330" rx="10" ry="16" fill="#fef3c7" transform="rotate(5 500 330)"/>
+  <ellipse cx="580" cy="345" rx="10" ry="16" fill="#fef3c7" transform="rotate(20 580 345)"/>
+  <ellipse cx="650" cy="380" rx="10" ry="16" fill="#fef3c7" transform="rotate(30 650 380)"/>
+  <ellipse cx="360" cy="400" rx="10" ry="16" fill="#fef3c7" transform="rotate(-30 360 400)"/>
+
+  <!-- lettuce -->
+  <path d="M 250 480
+           Q 290 510 330 480
+           Q 370 512 410 480
+           Q 450 512 490 480
+           Q 530 512 570 480
+           Q 610 512 650 480
+           Q 690 512 730 480
+           Q 760 500 774 480
+           L 774 520
+           L 250 520
+           Z"
+        fill="#4ade80"/>
+
+  <!-- tomato -->
+  <rect x="250" y="516" width="524" height="46" rx="20" fill="#ef4444"/>
+
+  <!-- cheese -->
+  <path d="M 240 558
+           L 784 558
+           L 784 600
+           L 750 630 L 700 600 L 650 630 L 600 600 L 550 630 L 500 600
+           L 450 630 L 400 600 L 350 630 L 300 600 L 260 626
+           Z"
+        fill="#fbbf24"/>
+
+  <!-- patty -->
+  <rect x="250" y="600" width="524" height="56" rx="16" fill="#7c3f2c"/>
+
+  <!-- bottom bun -->
+  <path d="M 270 656
+           L 754 656
+           C 754 656 764 726 700 730
+           L 324 730
+           C 260 726 270 656 270 656
+           Z"
+        fill="#d97706"/>
+</svg>

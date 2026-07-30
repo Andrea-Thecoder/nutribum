@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Scroll orizzontale attivo (rotellina/trackpad) ma senza la barra visibile, come le tab dei browser */
+.senza-scrollbar {
+  scrollbar-width: none;
+}
+.senza-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+

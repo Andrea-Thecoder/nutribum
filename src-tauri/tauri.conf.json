@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "NutriBum",
+  "version": "0.1.0",
+  "identifier": "it.nutrition.nutribum",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "NutriBum",
+        "width": 800,
+        "height": 600,
+        "minWidth": 800,
+        "minHeight": 600,
+        "maximized": true,
+        "visible": false
+      },
+      {
+        "label": "splashscreen",
+        "url": "splashscreen.html",
+        "width": 480,
+        "height": 680,
+        "resizable": false,
+        "decorations": false,
+        "center": true,
+        "alwaysOnTop": false,
+        "shadow": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: asset: https://asset.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "signingIdentity": "-"
+    }
+  }
+}
