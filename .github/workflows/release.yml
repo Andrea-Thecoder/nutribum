@@ -25,7 +25,7 @@ jobs:
           - platform: 'ubuntu-22.04'
             args: ''
             bundleName: 'NutriBum-Linux'
-            installerGlob: 'src-tauri/target/release/bundle/appimage/*.AppImage'
+            installerGlob: 'src-tauri/target/release/bundle/deb/*.deb'
           - platform: 'windows-latest'
             args: ''
             bundleName: 'NutriBum-Windows'

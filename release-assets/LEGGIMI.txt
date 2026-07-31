@@ -28,9 +28,9 @@ Attenzione: scegli il file giusto per il tuo Mac.
 - Mac con processore Intel (prima del 2020): versione "Intel"
 
 LINUX
-Rendi eseguibile il file .AppImage e avvialo:
-  chmod +x NutriBum_*.AppImage
-  ./NutriBum_*.AppImage
+Fai doppio click sul file .deb (su Ubuntu/Debian/Mint si apre con Software
+Manager/GNOME Software) e clicca "Installa". In alternativa, da terminale:
+  sudo dpkg -i NutriBum_*.deb
 
 Tutti i dati restano sul tuo computer
 --------------------------------------
