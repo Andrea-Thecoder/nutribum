@@ -53,8 +53,10 @@ interface NavBarProps {
   onExportFoodsCsv: () => void;
   onObiettivoSalvato: () => void;
   onApriGiorno: (data: string) => void;
-  ancoraGriglia: boolean;
-  onToggleAncoraGriglia: () => void;
+  comprimiSpazioAutomaticamente: boolean;
+  onToggleComprimiSpazioAutomaticamente: () => void;
+  mostraGriglia: boolean;
+  onToggleMostraGriglia: () => void;
   tipiEsistenti: TipoPannello[];
   giorni: GiornoStorico[];
   versioneObiettivi: number;
@@ -148,8 +150,10 @@ export function NavBar({
   onExportFoodsCsv,
   onObiettivoSalvato,
   onApriGiorno,
-  ancoraGriglia,
-  onToggleAncoraGriglia,
+  comprimiSpazioAutomaticamente,
+  onToggleComprimiSpazioAutomaticamente,
+  mostraGriglia,
+  onToggleMostraGriglia,
   tipiEsistenti,
   giorni,
   versioneObiettivi,
@@ -317,12 +321,12 @@ export function NavBar({
     }
   }
 
-  // Non tocca dati utente (solo layout/margine/movimento libero), ma resta un avviso semplice:
+  // Non tocca dati utente (solo layout/margine/griglia/compattazione), ma resta un avviso semplice:
   // l'utente potrebbe aver personalizzato la dashboard e non vuole perderla senza saperlo.
   async function handleClickAzzeraImpostazioni() {
     closeAll();
     const ok = await chiedi(
-      "Questa azione riporterà il layout della dashboard, il margine obiettivo peso e il movimento libero ai valori di default (i dati - alimenti, diario, peso, obiettivi, profilo - non vengono toccati). Continuare?",
+      "Questa azione riporterà il layout della dashboard, il margine obiettivo peso, la griglia visiva e la compattazione automatica ai valori di default (i dati - alimenti, diario, peso, obiettivi, profilo - non vengono toccati). Continuare?",
       { distruttivo: true },
     );
     if (ok) onAzzeraImpostazioni();
@@ -439,12 +443,21 @@ export function NavBar({
                 {settingsSubmenuOpen && (
                   <div className="absolute left-full top-0 ml-1 w-64 rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-800 dark:bg-black">
                     <button
-                      onClick={onToggleAncoraGriglia}
-                      title="Se attivo, trascinamento e ridimensionamento seguono liberamente il mouse e si allineano alla griglia solo al rilascio; se disattivo, scattano a step interi di griglia durante il movimento"
+                      onClick={onToggleMostraGriglia}
+                      title="Mostra sullo sfondo della board una griglia che indica dove si allineeranno i pannelli durante drag/resize, al posto dello sfondo pieno"
                       className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
-                      Movimento libero
-                      <span className="w-4 shrink-0 text-center">{!ancoraGriglia ? "✓" : ""}</span>
+                      Griglia visiva
+                      <span className="w-4 shrink-0 text-center">{mostraGriglia ? "✓" : ""}</span>
+                    </button>
+
+                    <button
+                      onClick={onToggleComprimiSpazioAutomaticamente}
+                      title="Se attivo, dopo ogni trascinamento/ridimensionamento i pannelli non ancorati risalgono per chiudere gli spazi vuoti verticali. Nota: elimina anche eventuali sovrapposizioni volute tra pannelli (es. impilati con lo z-index), non solo i vuoti"
+                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      Comprimi spazio automaticamente
+                      <span className="w-4 shrink-0 text-center">{comprimiSpazioAutomaticamente ? "✓" : ""}</span>
                     </button>
 
                     <button
@@ -493,7 +506,7 @@ export function NavBar({
 
                     <button
                       onClick={handleClickAzzeraImpostazioni}
-                      title="Riporta layout dashboard, margine obiettivo peso e movimento libero ai valori di default - non tocca alimenti/diario/peso/obiettivi/profilo"
+                      title="Riporta layout dashboard, margine obiettivo peso, comprimi spazio automaticamente e griglia visiva ai valori di default - non tocca alimenti/diario/peso/obiettivi/profilo"
                       className="block w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
                     >
                       Azzera impostazioni

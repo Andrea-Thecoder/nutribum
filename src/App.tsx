@@ -59,7 +59,8 @@ import {
 import { registraErroreFataleEChiudi, registraErroreNonBloccante } from "./lib/errorLog";
 import { useDragResize } from "./lib/useDragResize";
 import { COLS, ROW_HEIGHT, CAP_ALTEZZA_PX, MARGIN } from "./lib/gridConstants";
-import { trovaPosizioneLibera } from "./lib/gridPacking";
+import { useIsDarkMode } from "./lib/useIsDarkMode";
+import { comprimiVerticale, trovaPosizioneLibera } from "./lib/gridPacking";
 import {
   DEFINIZIONI_PANNELLI,
   layoutDiDefault,
@@ -261,6 +262,10 @@ function App() {
   // Configurabile dall'utente (WeightGoalModal), persistito in settings.json - non nel DB, vedi
   // lib/settings.ts. Il valore qui è solo il placeholder prima che caricaImpostazioni() risponda.
   const [margineObiettivoPesoKg, setMargineObiettivoPesoKg] = useState(5);
+  // Idem: placeholder finché caricaImpostazioni() non risponde, valore vero in IMPOSTAZIONI_DEFAULT.
+  const [comprimiSpazioAutomaticamente, setComprimiSpazioAutomaticamente] = useState(false);
+  const [mostraGriglia, setMostraGriglia] = useState(true);
+  const isDark = useIsDarkMode();
   const [modaleAlimentoAperta, setModaleAlimentoAperta] = useState(false);
   const [modaleRicettaAperta, setModaleRicettaAperta] = useState(false);
   // Sollevato qui (non locale a NavBar, come per ObiettivoGiornalieroModal) perché queste due
@@ -268,9 +273,6 @@ function App() {
   // menu NavBar - serve uno stato condiviso da un antenato comune.
   const [weightEntryModalOpen, setWeightEntryModalOpen] = useState(false);
   const [weightGoalModalOpen, setWeightGoalModalOpen] = useState(false);
-  // Movimento libero (!ancoraGriglia) di default disattivato: trascinamento/ridimensionamento
-  // scattano a step interi di griglia finché l'utente non lo attiva esplicitamente.
-  const [ancoraGriglia, setAncoraGriglia] = useState(true);
   const [versioneObiettivi, setVersioneObiettivi] = useState(0);
   // Storici per le linee di riferimento "Limite impostato"/"TDEE stimato" in KcalGiornoChart:
   // ricaricati insieme (vedi effect più sotto) ogni volta che versioneObiettivi cambia, perché sia
@@ -313,13 +315,29 @@ function App() {
   }, []);
 
   const ricaricaImpostazioni = useCallback(() => {
-    return caricaImpostazioni().then((imp) => setMargineObiettivoPesoKg(imp.margineObiettivoPesoKg));
+    return caricaImpostazioni().then((imp) => {
+      setMargineObiettivoPesoKg(imp.margineObiettivoPesoKg);
+      setComprimiSpazioAutomaticamente(imp.comprimiSpazioAutomaticamente);
+      setMostraGriglia(imp.mostraGriglia);
+    });
   }, []);
 
   const handleSalvaMargineObiettivoPeso = useCallback(async (nuovoMargineKg: number) => {
     await salvaImpostazioni({ margineObiettivoPesoKg: nuovoMargineKg });
     setMargineObiettivoPesoKg(nuovoMargineKg);
   }, []);
+
+  const handleToggleComprimiSpazioAutomaticamente = useCallback(async () => {
+    const nuovoValore = !comprimiSpazioAutomaticamente;
+    await salvaImpostazioni({ comprimiSpazioAutomaticamente: nuovoValore });
+    setComprimiSpazioAutomaticamente(nuovoValore);
+  }, [comprimiSpazioAutomaticamente]);
+
+  const handleToggleMostraGriglia = useCallback(async () => {
+    const nuovoValore = !mostraGriglia;
+    await salvaImpostazioni({ mostraGriglia: nuovoValore });
+    setMostraGriglia(nuovoValore);
+  }, [mostraGriglia]);
 
   const ricaricaStoricoTDEE = useCallback(() => {
     return Promise.all([
@@ -409,10 +427,19 @@ function App() {
     setPannelli,
     width,
     (attuali) => {
-      salvaLayout({ schemaVersion: "1.0", pannelli: attuali });
+      // Disattivato di default (vedi lib/settings.ts): chiude gli spazi vuoti verticali, ma
+      // eliminando anche le sovrapposizioni volute (stack di pannelli con lo z-index) - va
+      // abilitato esplicitamente da chi non usa quel pattern.
+      const finali = comprimiSpazioAutomaticamente ? comprimiVerticale(attuali) : attuali;
+      if (finali !== attuali) setPannelli(finali);
+      salvaLayout({ schemaVersion: "1.0", pannelli: finali });
       setPannelloInMovimento(null);
     },
-    ancoraGriglia,
+    // "Movimento libero" (posizione frazionaria durante il drag, arrotondata solo al rilascio) è
+    // stato tolto dal menu Impostazioni: espone un problema di rendering già noto e non risolto
+    // (scatti sul drag diagonale, vedi DRAG_DROP_NOTE.md) - sempre a step interi di griglia finché
+    // quel problema non è risolto.
+    true,
     (id) => setPannelloInMovimento(id),
     containerRef,
   );
@@ -668,18 +695,21 @@ function App() {
   }, [persistiLayout]);
 
   // "Azzera impostazioni": tutto ciò che è preferenza dell'app (layout dashboard, margine
-  // obiettivo peso, movimento libero), non un dato nutrizionale - quello resta a "Cancella tutti i
-  // dati" più sotto. ancoraGriglia non è mai persistito su file (torna già a true ad ogni riavvio,
-  // vedi la sua dichiarazione), ma va azzerato comunque qui per riflettersi subito nella sessione
-  // corrente, non solo al prossimo avvio.
+  // obiettivo peso, comprimi spazio automaticamente, griglia visiva), non un dato nutrizionale -
+  // quello resta a "Cancella tutti i dati" più sotto.
   const handleAzzeraImpostazioni = useCallback(async () => {
     handleResetLayout();
-    // Patch mirata solo al margine (non tutto IMPOSTAZIONI_DEFAULT): "aggiornamenti automatici" è una
-    // scelta esplicita e a parte dell'utente (vedi useAggiornamenti.ts), non una preferenza di
+    // Patch mirata (non tutto IMPOSTAZIONI_DEFAULT): "aggiornamenti automatici" è una scelta
+    // esplicita e a parte dell'utente (vedi useAggiornamenti.ts), non una preferenza di
     // layout/aspetto - non deve essere azzerata da un'azione che promette di toccare solo quelle.
-    await salvaImpostazioni({ margineObiettivoPesoKg: IMPOSTAZIONI_DEFAULT.margineObiettivoPesoKg });
+    await salvaImpostazioni({
+      margineObiettivoPesoKg: IMPOSTAZIONI_DEFAULT.margineObiettivoPesoKg,
+      comprimiSpazioAutomaticamente: IMPOSTAZIONI_DEFAULT.comprimiSpazioAutomaticamente,
+      mostraGriglia: IMPOSTAZIONI_DEFAULT.mostraGriglia,
+    });
     setMargineObiettivoPesoKg(IMPOSTAZIONI_DEFAULT.margineObiettivoPesoKg);
-    setAncoraGriglia(true);
+    setComprimiSpazioAutomaticamente(IMPOSTAZIONI_DEFAULT.comprimiSpazioAutomaticamente);
+    setMostraGriglia(IMPOSTAZIONI_DEFAULT.mostraGriglia);
   }, [handleResetLayout]);
 
   const handleSvuotaDiario = useCallback(async () => {
@@ -802,6 +832,22 @@ function App() {
 
   const giorni = storico?.giorni ?? [];
 
+  // Guida visiva della griglia (colStepPx/rowStepPx devono rispecchiare esattamente la stessa
+  // formula usata in useDragResize.ts per calcolare colWidth, altrimenti le linee non
+  // corrisponderebbero a dove i pannelli si allineano davvero): due gradienti lineari a 1px invece
+  // di un'immagine, così si scala da sola con "width" senza generare/ricaricare asset. Sempre
+  // visibile, anche durante un drag/resize: nasconderla non risolveva lo scatto sul drag diagonale
+  // (causa vera: la posizione frazionaria di "movimento libero", ora rimosso, non la griglia).
+  const colWidthGriglia = width > 0 ? (width - MARGIN[0] * (COLS - 1) - MARGIN[0] * 2) / COLS : 0;
+  const coloreLineaGriglia = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
+  const stileGriglia: React.CSSProperties | undefined =
+    mostraGriglia && colWidthGriglia > 0
+      ? {
+          backgroundImage: `linear-gradient(to right, ${coloreLineaGriglia} 1px, transparent 1px), linear-gradient(to bottom, ${coloreLineaGriglia} 1px, transparent 1px)`,
+          backgroundSize: `${colWidthGriglia + MARGIN[0]}px ${ROW_HEIGHT + MARGIN[1]}px`,
+        }
+      : undefined;
+
   return (
     <div className="flex h-screen flex-col bg-slate-50 text-slate-900 dark:bg-black dark:text-slate-100">
       <NavBar
@@ -825,8 +871,10 @@ function App() {
         onExportFoodsCsv={handleExportFoodsCsv}
         onObiettivoSalvato={() => setVersioneObiettivi((v) => v + 1)}
         onApriGiorno={handleApriGiornoOvunque}
-        ancoraGriglia={ancoraGriglia}
-        onToggleAncoraGriglia={() => setAncoraGriglia((a) => !a)}
+        comprimiSpazioAutomaticamente={comprimiSpazioAutomaticamente}
+        onToggleComprimiSpazioAutomaticamente={handleToggleComprimiSpazioAutomaticamente}
+        mostraGriglia={mostraGriglia}
+        onToggleMostraGriglia={handleToggleMostraGriglia}
         tipiEsistenti={pannelli.map((p) => p.tipo)}
         giorni={giorni}
         versioneObiettivi={versioneObiettivi}
@@ -869,7 +917,7 @@ function App() {
         />
       )}
 
-      <div ref={containerRef} className="flex-1 overflow-auto p-3">
+      <div ref={containerRef} className="flex-1 overflow-auto p-3" style={stileGriglia}>
         {mounted && (
           <ReactGridLayout
             width={width}

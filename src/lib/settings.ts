@@ -9,11 +9,20 @@ export interface Impostazioni {
   // Default disattivato: la ricerca aggiornamenti richiede una connessione a internet, va attivata
   // esplicitamente dall'utente (vedi useAggiornamenti.ts) - non deve mai partire da sola al primo avvio.
   aggiornamentiAutomatici: boolean;
+  // Default disattivato: chiudere gli spazi vuoti verticali dopo un drag/resize elimina anche le
+  // sovrapposizioni volute (due pannelli impilati con lo z-index per passare dall'uno all'altro),
+  // l'algoritmo non distingue le due cose - va abilitato esplicitamente da chi non usa quel pattern.
+  comprimiSpazioAutomaticamente: boolean;
+  // Default attivo: guida visiva per capire dove si allineeranno i pannelli durante drag/resize,
+  // al posto dello sfondo pieno.
+  mostraGriglia: boolean;
 }
 
 export const IMPOSTAZIONI_DEFAULT: Impostazioni = {
   margineObiettivoPesoKg: 5,
   aggiornamentiAutomatici: false,
+  comprimiSpazioAutomaticamente: false,
+  mostraGriglia: true,
 };
 
 async function assicuraDirDati(): Promise<void> {

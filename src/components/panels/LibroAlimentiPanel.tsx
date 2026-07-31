@@ -152,8 +152,8 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
       </div>
 
       <div className="text-slate-400 dark:text-slate-500">
-        Valori per 100 unità (g o ml, vedi colonna "Unità") · {filtrati.length} alimento
-        {filtrati.length === 1 ? "" : "i"}
+        Valori per 100 unità (g o ml, vedi colonna "Unità") · {filtrati.length} aliment
+        {filtrati.length === 1 ? "o" : "i"}
         {filtro && ` (su ${alimenti.length} totali)`}
       </div>
 
