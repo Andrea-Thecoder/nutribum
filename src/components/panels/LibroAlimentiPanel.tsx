@@ -14,14 +14,21 @@ const CAMPO =
   "rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100";
 
 function valore(v: number | null): string {
-  return v === null ? "—" : v.toFixed(1);
+  return v === null ? "-" : v.toFixed(1);
 }
+
+// Un catalogo alimenti reale può crescere ben oltre le poche decine tipiche delle ricette (ogni
+// prodotto della spesa è potenzialmente una riga): qui, a differenza delle ricette, la lista
+// completa nel DOM inizia a farsi sentire, da qui la paginazione lato client (i dati sono già
+// tutti caricati in memoria, non serve una query per pagina).
+const PER_PAGINA = 20;
 
 export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
   alimenti,
   onCambiato,
 }: LibroAlimentiPanelProps) {
   const [filtro, setFiltro] = useState("");
+  const [pagina, setPagina] = useState(0);
   const [alimentoAzioni, setAlimentoAzioni] = useState<AlimentoCatalogo | null>(null);
   const [alimentoModifica, setAlimentoModifica] = useState<AlimentoCatalogo | null>(null);
   const [nuovoAlimentoAperto, setNuovoAlimentoAperto] = useState(false);
@@ -29,6 +36,12 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
   const { chiedi, elemento: modaleConferma } = useConferma();
 
   const filtrati = alimenti.filter((a) => a.nome.toLowerCase().includes(filtro.trim().toLowerCase()));
+  const totalePagine = Math.max(1, Math.ceil(filtrati.length / PER_PAGINA));
+  // Non solo state: se il filtro o un'eliminazione riducono le pagine disponibili mentre si è
+  // fermi su una pagina che non esiste più (es. si elimina l'unico alimento di pagina 3), si
+  // ricalcola qui invece di lasciare la tabella vuota con i pulsanti bloccati.
+  const paginaEffettiva = Math.min(pagina, totalePagine - 1);
+  const paginati = filtrati.slice(paginaEffettiva * PER_PAGINA, (paginaEffettiva + 1) * PER_PAGINA);
 
   async function gestisciElimina(alimento: AlimentoCatalogo) {
     setAlimentoAzioni(null);
@@ -76,7 +89,10 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
           type="text"
           placeholder="Cerca alimento…"
           value={filtro}
-          onChange={(e) => setFiltro(e.target.value)}
+          onChange={(e) => {
+            setFiltro(e.target.value);
+            setPagina(0);
+          }}
           className={CAMPO + " flex-1"}
         />
         <button
@@ -105,7 +121,7 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
             </tr>
           </thead>
           <tbody>
-            {filtrati.map((a) => (
+            {paginati.map((a) => (
               <tr
                 key={a.id}
                 onClick={() => setAlimentoAzioni(a)}
@@ -139,6 +155,26 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
         Valori per 100 unità (g o ml, vedi colonna "Unità") · {filtrati.length} alimento
         {filtrati.length === 1 ? "" : "i"}
         {filtro && ` (su ${alimenti.length} totali)`}
+      </div>
+
+      <div className="flex items-center justify-center gap-3">
+        <button
+          onClick={() => setPagina((p) => Math.max(0, p - 1))}
+          disabled={paginaEffettiva === 0}
+          className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          ‹
+        </button>
+        <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+          Pagina {paginaEffettiva + 1} di {totalePagine}
+        </span>
+        <button
+          onClick={() => setPagina((p) => Math.min(totalePagine - 1, p + 1))}
+          disabled={paginaEffettiva === totalePagine - 1}
+          className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          ›
+        </button>
       </div>
     </div>
   );

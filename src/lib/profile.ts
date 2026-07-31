@@ -28,7 +28,7 @@ export async function leggiProfilo(): Promise<Profilo | null> {
 
 // Niente bmr/peso qui: sono derivati (vedi lib/tdee.ts) e cambiano più spesso dell'anagrafica
 // stessa, quindi si calcolano sempre al volo invece di essere persistiti e rischiare di
-// disallinearsi. Ogni salvataggio accoda comunque uno snapshot a profile_history — l'età aumenta
+// disallinearsi. Ogni salvataggio accoda comunque uno snapshot a profile_history - l'età aumenta
 // ogni anno, senza storicità un aggiornamento perderebbe il valore precedente.
 export async function salvaProfilo(profilo: Profilo): Promise<void> {
   const db = await getDb();
@@ -63,10 +63,10 @@ export interface LivelloFitness {
   id: number;
   livello: string; // chiave enum inglese ('sedentary' | 'light' | ...), non per la UI
   moltiplicatore: number;
-  etichetta: string; // label_ita — quello che l'app mostra oggi (UI solo italiana)
+  etichetta: string; // label_ita - quello che l'app mostra oggi (UI solo italiana)
   descrizione: string; // description_ita
   // _eng già letti dal DB (colonne aggiunte in vista di un'UI inglese futura) anche se non
-  // ancora usati da nessuna parte — pronti per quando servirà, senza un'altra migration.
+  // ancora usati da nessuna parte - pronti per quando servirà, senza un'altra migration.
   etichettaEng: string;
   descrizioneEng: string;
 }
@@ -103,7 +103,7 @@ export async function elencaLivelliFitness(): Promise<LivelloFitness[]> {
   return righe.map(mappaLivelloFitness);
 }
 
-// L'ultima riga inserita in profile_fitness (join con fitness_level) è quella attiva ora — stessa
+// L'ultima riga inserita in profile_fitness (join con fitness_level) è quella attiva ora - stessa
 // tecnica "ultimo storico prima/uguale a oggi" già usata altrove, semplificata qui perché serve solo
 // "quello attivo adesso", non un punto nel passato.
 export async function leggiLivelloFitnessAttivo(): Promise<LivelloFitness | null> {
@@ -134,7 +134,7 @@ export interface PuntoStoricoFitness {
   impostatoIl: string;
 }
 
-// Storico completo di profile_fitness (join con fitness_level), ordine crescente — usato per
+// Storico completo di profile_fitness (join con fitness_level), ordine crescente - usato per
 // ricostruire quale livello di attività era in vigore in una data passata (vedi
 // trovaMoltiplicatoreAttivoAlla in lib/tdee.ts), stessa tecnica di elencaStoricoProfilo.
 export async function elencaStoricoFitness(): Promise<PuntoStoricoFitness[]> {

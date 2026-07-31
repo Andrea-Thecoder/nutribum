@@ -9,7 +9,7 @@ const FRAME_EXTRA_DOPO_SVG = 3;
 
 // Aspetta che Recharts abbia disegnato l'<svg> con dimensioni reali: ResponsiveContainer usa un
 // ResizeObserver interno che scatta in modo asincrono anche quando il contenitore ha già una
-// dimensione fissa in px — non basta il mount sincrono, serve un polling a frame per non catturare
+// dimensione fissa in px - non basta il mount sincrono, serve un polling a frame per non catturare
 // un SVG ancora a larghezza 0.
 function attendiSvg(host: HTMLElement, tentativiMax = 60): Promise<SVGSVGElement | null> {
   return new Promise((resolve) => {

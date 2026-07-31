@@ -1,0 +1,41 @@
+NutriBum - Traccia calorie, macronutrienti e peso corporeo
+============================================================
+
+Cosa contiene questa cartella
+------------------------------
+- L'installer di NutriBum per il tuo sistema operativo
+- campione-alimenti.json: un catalogo di alimenti comuni pronto da importare
+  (una volta avviata l'app: Scheda Alimenti -> Importa alimenti -> Da JSON...)
+- Questo file
+
+Come installare
+----------------
+
+WINDOWS
+Fai doppio click sul file .exe. Al primo avvio Windows potrebbe mostrare
+"Windows ha protetto il tuo PC" (l'app non e' firmata con un certificato a
+pagamento, e' normale): clicca su "Ulteriori informazioni", poi
+"Esegui comunque".
+
+MACOS
+Apri il file .dmg e trascina NutriBum nella cartella Applicazioni. Al primo
+avvio macOS potrebbe dire che l'app "proviene da uno sviluppatore non
+identificato": vai in Preferenze di Sistema -> Privacy e Sicurezza, e clicca
+"Apri comunque" accanto a NutriBum.
+
+Attenzione: scegli il file giusto per il tuo Mac.
+- Mac con chip Apple (M1/M2/M3/M4, dal 2020 in poi): versione "Apple Silicon"
+- Mac con processore Intel (prima del 2020): versione "Intel"
+
+LINUX
+Rendi eseguibile il file .AppImage e avvialo:
+  chmod +x NutriBum_*.AppImage
+  ./NutriBum_*.AppImage
+
+Tutti i dati restano sul tuo computer
+--------------------------------------
+NutriBum non richiede account e non si connette mai a internet per
+funzionare (solo se attivi tu manualmente la ricerca di aggiornamenti,
+dalle impostazioni dell'app). Nessun dato personale lascia il tuo computer.
+
+Maggiori informazioni: https://github.com/Andrea-Thecoder/nutribum

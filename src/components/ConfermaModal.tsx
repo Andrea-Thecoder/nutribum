@@ -85,7 +85,7 @@ export function useConferma() {
 
 // Per le modali "di scrittura" (dati inseriti dall'utente non ancora salvati): intercetta il
 // tentativo di chiudere (click fuori, pulsante ✕, Annulla) e chiede conferma solo se qualcosa è
-// stato davvero modificato — chiudere una modale intonsa non deve mai chiedere nulla.
+// stato davvero modificato - chiudere una modale intonsa non deve mai chiedere nulla.
 export function useConfermaChiusura(modificato: boolean, onChiudi: () => void) {
   const { chiedi, elemento } = useConferma();
 

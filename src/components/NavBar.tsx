@@ -1,6 +1,9 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { format } from "date-fns";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { save } from "@tauri-apps/plugin-dialog";
+import { writeFile } from "@tauri-apps/plugin-fs";
+import { generaModuloFeedbackPdf } from "../lib/generaModuloFeedback";
 import { useImportGiorno } from "../lib/useImportGiorno";
 import { useImportAlimenti } from "../lib/useImportAlimenti";
 import { useImportWeight } from "../lib/useImportWeight";
@@ -29,6 +32,9 @@ import { ProfileModal } from "./ProfileModal";
 import { ReportPdfModal } from "./report/ReportPdfModal";
 import { EsportaPrimaDiCancellareModal } from "./EsportaPrimaDiCancellareModal";
 import { useConferma } from "./ConfermaModal";
+import { InfoModal } from "./InfoModal";
+import { GlossarioContenuto } from "./GlossarioContenuto";
+import { getVersion } from "@tauri-apps/api/app";
 import { useAggiornamenti } from "../lib/useAggiornamenti";
 import type { PuntoStoricoObiettivoPeso } from "../lib/weight";
 import type { PuntoStoricoProfilo, PuntoStoricoFitness } from "../lib/profile";
@@ -93,7 +99,7 @@ type BadgePositivo =
 // di una è vera insieme (non serve arbitrare cosa festeggiare, si mostra il traguardo più specifico).
 // Il badge va soppresso SOLO quando la stessa metrica ha ANCHE un avviso negativo attivo in
 // contemporanea (es. 15 giorni puliti nel mese ma anche 15 giorni sforati nello stesso mese,
-// magari in periodi diversi) — segnali contraddittori, richiesto esplicitamente — non quando sono
+// magari in periodi diversi) - segnali contraddittori, richiesto esplicitamente - non quando sono
 // vere più condizioni positive tra loro, quello è normale (una serie di 5 è quasi sempre anche una
 // "settimana pulita" se cade di lunedì-venerdì). Soglie passate come parametri per poter riusare la
 // stessa funzione sia per kcal/macro che per il peso, ciascuno con le proprie soglie indipendenti.
@@ -187,6 +193,16 @@ export function NavBar({
   const [caricamentoBackup, setCaricamentoBackup] = useState(false);
   const [esitoBackup, setEsitoBackup] = useState<{ tipo: "successo" | "errore"; messaggio: string } | null>(null);
   const { chiedi, elemento: modaleConferma } = useConferma();
+  const [modaleAiuto, setModaleAiuto] = useState<"glossario" | "feedback" | "informazioni" | null>(null);
+  const [versioneApp, setVersioneApp] = useState<string | null>(null);
+  const [scaricamentoModuloFeedback, setScaricamentoModuloFeedback] = useState(false);
+  const [erroreModuloFeedback, setErroreModuloFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    getVersion()
+      .then(setVersioneApp)
+      .catch((err) => registraErroreNonBloccante(err, "Lettura versione app (menu Aiuto) fallita"));
+  }, []);
   const {
     aggiornamentiAutomatici,
     controlloInCorso: controlloAggiornamentiInCorso,
@@ -293,7 +309,7 @@ export function NavBar({
   }
 
   // Una volta che un menu principale è già aperto (per click), spostare il mouse su un altro passa
-  // direttamente a quello — come in una vera barra dei menu — senza richiedere un secondo click.
+  // direttamente a quello - come in una vera barra dei menu - senza richiedere un secondo click.
   function switchMenuOnHover(nome: string) {
     if (menu.current !== null && menu.current !== nome) {
       closeAllSubmenus();
@@ -306,7 +322,7 @@ export function NavBar({
   async function handleClickAzzeraImpostazioni() {
     closeAll();
     const ok = await chiedi(
-      "Questa azione riporterà il layout della dashboard, il margine obiettivo peso e il movimento libero ai valori di default (i dati — alimenti, diario, peso, obiettivi, profilo — non vengono toccati). Continuare?",
+      "Questa azione riporterà il layout della dashboard, il margine obiettivo peso e il movimento libero ai valori di default (i dati - alimenti, diario, peso, obiettivi, profilo - non vengono toccati). Continuare?",
       { distruttivo: true },
     );
     if (ok) onAzzeraImpostazioni();
@@ -361,6 +377,27 @@ export function NavBar({
       });
     } finally {
       setCaricamentoBackup(false);
+    }
+  }
+
+  async function handleScaricaModuloFeedback() {
+    setErroreModuloFeedback(null);
+    setScaricamentoModuloFeedback(true);
+    try {
+      const percorso = await save({
+        defaultPath: "nutribum-modulo-feedback.pdf",
+        filters: [{ name: "PDF", extensions: ["pdf"] }],
+      });
+      if (!percorso) return;
+      const bytes = await generaModuloFeedbackPdf();
+      await writeFile(percorso, bytes);
+      setModaleAiuto(null);
+    } catch (err) {
+      setErroreModuloFeedback(
+        err instanceof Error ? err.message : "Errore durante la generazione del modulo PDF",
+      );
+    } finally {
+      setScaricamentoModuloFeedback(false);
     }
   }
 
@@ -456,7 +493,7 @@ export function NavBar({
 
                     <button
                       onClick={handleClickAzzeraImpostazioni}
-                      title="Riporta layout dashboard, margine obiettivo peso e movimento libero ai valori di default — non tocca alimenti/diario/peso/obiettivi/profilo"
+                      title="Riporta layout dashboard, margine obiettivo peso e movimento libero ai valori di default - non tocca alimenti/diario/peso/obiettivi/profilo"
                       className="block w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
                     >
                       Azzera impostazioni
@@ -670,7 +707,7 @@ export function NavBar({
                   closeAll();
                 }}
                 onMouseEnter={() => setLimiteSubmenuAperto(false)}
-                title="Anagrafica (età, altezza, sesso, livello di attività) usata per stimare il TDEE — poi lo puoi usare come limite kcal dalla modale 'Imposta limite giornaliero di… → Kcal'"
+                title="Anagrafica (età, altezza, sesso, livello di attività) usata per stimare il TDEE - poi lo puoi usare come limite kcal dalla modale 'Imposta limite giornaliero di… → Kcal'"
                 className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Profilo (per il TDEE)…
@@ -885,6 +922,51 @@ export function NavBar({
 
         <div className="relative">
           <button
+            onClick={() => toggleTopMenu("aiuto")}
+            onMouseEnter={() => switchMenuOnHover("aiuto")}
+            className="rounded px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+            title="Glossario dei termini usati nell'app, come inviare un feedback, informazioni sulla versione"
+          >
+            Aiuto
+          </button>
+          {menu.isAperto("aiuto") && (
+            <div className="absolute left-0 top-full mt-1 w-56 rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-800 dark:bg-black">
+              <button
+                onClick={() => {
+                  setModaleAiuto("glossario");
+                  closeAll();
+                }}
+                title="Spiegazione dei termini usati nell'app (TDEE, BMR, sforamento, ecc.)"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Glossario
+              </button>
+              <button
+                onClick={() => {
+                  setModaleAiuto("feedback");
+                  closeAll();
+                }}
+                title="Come segnalare un problema o un suggerimento"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Invia feedback
+              </button>
+              <button
+                onClick={() => {
+                  setModaleAiuto("informazioni");
+                  closeAll();
+                }}
+                title="Nome e versione dell'app"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Informazioni
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="relative">
+          <button
             onClick={() => {
               if (pannelliDisponibili.length === 0) return;
               menu.toggle("graph");
@@ -930,7 +1012,7 @@ export function NavBar({
 
         {/* Contenitore condiviso, non più un singolo pulsante assolutamente centrato: gli avvisi
             kcal/macro e peso (negativi E positivi) possono essere entrambi attivi insieme, il
-            flex li affianca — stessa dimensione/stile per tutti, nessuno "nascosto" come badge
+            flex li affianca - stessa dimensione/stile per tutti, nessuno "nascosto" come badge
             piccolo a parte. Al massimo un elemento per dominio (kcal, peso): negativo e positivo
             sulla stessa metrica non sono mai contemporaneamente veri (vedi risolviBadgePositivo).
             Il verde va sempre davanti (a sinistra) rispetto a un eventuale avviso rosso/ambra
@@ -944,7 +1026,7 @@ export function NavBar({
                     key="kcal"
                     onClick={() => setDettaglioSforamentoAperto("mese")}
                     className="rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white shadow-lg hover:bg-red-700"
-                    title={`${giorniSforatiNelMese} giorni sopra i limiti nutrizionali (kcal/macro/fibre/sale) questo mese — clicca per i dettagli`}
+                    title={`${giorniSforatiNelMese} giorni sopra i limiti nutrizionali (kcal/macro/fibre/sale) questo mese - clicca per i dettagli`}
                   >
                     ⚠️ {giorniSforatiNelMese} giorni sopra i limiti nutrizionali questo mese
                   </button>
@@ -958,7 +1040,7 @@ export function NavBar({
                       key="kcal"
                       onClick={() => setDettaglioSforamentoAperto("serie")}
                       className="rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-white shadow-lg hover:bg-amber-600"
-                      title={`${serieConsecutiva} giorni di fila sopra i limiti nutrizionali (kcal/macro/fibre/sale) — clicca per i dettagli`}
+                      title={`${serieConsecutiva} giorni di fila sopra i limiti nutrizionali (kcal/macro/fibre/sale) - clicca per i dettagli`}
                     >
                       ⚠️ {serieConsecutiva} giorni di fila sopra i limiti nutrizionali
                     </button>
@@ -977,7 +1059,7 @@ export function NavBar({
                             : badgePositivo.tipo === "settimana"
                               ? "Nessuno sforamento questa settimana"
                               : `${badgePositivo.valore} giorni entro i limiti questo mese`) +
-                          " — niente da segnalare, continua così!"
+                          " - niente da segnalare, continua così!"
                         }
                       >
                         {badgePositivo.tipo === "serie" &&
@@ -998,7 +1080,7 @@ export function NavBar({
                     key="carenza"
                     onClick={() => setDettaglioCarenzaAperto("mese")}
                     className="rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white shadow-lg hover:bg-red-700"
-                    title={`${giorniCarentiNelMese} giorni sotto il limite minimo di kcal questo mese — clicca per i dettagli`}
+                    title={`${giorniCarentiNelMese} giorni sotto il limite minimo di kcal questo mese - clicca per i dettagli`}
                   >
                     ⚠️ {giorniCarentiNelMese} giorni sotto il minimo kcal questo mese
                   </button>
@@ -1012,7 +1094,7 @@ export function NavBar({
                       key="carenza"
                       onClick={() => setDettaglioCarenzaAperto("serie")}
                       className="rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-white shadow-lg hover:bg-amber-600"
-                      title={`${serieConsecutivaCarenza} giorni di fila sotto il limite minimo di kcal — clicca per i dettagli`}
+                      title={`${serieConsecutivaCarenza} giorni di fila sotto il limite minimo di kcal - clicca per i dettagli`}
                     >
                       ⚠️ {serieConsecutivaCarenza} giorni di fila sotto il minimo kcal
                     </button>
@@ -1028,7 +1110,7 @@ export function NavBar({
                     key="peso"
                     onClick={() => setDettaglioSforamentoPesoAperto("mese")}
                     className="rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white shadow-lg hover:bg-red-700"
-                    title={`${giorniSforatiNelMesePeso} giorni sopra l'obiettivo peso questo mese — clicca per i dettagli`}
+                    title={`${giorniSforatiNelMesePeso} giorni sopra l'obiettivo peso questo mese - clicca per i dettagli`}
                   >
                     ⚠️ {giorniSforatiNelMesePeso} giorni sopra l'obiettivo peso questo mese
                   </button>
@@ -1042,7 +1124,7 @@ export function NavBar({
                       key="peso"
                       onClick={() => setDettaglioSforamentoPesoAperto("serie")}
                       className="rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-white shadow-lg hover:bg-amber-600"
-                      title={`${serieConsecutivaPeso} giorni di fila sopra l'obiettivo peso — clicca per i dettagli`}
+                      title={`${serieConsecutivaPeso} giorni di fila sopra l'obiettivo peso - clicca per i dettagli`}
                     >
                       ⚠️ {serieConsecutivaPeso} giorni di fila sopra l'obiettivo peso
                     </button>
@@ -1061,7 +1143,7 @@ export function NavBar({
                             : badgePositivoPeso.tipo === "settimana"
                               ? "Sempre nell'obiettivo peso questa settimana"
                               : `${badgePositivoPeso.valore} giorni nell'obiettivo peso questo mese`) +
-                          " — niente da segnalare, continua così!"
+                          " - niente da segnalare, continua così!"
                         }
                       >
                         {badgePositivoPeso.tipo === "serie" &&
@@ -1203,6 +1285,55 @@ export function NavBar({
       )}
 
       {modaleConferma}
+
+      {modaleAiuto === "glossario" && (
+        <InfoModal titolo="Glossario" onChiudi={() => setModaleAiuto(null)}>
+          <GlossarioContenuto />
+        </InfoModal>
+      )}
+
+      {modaleAiuto === "feedback" && (
+        <InfoModal titolo="Invia feedback" onChiudi={() => setModaleAiuto(null)}>
+          <p>Hai trovato un problema, o hai un'idea per migliorare NutriBum?</p>
+          <button
+            onClick={handleScaricaModuloFeedback}
+            disabled={scaricamentoModuloFeedback}
+            className="mt-3 w-full rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {scaricamentoModuloFeedback ? "Generazione…" : "Scarica modulo di feedback (PDF)"}
+          </button>
+          {erroreModuloFeedback && (
+            <p className="mt-2 text-xs text-red-600 dark:text-red-400">{erroreModuloFeedback}</p>
+          )}
+          <p className="mt-3">Compila il modulo e invialo a:</p>
+          <p className="my-2 font-medium text-slate-800 dark:text-slate-100">INSERISCI-QUI-LA-TUA-EMAIL</p>
+          <p>
+            Descrivi il più possibile cosa stavi facendo e cosa ti aspettavi che succedesse: aiuta a
+            capire e risolvere più in fretta.
+          </p>
+        </InfoModal>
+      )}
+
+      {modaleAiuto === "informazioni" && (
+        <InfoModal titolo="Informazioni" onChiudi={() => setModaleAiuto(null)}>
+          <p className="text-base font-semibold text-slate-800 dark:text-slate-100">NutriBum</p>
+          <p className="mt-1">Versione {versioneApp ?? "…"}</p>
+          <p className="mt-3 text-slate-500 dark:text-slate-400">
+            App per tracciare l'alimentazione giorno per giorno, completamente offline: nessun
+            account, nessun cloud, nessuna connessione a internet richiesta.
+          </p>
+
+          <div className="mt-4 border-t border-slate-200 pt-3 dark:border-slate-800">
+            <p className="font-medium text-slate-800 dark:text-slate-100">About me</p>
+            <p className="mt-1 text-slate-500 dark:text-slate-400">
+              Andrea Leone, programmatore backend, con esperienza nello sviluppo di sistemi di
+              gestione e IAM (Identity and Access Management). NutriBum nasce come progetto
+              personale, per tenere traccia della propria alimentazione in modo semplice e
+              completamente offline.
+            </p>
+          </div>
+        </InfoModal>
+      )}
 
       {flussoCancellazione === "diario" && (
         <EsportaPrimaDiCancellareModal

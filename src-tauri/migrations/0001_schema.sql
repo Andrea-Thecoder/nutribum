@@ -7,7 +7,7 @@ CREATE TABLE food (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     -- "unit_100" dichiara se il riferimento "per 100" è in grammi o millilitri: serve per liquidi
-    -- come l'olio EVO, la cui etichetta nutrizionale è spesso per 100ml — niente conversione via
+    -- come l'olio EVO, la cui etichetta nutrizionale è spesso per 100ml - niente conversione via
     -- densità, si logga la quantità nella stessa unità dichiarata qui.
     unit_100 TEXT NOT NULL DEFAULT 'g' CHECK (unit_100 IN ('g', 'ml')),
     kcal_100 REAL NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE goal (
 ) STRICT;
 
 -- Ogni riga è uno snapshot completo dell'obiettivo al momento del salvataggio, taggato con il
--- macrogruppo del form che l'ha prodotto (kcal / macro / altro — assi nutrizionali indipendenti)
+-- macrogruppo del form che l'ha prodotto (kcal / macro / altro - assi nutrizionali indipendenti)
 -- e con l'intervallo di validità scelto: valido_dal/valido_al aperti (NULL) per "da ora in poi" e
 -- "sempre", chiusi sulla settimana/mese corrente per gli ambiti "settimana"/"mese". recorded_at
 -- tiene traccia di quando il salvataggio è stato davvero fatto, indipendentemente dall'intervallo.
@@ -96,7 +96,7 @@ CREATE TABLE weight_log (
 
 -- Riga singola (id=1) come "goal": l'obiettivo di peso non ha bisogno di storicità come i limiti
 -- nutrizionali (nessun calcolo retroattivo dipende da "qual era il mio obiettivo di peso il [data
--- passata]") — serve solo il target ATTUALE per la proiezione verso il futuro.
+-- passata]") - serve solo il target ATTUALE per la proiezione verso il futuro.
 CREATE TABLE weight_goal (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     target_kg REAL,
@@ -114,7 +114,7 @@ CREATE TABLE weight_goal_history (
 ) STRICT;
 
 -- Riga singola (id=1), come weight_goal: solo l'anagrafica ATTUALE per calcolare BMR/TDEE al
--- momento — niente bmr/peso salvati qui, sono derivati e cambiano più spesso dell'anagrafica
+-- momento - niente bmr/peso salvati qui, sono derivati e cambiano più spesso dell'anagrafica
 -- stessa (il peso ogni settimana), quindi si calcolano sempre al volo (vedi lib/tdee.ts) invece di
 -- essere persistiti e rischiare di disallinearsi dall'input che li ha generati.
 CREATE TABLE profile (
@@ -126,7 +126,7 @@ CREATE TABLE profile (
 ) STRICT;
 
 -- Append-only: l'età aumenta ogni anno, quindi un aggiornamento di profile perde il valore
--- precedente se non lo si storicizza — stesso pattern di goal_history/weight_goal_history.
+-- precedente se non lo si storicizza - stesso pattern di goal_history/weight_goal_history.
 CREATE TABLE profile_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     age_years INTEGER NOT NULL,
@@ -178,7 +178,7 @@ CREATE TABLE recipes (
 
 CREATE INDEX idx_recipes_name ON recipes (name COLLATE NOCASE);
 
--- Niente ON DELETE CASCADE su food_id, di proposito: stesso comportamento di food_log.food_id —
+-- Niente ON DELETE CASCADE su food_id, di proposito: stesso comportamento di food_log.food_id -
 -- se un alimento è usato in una ricetta, eliminarlo dal catalogo deve fallire per la foreign key,
 -- non sparire silenziosamente dalla ricetta. L'eliminazione di una ricetta invece cancella prima le
 -- sue righe da recipe_ingredients lato applicazione (lib/recipes.ts), non con una CASCADE qui.

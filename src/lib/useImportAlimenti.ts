@@ -42,7 +42,7 @@ export function useImportAlimenti(onImportato: () => void) {
     }
 
     const tipo = esitoImport.errori.length > 0 || esitoImport.saltatiEsistenti.length > 0 ? "avviso" : "successo";
-    setEsito({ tipo, messaggio: parti.join(" — ") });
+    setEsito({ tipo, messaggio: parti.join(" - ") });
   }
 
   async function importa(estensione: "json" | "csv", parser: (contenuto: string) => AlimentiParsati) {

@@ -100,7 +100,7 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
   if (data === "") {
     return (
       <p className="text-sm text-slate-500 dark:text-slate-400">
-        Nessun giorno aperto — clicca un giorno nel Calendario kcal per aggiungerlo qui.
+        Nessun giorno aperto - clicca un giorno nel Calendario kcal per aggiungerlo qui.
       </p>
     );
   }
@@ -116,7 +116,7 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
   }
 
   const totali = totaliGiorno(giorno);
-  // Il limite da confrontare è quello in vigore in QUEL giorno (storico), non quello attuale —
+  // Il limite da confrontare è quello in vigore in QUEL giorno (storico), non quello attuale -
   // stessa logica già usata nel calendario e in "Progresso obiettivi".
   const obiettivoGiorno = obiettivoEffettivo(storicoObiettivi, data);
   const sforamenti = calcolaSforamenti(totali, obiettivoGiorno);
@@ -173,7 +173,7 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
       <div className="flex flex-col gap-0.5 border-t border-slate-200 pt-2 text-slate-500 dark:border-slate-800 dark:text-slate-400">
         {haNonEtichetta && (
           <div className="text-[10px] italic text-amber-600 dark:text-amber-400">
-            ~ Calcolo include alimenti con valori stimati, non da etichetta nutrizionale
+            ~ Calcolato con valori stimati, non da etichetta nutrizionale
           </div>
         )}
         <div

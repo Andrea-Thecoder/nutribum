@@ -47,8 +47,8 @@ pub fn run() {
         )
         .setup(|app| {
             // Rispecchia la convenzione di errorLog.ts (stessa cartella "logs", stesso formato riga):
-            // un panic Rust non passa MAI per quel codice JS — la webview potrebbe non essersi
-            // nemmeno avviata (es. un fallimento delle migration SQL, già successo una volta) —
+            // un panic Rust non passa MAI per quel codice JS - la webview potrebbe non essersi
+            // nemmeno avviata (es. un fallimento delle migration SQL, già successo una volta) -
             // quindi senza un hook qui sparisce nel nulla, visibile solo su stderr lanciando l'app
             // da terminale. Registrato qui in .setup(): copre tutto ciò che avviene dopo l'avvio dei
             // plugin (migrazioni comprese), non un eventuale crash precedente a questo punto.

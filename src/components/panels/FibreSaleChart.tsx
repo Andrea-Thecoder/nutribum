@@ -97,7 +97,7 @@ export const FibreSaleChart = memo(function FibreSaleChart({
                 lo sono proteine/carbo/grassi, che insieme compongono le kcal totali */}
             <Bar dataKey="fibre_g" name="Fibre" fill={colori.fibre} radius={[4, 4, 0, 0]} />
             <Bar dataKey="sale_g" name="Sale" fill={colori.sale} radius={[4, 4, 0, 0]} />
-            {/* Linee limite tratteggiate, stesso colore del proprio nutriente — stesso criterio di
+            {/* Linee limite tratteggiate, stesso colore del proprio nutriente - stesso criterio di
                 MacroGiornoChart (vedi commento lì). */}
             <Line
               type="stepAfter"

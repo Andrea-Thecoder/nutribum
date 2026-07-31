@@ -8,7 +8,7 @@ e il progetto usa [Semantic Versioning](https://semver.org/lang/it/).
 ## [Unreleased]
 
 ### Aggiunto
-- Auto-update: da File → Impostazioni, "Cerca aggiornamenti" (manuale) e "Aggiornamenti automatici" (controllo ad ogni avvio, disattivato di default) — entrambi avvisano che serve una connessione a internet e che nessun dato dell'app viene inviato online, e chiedono sempre conferma prima di installare
+- Auto-update: da File → Impostazioni, "Cerca aggiornamenti" (manuale) e "Aggiornamenti automatici" (controllo ad ogni avvio, disattivato di default) - entrambi avvisano che serve una connessione a internet e che nessun dato dell'app viene inviato online, e chiedono sempre conferma prima di installare
 
 ## [0.2.2]
 

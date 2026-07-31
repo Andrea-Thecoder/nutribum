@@ -59,7 +59,7 @@ async function leggiIngredienti(recipeId: number): Promise<IngredienteRicetta[]>
 
 // Una query per ricetta (elencaIngredienti), non una join unica per tutte: il catalogo ricette di
 // un utente singolo resta piccolo (poche decine al massimo), non serve ottimizzare qui a scapito
-// della leggibilità — stesso compromesso già accettato altrove in quest'app (es. elencaStoricoCompleto).
+// della leggibilità - stesso compromesso già accettato altrove in quest'app (es. elencaStoricoCompleto).
 export async function elencaRicetteConIngredienti(): Promise<RicettaConIngredienti[]> {
   const ricette = await elencaRicette();
   const conIngredienti = await Promise.all(
@@ -100,7 +100,7 @@ export async function aggiornaRicetta(id: number, nome: string, ingredienti: Nuo
 }
 
 // Cancella prima le righe di recipe_ingredients esplicitamente lato applicazione, non con una
-// ON DELETE CASCADE nello schema — stesso stile esplicito già usato altrove in questo progetto
+// ON DELETE CASCADE nello schema - stesso stile esplicito già usato altrove in questo progetto
 // (vedi commento in 0009_recipes.sql).
 export async function eliminaRicetta(id: number): Promise<void> {
   const db = await getDb();

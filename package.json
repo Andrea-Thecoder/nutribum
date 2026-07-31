@@ -1,7 +1,7 @@
 {
   "name": "nutrition-tracker",
   "private": true,
-  "version": "0.2.3",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,10 +16,11 @@
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2.7.1",
     "@tauri-apps/plugin-fs": "^2.5.1",
+    "@tauri-apps/plugin-process": "^2",
     "@tauri-apps/plugin-sql": "^2",
     "@tauri-apps/plugin-updater": "^2",
-    "@tauri-apps/plugin-process": "^2",
     "date-fns": "^4.4.0",
+    "pdf-lib": "^1.17.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-grid-layout": "^2.2.3",

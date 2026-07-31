@@ -29,7 +29,7 @@ import { SelettoreIstanza } from "../SelettoreIstanza";
 export type VistaConfronto = "tabella" | "grafico";
 
 // "peso" non è una chiave di PuntoPeriodo (quello è dato dal diario alimentare, il peso ha una
-// fonte e un'aggregazione diverse — media, non somma) ma va confrontato con le stesse identiche
+// fonte e un'aggregazione diverse - media, non somma) ma va confrontato con le stesse identiche
 // meccaniche di tabella/grafico delle altre metriche, quindi si estende l'unione delle chiavi
 // valide invece di duplicare tutta la logica di rendering per una metrica in più.
 // Esclude "chiave" (il campo string di PuntoPeriodo con la chiave del periodo, non una metrica
@@ -46,7 +46,7 @@ interface RigaMetrica {
 }
 
 // Media (non somma, a differenza delle metriche del diario): il peso è una misura puntuale, non
-// una quantità che si accumula durante il periodo — "quanto ho mangiato in totale questa
+// una quantità che si accumula durante il periodo - "quanto ho mangiato in totale questa
 // settimana" ha senso, "quanto ho pesato in totale questa settimana" no.
 function mediaPesoPerPeriodo(peso: VocePeso[], periodo: Periodo): Map<string, number> {
   const somme = new Map<string, { totale: number; conteggio: number }>();
@@ -123,7 +123,7 @@ function ContenutoTooltipConfronto(props: {
 }
 
 // Toggle tabella/grafico: renderizzato nell'header del pannello (accanto al titolo), non nel corpo
-// — per questo è un componente a parte, usato da headerExtraPannello in App.tsx invece che da
+// - per questo è un componente a parte, usato da headerExtraPannello in App.tsx invece che da
 // ConfrontoPeriodiChart stesso.
 export function SelettoreVistaConfronto({
   vista,
@@ -165,7 +165,7 @@ export const ConfrontoPeriodiChart = memo(function ConfrontoPeriodiChart({
   const colori = paletteGrafici(isDark);
   const [periodo, setPeriodo] = useState<Periodo>("settimana");
   // A = termine di sinistra ("confronta A"), B = termine di destra ("...con B"). Di default le due
-  // istanze con dati più recenti, ma entrambe scelte esplicitamente dall'utente — non calcolate
+  // istanze con dati più recenti, ma entrambe scelte esplicitamente dall'utente - non calcolate
   // (es. "il periodo prima"), per poter confrontare due punti qualsiasi, non solo consecutivi.
   const istanzeIniziali = elencoIstanze(giorni, "settimana");
   const [istanzaA, setIstanzaA] = useState<string>(() => istanzeIniziali[0]?.chiave ?? "");
@@ -200,8 +200,8 @@ export const ConfrontoPeriodiChart = memo(function ConfrontoPeriodiChart({
     // Sempre presente se è stato registrato ALMENO un peso in tutta la storia (non solo nei due
     // periodi in confronto): a differenza delle metriche sopra (garantite dal controllo
     // "!datiA || !datiB" più sotto), il peso è tracciato separatamente dal diario alimentare e può
-    // mancare per uno dei due periodi anche quando l'altro ce l'ha — la riga resta visibile con
-    // "—" per il lato senza misurazioni, invece di sparire senza spiegazione (motivo per cui prima
+    // mancare per uno dei due periodi anche quando l'altro ce l'ha - la riga resta visibile con
+    // "-" per il lato senza misurazioni, invece di sparire senza spiegazione (motivo per cui prima
     // sembrava che il confronto peso "non fosse stato aggiunto").
     ...(peso.length > 0
       ? [{ chiave: "peso" as const, etichetta: "Peso", unita: " kg", decimali: 1, colore: colori.peso }]
@@ -209,7 +209,7 @@ export const ConfrontoPeriodiChart = memo(function ConfrontoPeriodiChart({
   ];
 
   // "peso" diventa una proprietà normale di questi oggetti uniti, leggibile con lo stesso
-  // r.chiave usato per le altre metriche — nessuna diramazione speciale nel rendering sotto.
+  // r.chiave usato per le altre metriche - nessuna diramazione speciale nel rendering sotto.
   const valoriA = datiA ? { ...datiA, peso: pesoA } : undefined;
   const valoriB = datiB ? { ...datiB, peso: pesoB } : undefined;
 
@@ -227,7 +227,7 @@ export const ConfrontoPeriodiChart = memo(function ConfrontoPeriodiChart({
 
       {!valoriA || !valoriB ? (
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Servono almeno due periodi con dati per fare un confronto — prova un periodo più corto (es.
+          Servono almeno due periodi con dati per fare un confronto - prova un periodo più corto (es.
           "Giorno" invece di "Anno").
         </p>
       ) : vista === "tabella" ? (
@@ -256,13 +256,13 @@ export const ConfrontoPeriodiChart = memo(function ConfrontoPeriodiChart({
                       <span className="text-slate-600 dark:text-slate-300">{r.etichetta}</span>
                     </td>
                     <td className="py-1.5 text-right text-slate-500 dark:text-slate-400">
-                      {b === undefined ? "—" : `${b.toFixed(r.decimali)}${r.unita}`}
+                      {b === undefined ? "-" : `${b.toFixed(r.decimali)}${r.unita}`}
                     </td>
                     <td className="py-1.5 text-right font-medium text-slate-700 dark:text-slate-200">
-                      {a === undefined ? "—" : `${a.toFixed(r.decimali)}${r.unita}`}
+                      {a === undefined ? "-" : `${a.toFixed(r.decimali)}${r.unita}`}
                     </td>
                     <td className="py-1.5 text-right text-slate-600 dark:text-slate-300">
-                      {entrambiPresenti ? `${frecciaDelta(b, a)} ${formattaDelta(b, a, r.decimali, r.unita)}` : "—"}
+                      {entrambiPresenti ? `${frecciaDelta(b, a)} ${formattaDelta(b, a, r.decimali, r.unita)}` : "-"}
                     </td>
                   </tr>
                 );
@@ -273,7 +273,7 @@ export const ConfrontoPeriodiChart = memo(function ConfrontoPeriodiChart({
       ) : (
         <div className="flex min-h-0 flex-1 flex-col gap-1">
           {/* Non ci sono "due lati per due giorni": ogni barra è la variazione di UN SOLO periodo
-              (A) rispetto all'altro (B, il riferimento fisso a 0%) — a destra vuol dire "più alto
+              (A) rispetto all'altro (B, il riferimento fisso a 0%) - a destra vuol dire "più alto
               in A", a sinistra "più basso in A", indipendentemente da quale data sia A o B.
               Esplicitato a parole invece che con una freccia unica, che si era rivelata ambigua. */}
           <p className="text-center text-[11px] text-slate-400 dark:text-slate-500">
@@ -285,7 +285,7 @@ export const ConfrontoPeriodiChart = memo(function ConfrontoPeriodiChart({
             <span>più alto →</span>
           </div>
           {/* Scala unica in % di variazione: kcal e grammi sulla stessa scala assoluta sarebbero
-              illeggibili — la % rispetto a B normalizza tutte le metriche insieme. */}
+              illeggibili - la % rispetto a B normalizza tutte le metriche insieme. */}
           <div className="min-h-0 flex-1">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -295,12 +295,12 @@ export const ConfrontoPeriodiChart = memo(function ConfrontoPeriodiChart({
                   // Riga presente ma senza dato in uno dei due periodi (es. peso non tracciato
                   // quella settimana): niente barra reale (percentualeVisiva resta 0, invisibile
                   // sulla ReferenceLine a x=0), ma l'etichetta "N/D" scritta sulla riga della
-                  // metrica invece di sparire — motivo per cui prima sembrava mancante del tutto.
+                  // metrica invece di sparire - motivo per cui prima sembrava mancante del tutto.
                   if (b === undefined || a === undefined) {
                     // "percentualeEtichetta" è sempre una stringa (mai null/undefined): Recharts
                     // (Label.js) salta la resa PRIMA di chiamare il formatter quando il valore letto
                     // da dataKey è nullish, quindi un formatter che trasforma null in "N/D" non
-                    // verrebbe mai invocato — da qui una stringa già pronta invece di un numero nullable.
+                    // verrebbe mai invocato - da qui una stringa già pronta invece di un numero nullable.
                     return { ...r, b: null, a: null, percentuale: null, percentualeVisiva: 0, percentualeEtichetta: "N/D" };
                   }
                   const percentuale = calcolaPercentuale(b, a);

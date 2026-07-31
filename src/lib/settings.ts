@@ -1,13 +1,13 @@
 import { exists, mkdir, readTextFile, writeTextFile, BaseDirectory } from "@tauri-apps/plugin-fs";
 
-// File separato in AppData, non nel DB — stesso motivo di layout.json (vedi layoutStorage.ts):
+// File separato in AppData, non nel DB - stesso motivo di layout.json (vedi layoutStorage.ts):
 // impostazioni locali ad accesso raro, non dati che serva interrogare con SQL.
 const SETTINGS_FILE = "settings.json";
 
 export interface Impostazioni {
   margineObiettivoPesoKg: number;
   // Default disattivato: la ricerca aggiornamenti richiede una connessione a internet, va attivata
-  // esplicitamente dall'utente (vedi useAggiornamenti.ts) — non deve mai partire da sola al primo avvio.
+  // esplicitamente dall'utente (vedi useAggiornamenti.ts) - non deve mai partire da sola al primo avvio.
   aggiornamentiAutomatici: boolean;
 }
 
@@ -25,7 +25,7 @@ async function assicuraDirDati(): Promise<void> {
 
 // Merge col default, non sostituzione: un campo nuovo aggiunto in futuro a Impostazioni non deve
 // far esplodere il caricamento di un settings.json scritto da una versione precedente dell'app che
-// non lo conosceva ancora — semplicemente prende il valore di default finché non viene salvato.
+// non lo conosceva ancora - semplicemente prende il valore di default finché non viene salvato.
 export async function caricaImpostazioni(): Promise<Impostazioni> {
   await assicuraDirDati();
   const presente = await exists(SETTINGS_FILE, { baseDir: BaseDirectory.AppData });

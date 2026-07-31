@@ -1,14 +1,21 @@
 import { createPortal } from "react-dom";
-import type { AlimentoCatalogo } from "../lib/food";
+import type { RicettaConIngredienti } from "../lib/recipes";
 
-interface AzioniAlimentoModalProps {
-  alimento: AlimentoCatalogo;
+interface AzioniRicettaModalProps {
+  ricetta: RicettaConIngredienti;
   onChiudi: () => void;
+  onVisualizza: () => void;
   onModifica: () => void;
   onElimina: () => void;
 }
 
-export function AzioniAlimentoModal({ alimento, onChiudi, onModifica, onElimina }: AzioniAlimentoModalProps) {
+export function AzioniRicettaModal({
+  ricetta,
+  onChiudi,
+  onVisualizza,
+  onModifica,
+  onElimina,
+}: AzioniRicettaModalProps) {
   return createPortal(
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={onChiudi}>
       {/* Cuscinetto invisibile intorno alla modale: senza, un drag che parte dentro la modale ma
@@ -20,9 +27,15 @@ export function AzioniAlimentoModal({ alimento, onChiudi, onModifica, onElimina 
         className="w-80 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         <h2 className="mb-3 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
-          {alimento.nome}
+          {ricetta.nome}
         </h2>
         <div className="flex flex-col gap-2">
+          <button
+            onClick={onVisualizza}
+            className="rounded-lg border border-blue-300 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950"
+          >
+            Visualizza
+          </button>
           <button
             onClick={onModifica}
             className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"

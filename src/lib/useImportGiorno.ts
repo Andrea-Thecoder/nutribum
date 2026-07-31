@@ -48,13 +48,13 @@ export function useImportGiorno(onImportato: () => void) {
           const contenuto = await readTextFile(percorso);
           const testoTrim = contenuto.trim();
           if (!testoTrim.startsWith("{") && !testoTrim.startsWith("[")) {
-            throw new Error('Il contenuto non sembra JSON — se è un file CSV usa "Da CSV…"');
+            throw new Error('Il contenuto non sembra JSON - se è un file CSV usa "Da CSV…"');
           }
 
           const parsato = JSON.parse(contenuto);
 
-          // Un file può essere UN giorno solo ({data, pasti} — l'export di un singolo giorno) o
-          // l'intero storico ({giorni: [...]}  — prodotto da "Esporta storico diario in JSON"):
+          // Un file può essere UN giorno solo ({data, pasti} - l'export di un singolo giorno) o
+          // l'intero storico ({giorni: [...]}  - prodotto da "Esporta storico diario in JSON"):
           // si prova prima la forma singola, poi quella multi-giorno, invece di richiedere
           // all'utente di sapere quale delle due ha in mano.
           let giorniDaImportare: GiornoImport[];
@@ -67,7 +67,7 @@ export function useImportGiorno(onImportato: () => void) {
               const dettagli = comeGiornoSingolo.error.issues
                 .map((i) => `${i.path.join(".")}: ${i.message}`)
                 .join("; ");
-              throw new Error(`JSON non valido — ${dettagli}`);
+              throw new Error(`JSON non valido - ${dettagli}`);
             }
             giorniDaImportare = comeStorico.data.giorni;
           }
@@ -97,7 +97,7 @@ export function useImportGiorno(onImportato: () => void) {
       }
 
       const tipo = erroriFile.length > 0 || avvisiMismatch.length > 0 ? "avviso" : "successo";
-      setEsito({ tipo, messaggio: parti.join(" — ") });
+      setEsito({ tipo, messaggio: parti.join(" - ") });
     } catch (err) {
       setEsito({ tipo: "errore", messaggio: err instanceof Error ? err.message : String(err) });
     } finally {
@@ -144,7 +144,7 @@ export function useImportGiorno(onImportato: () => void) {
         esitoImport.avvisiMismatch.length > 0
           ? "avviso"
           : "successo";
-      setEsito({ tipo, messaggio: parti.join(" — ") });
+      setEsito({ tipo, messaggio: parti.join(" - ") });
     } catch (err) {
       setEsito({ tipo: "errore", messaggio: err instanceof Error ? err.message : String(err) });
     } finally {

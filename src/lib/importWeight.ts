@@ -40,7 +40,7 @@ export function parseWeightJson(contenuto: string): ParsedWeight {
   const testoTrim = contenuto.trim();
   if (!testoTrim.startsWith("[") && !testoTrim.startsWith("{")) {
     throw new Error(
-      "Il contenuto non sembra JSON (deve iniziare con [ oppure {) — se è un file CSV usa \"Da CSV…\"",
+      "Il contenuto non sembra JSON (deve iniziare con [ oppure {) - se è un file CSV usa \"Da CSV…\"",
     );
   }
 
@@ -67,7 +67,7 @@ function coerceCsvValue(campo: string, valoreGrezzo: string): unknown {
 export function parseWeightCsv(contenuto: string): ParsedWeight {
   const testoTrim = contenuto.trim();
   if (testoTrim.startsWith("[") || testoTrim.startsWith("{")) {
-    throw new Error('Il contenuto sembra JSON, non CSV — usa "Da JSON…" per importarlo');
+    throw new Error('Il contenuto sembra JSON, non CSV - usa "Da JSON…" per importarlo');
   }
 
   const righe = parseRigheCsv(contenuto);

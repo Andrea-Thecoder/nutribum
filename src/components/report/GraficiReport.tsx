@@ -22,14 +22,14 @@ import type {
 
 // Versioni "mute" degli stessi grafici usati nei pannelli interattivi, pensate solo per essere
 // catturate come immagine da lib/captureChart (vedi generaReportPdf.tsx): niente Tooltip/Legend
-// (sono elementi DOM fuori dall'<svg>, andrebbero persi nella cattura — la legenda nel PDF è
+// (sono elementi DOM fuori dall'<svg>, andrebbero persi nella cattura - la legenda nel PDF è
 // costruita a parte in ReportDocument dagli stessi colori usati qui) e palette chiara forzata,
 // indipendente dal tema dell'app in quel momento: un PDF su sfondo bianco coi colori "dark mode"
 // (pensati per contrastare su nero) sarebbe illeggibile.
 const colori = paletteGrafici(false);
 
 function formattaChiave(chiave: string): string {
-  // "yyyy-MM" (mese) o "yyyy-MM-dd" (giorno) — new Date("yyyy-MM") non è affidabile in tutti i
+  // "yyyy-MM" (mese) o "yyyy-MM-dd" (giorno) - new Date("yyyy-MM") non è affidabile in tutti i
   // browser, si forza il giorno 1 per i mesi prima di formattare.
   const data = chiave.length === 7 ? new Date(`${chiave}-01`) : new Date(chiave);
   return chiave.length === 7 ? format(data, "MMM yyyy", { locale: it }) : format(data, "d MMM", { locale: it });

@@ -105,7 +105,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
   // Il cambio giorno passa da "richiesta" (CalendarioPopover) a "applicato" (data) tramite questo
   // effect invece che direttamente nell'onChange: se ci sono modifiche in bozza non salvate va
   // prima chiesta conferma (dialog asincrono), e solo se confermato si scarta la bozza e si cambia
-  // giorno davvero — altrimenti la richiesta viene ignorata e "data" resta quella di prima.
+  // giorno davvero - altrimenti la richiesta viene ignorata e "data" resta quella di prima.
   useEffect(() => {
     if (dataRichiesta === null || dataRichiesta === data) {
       if (dataRichiesta !== null) setDataRichiesta(null);
@@ -187,7 +187,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
   }
 
   // Espande la ricetta in tante righe di bozza quanti sono i suoi ingredienti, con lo stesso
-  // giorno/orario/pasto selezionati nel form — esattamente come se li avessi aggiunti uno per uno
+  // giorno/orario/pasto selezionati nel form - esattamente come se li avessi aggiunti uno per uno
   // a mano. Nessun collegamento persistente alla ricetta: da qui in poi sono normali voci di
   // food_log, modificarle o eliminarle non tocca la ricetta e viceversa (per scelta esplicita).
   function handleAggiungiDaRicetta() {

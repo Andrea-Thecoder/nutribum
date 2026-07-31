@@ -76,7 +76,7 @@ export const CalendarioPanel = memo(function CalendarioPanel({
           const sforamenti = cella.totali ? calcolaSforamenti(cella.totali, obiettivoGiorno) : [];
           const sfora = sforamenti.length > 0;
           // Rischio opposto allo sforamento: kcal consumate sotto il minimo effettivo (manuale o
-          // BMR di fallback) — non può coesistere con "sfora" sulle kcal (il minimo è sempre <
+          // BMR di fallback) - non può coesistere con "sfora" sulle kcal (il minimo è sempre <
           // massimo, imposto nella modale), quindi i due colori restano mutuamente esclusivi.
           const minimoKcal = limiteMinimoEffettivo(cella.chiave, obiettivoGiorno, storicoProfilo, storicoFitness, peso);
           const sottoMinimo = cella.totali !== null && minimoKcal !== null && cella.totali.kcal < minimoKcal;

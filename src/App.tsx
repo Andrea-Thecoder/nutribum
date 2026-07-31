@@ -258,14 +258,14 @@ function App() {
   const [peso, setPeso] = useState<VocePeso[]>([]);
   const [obiettivoPesoKg, setObiettivoPesoKg] = useState<number | null>(null);
   const [storicoObiettivoPeso, setStoricoObiettivoPeso] = useState<PuntoStoricoObiettivoPeso[]>([]);
-  // Configurabile dall'utente (WeightGoalModal), persistito in settings.json — non nel DB, vedi
+  // Configurabile dall'utente (WeightGoalModal), persistito in settings.json - non nel DB, vedi
   // lib/settings.ts. Il valore qui è solo il placeholder prima che caricaImpostazioni() risponda.
   const [margineObiettivoPesoKg, setMargineObiettivoPesoKg] = useState(5);
   const [modaleAlimentoAperta, setModaleAlimentoAperta] = useState(false);
   const [modaleRicettaAperta, setModaleRicettaAperta] = useState(false);
   // Sollevato qui (non locale a NavBar, come per ObiettivoGiornalieroModal) perché queste due
   // modali devono aprirsi anche dal pulsante nell'header del pannello Peso Corporeo, non solo dal
-  // menu NavBar — serve uno stato condiviso da un antenato comune.
+  // menu NavBar - serve uno stato condiviso da un antenato comune.
   const [weightEntryModalOpen, setWeightEntryModalOpen] = useState(false);
   const [weightGoalModalOpen, setWeightGoalModalOpen] = useState(false);
   // Movimento libero (!ancoraGriglia) di default disattivato: trascinamento/ridimensionamento
@@ -280,9 +280,9 @@ function App() {
   const [storicoFitness, setStoricoFitness] = useState<PuntoStoricoFitness[]>([]);
   const [focusGiorno, setFocusGiorno] = useState<FocusGiorno | null>(null);
   // Non-null mentre un drag/resize è in corso (id del pannello mosso): usato solo per sapere SE un
-  // gesto è attivo — tutti i pannelli (non solo quello mosso) tolgono ombra/angoli arrotondati/clip
+  // gesto è attivo - tutti i pannelli (non solo quello mosso) tolgono ombra/angoli arrotondati/clip
   // finché dura, perché WebKitGTK (webview Linux di Tauri) è lento a ricomporre queste proprietà
-  // anche sui pannelli SOTTOSTANTI quando qualcosa ci transita sopra — costo confermato indipendente
+  // anche sui pannelli SOTTOSTANTI quando qualcosa ci transita sopra - costo confermato indipendente
   // dal numero di pannelli e assente in un browser normale, quindi non è un problema di React ma del
   // motore di rendering.
   const [pannelloInMovimento, setPannelloInMovimento] = useState<string | null>(null);
@@ -426,7 +426,7 @@ function App() {
       w: Math.max(2, Math.round(COLS / 3)),
       // Minimo 9 (non 2): su finestre basse altezzaPx si riduceva troppo, aprendo pannelli
       // striminziti. 9 è l'altezza di riferimento confermata (Calendario + Kcal per periodo
-      // affiancati, entrambi leggibili) — sotto non si scende anche se la finestra è piccola.
+      // affiancati, entrambi leggibili) - sotto non si scende anche se la finestra è piccola.
       h: Math.max(9, Math.round(altezzaPx / ROW_HEIGHT)),
     };
   }
@@ -448,7 +448,7 @@ function App() {
 
   // A differenza di handleAddPanel (un pannello alla volta, incastrato nel primo spazio libero via
   // trovaPosizioneLibera), qui serve riempire PRIMA gli spazi vuoti accanto a quello che c'è già
-  // (es. il solo Calendario in cima dopo un reset) invece di ammucchiare tutto sotto — altrimenti
+  // (es. il solo Calendario in cima dopo un reset) invece di ammucchiare tutto sotto - altrimenti
   // resta una riga con un buco enorme. Uso uno skyline per colonna (fino a che quota y arriva
   // l'occupazione di ciascuna delle COLS colonne): ad ogni passo trovo la quota più bassa libera,
   // ci riempio più pannelli possibile (max 3 se tutti larghi 1/3 griglia), con un'altezza uniforme
@@ -459,10 +459,10 @@ function App() {
   const handleAddAllPanels = useCallback(() => {
     // Altezza "di apertura", identica per tutti i pannelli aggiunti qui: una costante FISSA
     // (ALTEZZA_APERTURA_STANDARD, la stessa del Calendario nel layout di default), non il valore
-    // di dimensioneDefault() — quello si adatta all'altezza della finestra (fino al tetto di
+    // di dimensioneDefault() - quello si adatta all'altezza della finestra (fino al tetto di
     // CAP_ALTEZZA_PX), quindi su una finestra alta avrebbe prodotto un'altezza diversa da quella
     // fissa del Calendario, disallineando la prima riga. dimensioneMinima è tutt'altra cosa: è il
-    // limite sotto cui un ridimensionamento manuale non può scendere — qui alza la base SOLO se il
+    // limite sotto cui un ridimensionamento manuale non può scendere - qui alza la base SOLO se il
     // minimo di un tipo specifico (o un pannello già esistente sulla stessa riga) la supera.
     const altezzaApertura = ALTEZZA_APERTURA_STANDARD;
 
@@ -591,7 +591,7 @@ function App() {
 
   // Usata dal click su una card giorno nel popup di sforamento: apre il dettaglio giorno E allinea
   // il filtro data di tutti i grafici aperti, per una visione d'insieme di cosa è successo quel
-  // giorno — a differenza di handleApriGiorno da sola (calendario), che non tocca i grafici.
+  // giorno - a differenza di handleApriGiorno da sola (calendario), che non tocca i grafici.
   const handleApriGiornoOvunque = useCallback(
     (dataGiorno: string) => {
       handleApriGiorno(dataGiorno);
@@ -668,7 +668,7 @@ function App() {
   }, [persistiLayout]);
 
   // "Azzera impostazioni": tutto ciò che è preferenza dell'app (layout dashboard, margine
-  // obiettivo peso, movimento libero), non un dato nutrizionale — quello resta a "Cancella tutti i
+  // obiettivo peso, movimento libero), non un dato nutrizionale - quello resta a "Cancella tutti i
   // dati" più sotto. ancoraGriglia non è mai persistito su file (torna già a true ad ogni riavvio,
   // vedi la sua dichiarazione), ma va azzerato comunque qui per riflettersi subito nella sessione
   // corrente, non solo al prossimo avvio.
@@ -676,7 +676,7 @@ function App() {
     handleResetLayout();
     // Patch mirata solo al margine (non tutto IMPOSTAZIONI_DEFAULT): "aggiornamenti automatici" è una
     // scelta esplicita e a parte dell'utente (vedi useAggiornamenti.ts), non una preferenza di
-    // layout/aspetto — non deve essere azzerata da un'azione che promette di toccare solo quelle.
+    // layout/aspetto - non deve essere azzerata da un'azione che promette di toccare solo quelle.
     await salvaImpostazioni({ margineObiettivoPesoKg: IMPOSTAZIONI_DEFAULT.margineObiettivoPesoKg });
     setMargineObiettivoPesoKg(IMPOSTAZIONI_DEFAULT.margineObiettivoPesoKg);
     setAncoraGriglia(true);
@@ -887,7 +887,7 @@ function App() {
                   // Hint al motore di rendering (WebKitGTK) a promuovere QUESTO pannello a un
                   // livello di composizione GPU proprio mentre si muove: senza, il contenuto (es.
                   // l'SVG di un grafico) viene ridipinto ad ogni frame del transform invece di
-                  // essere semplicemente ricomposto — costo interno al pannello stesso, distinto da
+                  // essere semplicemente ricomposto - costo interno al pannello stesso, distinto da
                   // quello di ombra/clip sugli ALTRI pannelli già risolto sopra.
                   willChange: pannelloInMovimento === p.id ? "transform" : undefined,
                 }}
@@ -908,7 +908,7 @@ function App() {
                   ancorato={p.ancorato ?? false}
                   // Non solo il pannello trascinato: quando ci passa sopra, WebKitGTK deve
                   // ricomporre anche ombra/clip/angoli arrotondati dei pannelli SOTTOSTANTI, non
-                  // solo quello in movimento — quindi si semplificano tutti finché il gesto è attivo.
+                  // solo quello in movimento - quindi si semplificano tutti finché il gesto è attivo.
                   inMovimento={pannelloInMovimento !== null}
                   onToggleAncora={() => handleToggleAncora(p.id)}
                   onRimuovi={() => handleRemovePanel(p.id)}

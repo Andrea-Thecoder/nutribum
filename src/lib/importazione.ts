@@ -60,7 +60,7 @@ export async function importaGiorno(giorno: GiornoImport): Promise<EsitoImportGi
     catalogo.find((a) => a.nome.toLowerCase() === nome.toLowerCase());
 
   // Validazione completa prima di scrivere qualsiasi cosa: se manca anche un solo alimento,
-  // l'import viene rifiutato per intero — niente creazione automatica nel catalogo.
+  // l'import viene rifiutato per intero - niente creazione automatica nel catalogo.
   const nomiMancanti = new Set<string>();
   for (const pasto of giorno.pasti) {
     for (const alimento of pasto.alimenti) {
@@ -84,7 +84,7 @@ export async function importaGiorno(giorno: GiornoImport): Promise<EsitoImportGi
 
       if (alimento.kcal !== undefined && Math.abs(alimento.kcal - valori.kcal) > TOLLERANZA_KCAL) {
         avvisiMismatch.push(
-          `${alimento.nome}: kcal dichiarate nel JSON (${alimento.kcal}) diverse da quelle del catalogo per ${alimento.quantita}g (${Math.round(valori.kcal)}) — usato il valore del catalogo`,
+          `${alimento.nome}: kcal dichiarate nel JSON (${alimento.kcal}) diverse da quelle del catalogo per ${alimento.quantita}g (${Math.round(valori.kcal)}) - usato il valore del catalogo`,
         );
       }
 
@@ -165,7 +165,7 @@ export interface GiorniParsati {
 export function parseGiornoCsv(contenuto: string): GiorniParsati {
   const testoTrim = contenuto.trim();
   if (testoTrim.startsWith("[") || testoTrim.startsWith("{")) {
-    throw new Error('Il contenuto sembra JSON, non CSV — usa "Da JSON…" per importarlo');
+    throw new Error('Il contenuto sembra JSON, non CSV - usa "Da JSON…" per importarlo');
   }
 
   const righe = parseRigheCsv(contenuto);

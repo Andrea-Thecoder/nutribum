@@ -59,7 +59,7 @@ function titoloPeriodo(periodo: PeriodoReport): string {
   return `da ${daTesto} a ${aTesto}`;
 }
 
-// "gennaio2026", non "gennaio 2026": un nome file non deve avere spazi da dover sfuggire — e senza
+// "gennaio2026", non "gennaio 2026": un nome file non deve avere spazi da dover sfuggire - e senza
 // accenti, non tutti i filesystem/OS li normalizzano allo stesso modo.
 function rimuoviAccenti(testo: string): string {
   return testo.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -82,7 +82,7 @@ function slugPeriodo(periodo: PeriodoReport): string {
 }
 
 // Ritorna false se l'utente ha annullato il dialog di salvataggio (non un errore, non serve
-// segnalarlo) — l'unico segnale che il chiamante deve distinguere per decidere se mostrare un esito.
+// segnalarlo) - l'unico segnale che il chiamante deve distinguere per decidere se mostrare un esito.
 export async function generaReportPdf(fonte: DatiFonteReport, periodo: PeriodoReport): Promise<boolean> {
   const giorniRange = filtraPerPeriodo(fonte.giorni, periodo);
   const pesoRange = filtraPerPeriodo(fonte.peso, periodo);

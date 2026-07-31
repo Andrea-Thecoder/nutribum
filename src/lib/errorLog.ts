@@ -22,7 +22,7 @@ async function assicuraCartellaLog(): Promise<void> {
   }
 }
 
-// Scrive una riga di log SOLO quando avviene davvero un errore — la cartella "logs" e il file non
+// Scrive una riga di log SOLO quando avviene davvero un errore - la cartella "logs" e il file non
 // vengono mai creati preventivamente, solo al primo errore incontrato.
 async function scriviRiga(gravita: Gravita, errore: unknown, causa: string, note?: string): Promise<void> {
   const messaggioErrore = errore instanceof Error ? errore.message : String(errore);
@@ -41,7 +41,7 @@ async function scriviRiga(gravita: Gravita, errore: unknown, causa: string, note
 }
 
 // Errore bloccante (es. fallimento del caricamento del database all'avvio): registra su file
-// critico e chiude subito l'app — non ha senso lasciarla aperta ma inutilizzabile in silenzio.
+// critico e chiude subito l'app - non ha senso lasciarla aperta ma inutilizzabile in silenzio.
 export async function registraErroreFataleEChiudi(
   errore: unknown,
   causa: string,
@@ -57,10 +57,10 @@ export async function registraErroreFataleEChiudi(
 }
 
 // Errore non bloccante (es. un refresh in background che fallisce): registra su file normale,
-// l'app continua a funzionare. Fire-and-forget di proposito — chi chiama non deve attendere né
+// l'app continua a funzionare. Fire-and-forget di proposito - chi chiama non deve attendere né
 // gestire un eventuale fallimento della scrittura del log stesso.
 export function registraErroreNonBloccante(errore: unknown, causa: string, note?: string): void {
   scriviRiga("normale", errore, causa, note).catch(() => {
-    // Se anche la scrittura del log fallisce, non c'è nulla da fare — non deve interrompere l'utente.
+    // Se anche la scrittura del log fallisce, non c'è nulla da fare - non deve interrompere l'utente.
   });
 }

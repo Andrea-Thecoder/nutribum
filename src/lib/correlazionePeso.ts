@@ -7,12 +7,12 @@ import type { PuntoStoricoProfilo, PuntoStoricoFitness } from "./profile";
 import { calcolaRitmoKgSettimana, type VocePeso } from "./weight";
 
 // Finestra di 4 giorni, non 3: la ritenzione idrica/glicogeno da uno sforamento si esaurisce in
-// 2-4 giorni secondo le fonti consultate — guardare al limite superiore evita di misurare ancora
+// 2-4 giorni secondo le fonti consultate - guardare al limite superiore evita di misurare ancora
 // acqua residua e gonfiare il numero, più onesto anche se costa qualche campione in meno.
 const FINESTRA_GIORNI_CORRELAZIONE = 4;
 
 // Sotto questo numero di giorni un gruppo (sforati o puliti) è troppo piccolo per una media
-// affidabile — stesso principio di GIORNI_MINIMI_RITMO_PESO in lib/weight.ts.
+// affidabile - stesso principio di GIORNI_MINIMI_RITMO_PESO in lib/weight.ts.
 const SOGLIA_MINIMA_CAMPIONI = 5;
 
 export type ClassificazioneKcal = "sforato" | "pulito";
@@ -21,10 +21,10 @@ export type ClassificazioneKcal = "sforato" | "pulito";
 // peso, i macro incidono su composizione corporea e ritenzione idrica (il rumore a breve termine),
 // non sul trend che questa analisi vuole isolare.
 //
-// Gerarchia: il limite impostato a mano è primario — è il bersaglio comportamentale che l'utente sta
+// Gerarchia: il limite impostato a mano è primario - è il bersaglio comportamentale che l'utente sta
 // attivamente cercando di rispettare (e quando vuole seguire il TDEE, il checkbox "usa TDEE
 // calcolato" nel modale limite kcal lo copia già dentro il limite). Il TDEE qui è solo un fallback
-// per i giorni senza nessun limite manuale impostato — coerente con come "sforato" è già definito
+// per i giorni senza nessun limite manuale impostato - coerente con come "sforato" è già definito
 // ovunque nel resto dell'app (banner NavBar, Progresso Obiettivi Nutrizionali).
 export function classificaGiornoKcal(
   giorno: GiornoStorico,
@@ -71,9 +71,9 @@ function arrotonda2(n: number): number {
 
 // Per ogni giorno classificabile (sforato o pulito, kcal-only, vedi classificaGiornoKcal) con una
 // pesata reale sia quel giorno che FINESTRA_GIORNI_CORRELAZIONE giorni dopo, calcola quanto è
-// cambiato il peso — grezzo e corretto sottraendo il ritmo di variazione di base (calcolaRitmoKgSettimana,
+// cambiato il peso - grezzo e corretto sottraendo il ritmo di variazione di base (calcolaRitmoKgSettimana,
 // la stessa funzione della proiezione in PesoPanel): senza questa correzione, chi è già in un trend di
-// perdita/aumento costante vedrebbe quel trend confuso con l'effetto dello sforamento — il numero
+// perdita/aumento costante vedrebbe quel trend confuso con l'effetto dello sforamento - il numero
 // corretto isola invece lo scostamento dal normale. Niente interpolazione tra pesate: solo dati
 // realmente misurati, stessa filosofia già usata per la proiezione del peso in questa app.
 export function analizzaCorrelazionePeso(

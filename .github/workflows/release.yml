@@ -16,12 +16,20 @@ jobs:
         include:
           - platform: 'macos-latest'
             args: '--target aarch64-apple-darwin'
+            bundleName: 'NutriBum-macOS-AppleSilicon'
+            installerGlob: 'src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg'
           - platform: 'macos-latest'
             args: '--target x86_64-apple-darwin'
+            bundleName: 'NutriBum-macOS-Intel'
+            installerGlob: 'src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg'
           - platform: 'ubuntu-22.04'
             args: ''
+            bundleName: 'NutriBum-Linux'
+            installerGlob: 'src-tauri/target/release/bundle/appimage/*.AppImage'
           - platform: 'windows-latest'
             args: ''
+            bundleName: 'NutriBum-Windows'
+            installerGlob: 'src-tauri/target/release/bundle/nsis/*.exe'
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -51,6 +59,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'NutriBum ${{ github.ref_name }}'
@@ -58,3 +67,34 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+      # Pacchetto "pronto da scaricare" per un pubblico non tecnico (es. link su LinkedIn): zippa
+      # l'installer insieme al catalogo di esempio e alle istruzioni. Nome file FISSO (senza
+      # versione), così /releases/latest/download/<nome>.zip resta valido release dopo release -
+      # NON sostituisce gli installer nudi, quelli restano per l'updater (vedi latest.json).
+      - name: Prepare download bundle (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir -p bundle-download
+          cp ${{ matrix.installerGlob }} bundle-download/
+          cp src-tauri/resources/campione-alimenti.json bundle-download/
+          cp release-assets/LEGGIMI.txt bundle-download/
+          cd bundle-download
+          zip -j "../${{ matrix.bundleName }}.zip" *
+
+      - name: Prepare download bundle (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path bundle-download
+          Copy-Item ${{ matrix.installerGlob }} bundle-download/
+          Copy-Item src-tauri/resources/campione-alimenti.json bundle-download/
+          Copy-Item release-assets/LEGGIMI.txt bundle-download/
+          Compress-Archive -Path bundle-download/* -DestinationPath "${{ matrix.bundleName }}.zip"
+
+      - name: Upload download bundle to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: ${{ matrix.bundleName }}.zip

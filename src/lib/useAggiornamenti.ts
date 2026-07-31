@@ -74,7 +74,7 @@ export function useAggiornamenti(chiedi: ChiediConferma) {
   );
 
   // Controllo automatico: solo una volta, all'avvio, e solo se l'impostazione era già attiva da una
-  // sessione precedente — attivarla ora (vedi toggleAggiornamentiAutomatici) non scatena anche un
+  // sessione precedente - attivarla ora (vedi toggleAggiornamentiAutomatici) non scatena anche un
   // controllo immediato, per non confondere "l'ho attivato" con "l'ho anche cercato adesso".
   useEffect(() => {
     caricaImpostazioni().then((imp) => {

@@ -9,7 +9,7 @@ export interface PaletteGrafici {
   obiettivoPeso: string;
   limite: string;
   tdee: string;
-  // Limite MINIMO di kcal e il suo fallback calcolato (BMR) — speculari a limite/tdee ma per il
+  // Limite MINIMO di kcal e il suo fallback calcolato (BMR) - speculari a limite/tdee ma per il
   // rischio opposto (denutrizione, non sforamento), tinte diverse per non confonderli quando
   // compaiono tutti e quattro insieme nello stesso grafico.
   limiteMin: string;
@@ -31,14 +31,14 @@ const PALETTE_CHIARA: PaletteGrafici = {
   // rosso-verde, che l'asse blu↔arancio preserva meglio di due tonalità vicine di blu/viola.
   obiettivoPeso: "#f59e0b",
   // Dedicato al "Limite impostato" in KcalGiornoChart/GraficiReport (report PDF): prima riusava
-  // "asse", ma quel grigio è lo stesso di assi/griglia — la riga di riferimento si perdeva contro
+  // "asse", ma quel grigio è lo stesso di assi/griglia - la riga di riferimento si perdeva contro
   // lo sfondo del grafico E contro la linea TDEE quando i due valori sono vicini/coincidono.
   limite: "#dc2626",
   // Il TDEE usava "sale" (viola): confermato illeggibile contro il rosso di "limite" quando le due
   // linee coincidono (caso comune col checkbox "usa TDEE calcolato"). Verde smeraldo, l'unica tinta
   // fredda non già occupata da kcal (arancio) o limite (rosso) in questo grafico.
   tdee: "#059669",
-  // Ambra, stessa famiglia usata per lo stato "sotto il minimo" nel calendario — coerente in tutta
+  // Ambra, stessa famiglia usata per lo stato "sotto il minimo" nel calendario - coerente in tutta
   // l'app come tinta del rischio-denutrizione, distinta dal rosso dello sforamento.
   limiteMin: "#d97706",
   // Ciano, non verde come "tdee": nello stesso grafico compaiono entrambi (limite/TDEE per il

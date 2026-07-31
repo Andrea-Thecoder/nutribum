@@ -45,7 +45,7 @@ interface ProgressoObiettiviChartProps {
 }
 
 // Colori di stato (entro/oltre il limite): validati con lo script del design-system per entrambe
-// le modalità — non riusano le tinte categoriali dei singoli nutrienti perché qui il colore
+// le modalità - non riusano le tinte categoriali dei singoli nutrienti perché qui il colore
 // codifica uno stato (entro/oltre), non l'identità del nutriente (già data dall'etichetta).
 const COLORE_ENTRO = { chiaro: "#3b82f6", scuro: "#3b82f6" };
 const COLORE_OLTRE = { chiaro: "#ef4444", scuro: "#dc2626" };
@@ -59,7 +59,7 @@ const PERIODI_DISPONIBILI: Periodo[] = ["giorno", "settimana", "mese"];
 const PERCENTUALE_VISIVA_MASSIMA = 300;
 
 // Istanza di default: quella che contiene "oggi" (il giorno/la settimana/il mese corrente), o la
-// più recente disponibile se oggi non ha ancora dati — evita di aprire il grafico su "Tutto" per
+// più recente disponibile se oggi non ha ancora dati - evita di aprire il grafico su "Tutto" per
 // un widget che ha senso soprattutto per guardare l'andamento più recente.
 function istanzaPredefinita(giorni: GiornoStorico[], periodo: Periodo): string {
   const chiaveOggi = chiavePeriodo(format(new Date(), "yyyy-MM-dd"), periodo);
@@ -156,7 +156,7 @@ export const ProgressoObiettiviChart = memo(function ProgressoObiettiviChart({
 
       {dati.length === 0 ? (
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Nessun limite impostato ancora — Impostazioni → "Imposta limite giornaliero di…".
+          Nessun limite impostato ancora - Impostazioni → "Imposta limite giornaliero di…".
         </p>
       ) : (
         <div className="min-h-0 flex-1">

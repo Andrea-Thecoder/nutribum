@@ -124,7 +124,7 @@ export function chiavePeriodo(dataStr: string, periodo: Periodo): string {
 
 // Protetta con un fallback (non un throw): un formato data imprevisto in "chiave" non deve
 // spaccare l'intero albero React (senza ErrorBoundary in questa app, un errore qui durante il
-// render manda in schermata bianca tutto, non solo il pannello coinvolto) — meglio mostrare
+// render manda in schermata bianca tutto, non solo il pannello coinvolto) - meglio mostrare
 // l'etichetta grezza che un'app inutilizzabile.
 export function etichettaPeriodo(chiave: string, periodo: Periodo): string {
   try {

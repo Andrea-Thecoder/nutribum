@@ -2,13 +2,13 @@ import { z } from "zod";
 import { getDb } from "./db";
 
 // Backup/ripristino COMPLETO del database: a differenza degli export per dominio (alimenti,
-// diario, peso — vedi exportFoods.ts/lib/report.ts ecc.), qui si esporta/reimporta lo stato grezzo
+// diario, peso - vedi exportFoods.ts/lib/report.ts ecc.), qui si esporta/reimporta lo stato grezzo
 // di ogni tabella (id compresi, per preservare le foreign key tra tabelle collegate come
 // food_log.food_id o recipe_ingredients.recipe_id) invece di passare per le forme "amichevoli" già
 // usate altrove, che sono rimodellamenti con perdita (es. GiornoStorico raggruppa per giorno/pasto)
 // pensati per essere leggibili, non per una ricostruzione 1:1. "fitness_level" non è inclusa: è una
 // tabella di lookup fissa riseminata identica da ogni installazione della migration, non un dato
-// utente — i suoi id restano stabili senza bisogno di backup/ripristino.
+// utente - i suoi id restano stabili senza bisogno di backup/ripristino.
 
 const RigaFoodSchema = z.object({
   id: z.number(),
@@ -219,8 +219,8 @@ export function validaBackupJson(contenuto: string): BackupCompleto {
   return risultato.data;
 }
 
-// Cancella le righe di TUTTE le tabelle dati (non le tabelle stesse: DELETE, non DROP — lo schema
-// resta intatto) — "fitness_level" esclusa perché non è un dato utente.
+// Cancella le righe di TUTTE le tabelle dati (non le tabelle stesse: DELETE, non DROP - lo schema
+// resta intatto) - "fitness_level" esclusa perché non è un dato utente.
 export async function svuotaTuttiIDati(): Promise<void> {
   const db = await getDb();
   for (const tabella of TABELLE_FIGLIE) await db.execute(`DELETE FROM ${tabella}`);

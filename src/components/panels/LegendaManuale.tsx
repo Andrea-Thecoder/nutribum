@@ -6,7 +6,7 @@ export interface VoceLegenda {
 
 // Sostituisce <Legend/> di Recharts quando un ComposedChart mescola Bar e Line: l'ordine che
 // Recharts assegna in automatico in quel caso non segue l'ordine di dichiarazione JSX (barre e
-// linee finiscono intrecciate quando la legenda va a capo su più righe) — qui l'ordine è quello
+// linee finiscono intrecciate quando la legenda va a capo su più righe) - qui l'ordine è quello
 // dell'array passato, punto. Passata a <Legend content={...}/>, non usata da sola.
 export function LegendaManuale({ voci }: { voci: VoceLegenda[] }) {
   return (

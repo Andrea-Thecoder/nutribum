@@ -27,9 +27,9 @@ const CAMPO =
   "w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100";
 
 const TITOLI: Record<TipoObiettivo, string> = {
-  kcal: "Limite giornaliero — Kcal",
-  macro: "Limite giornaliero — Macronutrienti",
-  altro: "Limite giornaliero — Altro",
+  kcal: "Limite giornaliero - Kcal",
+  macro: "Limite giornaliero - Macronutrienti",
+  altro: "Limite giornaliero - Altro",
 };
 
 const ETICHETTE_AMBITO: Record<Ambito, string> = {
@@ -86,7 +86,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
 
   // Solo per il tab kcal: profilo/livello attività per calcolare il TDEE live se l'utente spunta
-  // "Usa TDEE calcolato" — vedi risultatoTDEE più sotto. Convivono con il valore manuale, non lo
+  // "Usa TDEE calcolato" - vedi risultatoTDEE più sotto. Convivono con il valore manuale, non lo
   // sostituiscono di default: la checkbox parte sempre deselezionata.
   const [usaTDEE, setUsaTDEE] = useState(false);
   // Speculare a usaTDEE ma per il limite minimo: il BMR (già dentro risultatoTDEE, nessun calcolo
@@ -131,7 +131,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
       : null;
 
   // Messaggi distinti: "completa il profilo" solo se manca davvero il profilo (età/altezza/sesso/
-  // livello attività, sempre salvati insieme da ProfileModal — l'uno implica l'altro in questo
+  // livello attività, sempre salvati insieme da ProfileModal - l'uno implica l'altro in questo
   // schema), un messaggio diverso se il profilo c'è ma manca ancora un peso registrato.
   const motivoTDEENonDisponibile =
     !profilo || !livelloAttivo
@@ -141,7 +141,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
         : null;
 
   // Il campo mostra il TDEE calcolato (disabilitato) mentre la checkbox è spuntata, così è chiaro
-  // cosa verrà davvero salvato — niente stato separato "valore effettivo": è lo stesso "kcal" usato
+  // cosa verrà davvero salvato - niente stato separato "valore effettivo": è lo stesso "kcal" usato
   // anche per il salvataggio manuale, la checkbox decide solo se l'utente può modificarlo o no.
   useEffect(() => {
     if (usaTDEE && risultatoTDEE) setKcal(String(risultatoTDEE.tdee));
@@ -281,7 +281,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                 {usaTDEE && risultatoTDEE && (
                   <p className="text-[11px] text-slate-400 dark:text-slate-500">
                     BMR {risultatoTDEE.bmr} kcal × attività {livelloAttivo?.etichetta.toLowerCase()} = {risultatoTDEE.tdee}{" "}
-                    kcal. Basato sul profilo e sull'ultima misurazione di peso — aggiornali se cambiano.
+                    kcal. Basato sul profilo e sull'ultima misurazione di peso - aggiornali se cambiano.
                   </p>
                 )}
 
@@ -320,7 +320,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                   <p className="text-[11px] text-slate-400 dark:text-slate-500">
                     BMR {risultatoTDEE.bmr} kcal: il fabbisogno energetico a riposo, sotto il quale
                     si rischia la denutrizione. Basato sul profilo e sull'ultima misurazione di
-                    peso — aggiornali se cambiano.
+                    peso - aggiornali se cambiano.
                   </p>
                 )}
               </>

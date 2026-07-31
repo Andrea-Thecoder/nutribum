@@ -21,7 +21,7 @@ interface CalendarioPopoverProps {
   // Nessuna data oltre questa è selezionabile: i giorni successivi sono disattivati nella griglia
   // (non semplicemente corretti dopo la scelta), a differenza dell'<input type="date"> nativo il
   // cui calendario a comparsa (su WebKitGTK) lascia comunque cliccare le date future e non si
-  // chiude cliccando fuori — motivo per cui esiste questo componente al posto di quello nativo.
+  // chiude cliccando fuori - motivo per cui esiste questo componente al posto di quello nativo.
   max?: Date;
 }
 
@@ -33,7 +33,7 @@ export function CalendarioPopover({ value, onChange, max }: CalendarioPopoverPro
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Popover interamente nostro (non un widget nativo): un click fuori o Esc chiudono
-  // affidabilmente, perché l'evento passa davvero dal DOM della pagina — non c'è nessun "grab" del
+  // affidabilmente, perché l'evento passa davvero dal DOM della pagina - non c'è nessun "grab" del
   // puntatore a livello di sistema come per il calendario nativo.
   useEffect(() => {
     if (!aperto) return;

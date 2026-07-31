@@ -30,7 +30,7 @@ export function PanelChrome({
         "relative flex h-full flex-col overflow-hidden border bg-white dark:bg-slate-900 " +
         // Durante drag/resize niente ombra+angoli arrotondati: su WebKitGTK (webview Linux di
         // Tauri) ricomporre il clip-mask di un bordo arrotondato insieme all'ombra, ad ogni frame
-        // di un elemento in transform, è pesante (nessun problema in Chrome/Firefox) — costo
+        // di un elemento in transform, è pesante (nessun problema in Chrome/Firefox) - costo
         // confermato indipendente dal numero di pannelli, quindi non risolvibile lato React.
         // overflow-hidden invece resta SEMPRE attivo (un clip rettangolare piatto è economico anche
         // su WebKitGTK): senza, il contenuto sporgerebbe visibilmente dai bordi durante il gesto.

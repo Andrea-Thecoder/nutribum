@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getDb } from "./db";
 import type { Alimento, GiornoStorico, Pasto } from "./schema";
 
-// "unita": g o ml — il riferimento di "100" nei campi _100 qui sotto (es. kcal_100 è "kcal per 100
+// "unita": g o ml - il riferimento di "100" nei campi _100 qui sotto (es. kcal_100 è "kcal per 100
 // unita", non sempre grammi). Serve per alimenti come l'olio EVO, la cui etichetta nutrizionale è
 // spesso espressa per 100ml: forzare sempre i grammi richiederebbe stimare una densità (g/ml), che
 // introdurrebbe un errore di conversione. Dichiarando l'unità reale e loggando le quantità nella
@@ -353,7 +353,7 @@ interface RigaStorico {
 
 /**
  * Ricompone l'intero storico dal DB nella stessa forma `GiornoStorico[]` che grafici, calendario e
- * aggregate.ts già usano — così la UI resta identica, ma la fonte dati diventa sempre e solo SQLite.
+ * aggregate.ts già usano - così la UI resta identica, ma la fonte dati diventa sempre e solo SQLite.
  */
 export async function elencaStoricoCompleto(): Promise<GiornoStorico[]> {
   const db = await getDb();

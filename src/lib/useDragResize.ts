@@ -17,7 +17,7 @@ export function useDragResize(
 ) {
   // Deve rispecchiare esattamente calcGridColWidth/calcGridItemPosition della libreria (containerWidth
   // meno i margini tra colonne e il padding del contenitore, quest'ultimo di default uguale a MARGIN
-  // quando non specificato in gridConfig — vedi effectiveContainerPadding nella libreria), altrimenti
+  // quando non specificato in gridConfig - vedi effectiveContainerPadding nella libreria), altrimenti
   // "quanti pixel vale una colonna" per noi e per lei divergono e la scheda trascinata perde
   // progressivamente il passo col mouse man mano che ci si sposta.
   const colWidth = (larghezzaContenitore - MARGIN[0] * (COLS - 1) - MARGIN[0] * 2) / COLS;
@@ -44,7 +44,7 @@ export function useDragResize(
 
     // Il pannello è posizionato in coordinate del contenuto scrollabile, il mouse in coordinate di
     // viewport: se scrolli con la rotellina mentre trascini, il contenuto si sposta sotto un
-    // cursore che (in coordinate di viewport) non si è mosso — va sommato quanto è scorso il
+    // cursore che (in coordinate di viewport) non si è mosso - va sommato quanto è scorso il
     // contenitore, altrimenti la scheda si stacca dal cursore nella direzione dello scroll.
     // Il valore aggiornato arriva dall'evento "scroll" del contenitore stesso (non da una lettura
     // sincrona di scrollTop dentro handleMove ad ogni mousemove: quella causava un ciclo
@@ -57,7 +57,7 @@ export function useDragResize(
     let scrollLeftCorrente = scrollLeftIniziale;
 
     // NIENTE throttling a requestAnimationFrame: provato due volte (da solo e insieme ad altre
-    // fix), ed entrambe le volte ha peggiorato la fluidità percepita invece di migliorarla — in
+    // fix), ed entrambe le volte ha peggiorato la fluidità percepita invece di migliorarla - in
     // questo ambiente Tauri/WebKitGTK rimandare l'update al frame successivo introduce più
     // latenza/irregolarità di quanta ne risparmi. Ogni mousemove/scroll aggiorna subito, sincrono.
     function ricalcola() {

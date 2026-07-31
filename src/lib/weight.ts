@@ -20,7 +20,7 @@ function mappaVocePeso(r: RigaPeso): VocePeso {
   return { data: r.log_date, pesoKg: r.weight_kg };
 }
 
-// Upsert: una sola misurazione per giorno (vedi commento in 0004_weight.sql) — pesarsi di nuovo lo
+// Upsert: una sola misurazione per giorno (vedi commento in 0004_weight.sql) - pesarsi di nuovo lo
 // stesso giorno corregge la lettura precedente, non ne aggiunge una seconda.
 export async function registraPeso(data: string, pesoKg: number): Promise<void> {
   const db = await getDb();
@@ -51,7 +51,7 @@ export async function leggiObiettivoPeso(): Promise<number | null> {
 }
 
 // Un solo obiettivo alla volta (il nuovo sovrascrive weight_goal), ma OGNI impostazione viene anche
-// accodata a weight_goal_history — append-only, mai aggiornata né cancellata — per poter mostrare
+// accodata a weight_goal_history - append-only, mai aggiornata né cancellata - per poter mostrare
 // nei grafici come l'obiettivo è cambiato nel tempo. Rimuovere l'obiettivo (targetKg = null) non
 // genera una voce di storico: non c'è un "target" da registrare in quel caso.
 export async function salvaObiettivoPeso(targetKg: number | null): Promise<void> {
@@ -80,10 +80,10 @@ export async function elencaStoricoObiettivoPeso(): Promise<PuntoStoricoObiettiv
 }
 
 // Il margine di tolleranza è configurabile dall'utente (vedi lib/settings.ts, non più una
-// costante fissa qui) — ogni funzione sotto lo riceve esplicitamente come parametro invece di
+// costante fissa qui) - ogni funzione sotto lo riceve esplicitamente come parametro invece di
 // leggerlo da un default, così non può restare silenziosamente disallineato da quello impostato.
 
-// Confronto diretto, niente ritmo o direzione coinvolti — stessa logica di calcolaSforamenti in
+// Confronto diretto, niente ritmo o direzione coinvolti - stessa logica di calcolaSforamenti in
 // dailyGoal.ts per i limiti di kcal/macro (valore consumato > limite ⇒ sforato): "sei
 // nell'obiettivo" è un fatto indipendente da "quanto in fretta ci stai arrivando".
 export function nelObiettivoPeso(pesoKg: number, obiettivoKg: number, margineKg: number): boolean {
@@ -97,7 +97,7 @@ export interface StatoSforamentoPeso {
 
 // Speculare a calcolaStatoSforamenti in dailyGoal.ts, ma per il peso invece del diario alimentare.
 // Serie consecutiva: giorni di fila, a ritroso da "oggi", senza pesata registrata O con una pesata
-// sopra l'obiettivo (un giorno senza dato interrompe la serie, non viene ignorato — stessa regola
+// sopra l'obiettivo (un giorno senza dato interrompe la serie, non viene ignorato - stessa regola
 // del kcal/macro). Giorni nel mese: quante pesate del mese corrente risultano sopra l'obiettivo.
 export function calcolaStatoSforamentoPeso(
   peso: VocePeso[],
@@ -173,7 +173,7 @@ export interface StatoPositivoPeso {
 }
 
 // Speculare a calcolaStatoPositivo in dailyGoal.ts, ma per il peso: un giorno è "pulito" solo se ha
-// una pesata registrata E un obiettivo impostato E rientra nel margine di tolleranza — un giorno
+// una pesata registrata E un obiettivo impostato E rientra nel margine di tolleranza - un giorno
 // senza pesata non conta come pulito (nulla da festeggiare se non è stato nemmeno tracciato).
 export function calcolaStatoPositivoPeso(
   peso: VocePeso[],
@@ -213,7 +213,7 @@ export function calcolaStatoPositivoPeso(
   return { serieConsecutivaPulita, settimanaPulita, giorniPulitiNelMese };
 }
 
-// Ritmo di variazione OSSERVATO (primo/ultimo peso nella finestra, poi ×7 per settimana) — non un
+// Ritmo di variazione OSSERVATO (primo/ultimo peso nella finestra, poi ×7 per settimana) - non un
 // calcolo da deficit calorico, per lo stesso motivo già documentato in PesoPanel.tsx: riflette
 // quello che è VERAMENTE successo, non un modello. Sotto GIORNI_MINIMI_RITMO_PESO giorni tra le due
 // pesate il ritmo diventa statisticamente inaffidabile (due pesate a un giorno di distanza

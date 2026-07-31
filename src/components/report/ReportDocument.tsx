@@ -5,7 +5,7 @@ import type { RiepilogoKcalMacro, RiepilogoPeso, RiepilogoTDEE } from "../../lib
 // il motore di stile di @react-pdf/renderer (basato su Yoga) non garantisce di interpretare le
 // stringhe shorthand nello stesso modo del CSS del browser.
 // Blu-600 di Tailwind (#2563eb): stesso tono usato per i pulsanti primari/toggle attivi in tutta
-// l'app (es. "Genera PDF", "Da mese a mese" selezionato) — il colore più vicino a un "tema
+// l'app (es. "Genera PDF", "Da mese a mese" selezionato) - il colore più vicino a un "tema
 // principale" che l'app abbia oggi, non essendoci un vero design token di brand dedicato.
 const BLU_TEMA = "#2563eb";
 
@@ -80,7 +80,7 @@ export function ReportDocument({ dati }: { dati: DatiReportPdf }) {
             <View style={[styles.hamburgerBarra, { marginTop: 4 }]} />
           </View>
         </View>
-        <Text style={styles.sottotitolo}>Report — {dati.titoloPeriodo}</Text>
+        <Text style={styles.sottotitolo}>Report - {dati.titoloPeriodo}</Text>
 
         {nessunDato && <Text style={styles.vuoto}>Nessun dato disponibile per il periodo selezionato.</Text>}
 

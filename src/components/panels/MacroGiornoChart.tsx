@@ -104,7 +104,7 @@ export const MacroGiornoChart = memo(function MacroGiornoChart({
             />
             <Bar dataKey="grassi_g" name="Grassi" fill={colori.grassi} radius={[4, 4, 0, 0]} />
             {/* Linee limite tratteggiate, stesso colore del proprio macronutriente (associazione
-                immediata bar↔limite) — ritmi di tratteggio diversi tra loro per restare leggibili
+                immediata bar↔limite) - ritmi di tratteggio diversi tra loro per restare leggibili
                 anche quando due limiti coincidono (stesso motivo di limite/TDEE in KcalGiornoChart). */}
             <Line
               type="stepAfter"

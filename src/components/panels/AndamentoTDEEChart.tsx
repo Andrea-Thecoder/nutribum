@@ -29,7 +29,7 @@ export const AndamentoTDEEChart = memo(function AndamentoTDEEChart({
   const colori = paletteGrafici(isDark);
 
   // Un punto per ogni pesata registrata: è la fonte che cambia più spesso tra le tre che alimentano
-  // il TDEE (età/altezza/sesso e livello attività cambiano raramente in confronto) — dà una linea
+  // il TDEE (età/altezza/sesso e livello attività cambiano raramente in confronto) - dà una linea
   // naturalmente densa senza dover inventare date artificiali per cui non esiste un peso reale.
   // Le pesate precedenti al primo profilo mai impostato restano fuori (stimaTDEEAllaData torna
   // null), non hanno un TDEE calcolabile.
@@ -43,7 +43,7 @@ export const AndamentoTDEEChart = memo(function AndamentoTDEEChart({
   if (dati.length === 0) {
     return (
       <p className="text-sm text-slate-500 dark:text-slate-400">
-        Nessun dato ancora — serve un profilo impostato (NavBar → Diario Alimentare → Profilo (per il
+        Nessun dato ancora - serve un profilo impostato (NavBar → Diario Alimentare → Profilo (per il
         TDEE)…) e almeno una pesata registrata da quel momento in poi.
       </p>
     );

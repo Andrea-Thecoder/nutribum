@@ -28,7 +28,7 @@ export function filtraPerPeriodo<T extends { data: string }>(righe: T[], periodo
 }
 
 // Giornaliero solo se il range sta tutto in un unico mese (stesso criterio già usato altrove per
-// decidere quando un grafico giornaliero resta leggibile) — su un range più ampio o "Tutto" i punti
+// decidere quando un grafico giornaliero resta leggibile) - su un range più ampio o "Tutto" i punti
 // sarebbero troppi e il grafico illeggibile, quindi si aggrega per mese.
 export function periodoGraficoPerRange(periodo: PeriodoReport): Periodo {
   if (periodo.dataDa !== null && periodo.dataA !== null && periodo.dataDa.slice(0, 7) === periodo.dataA.slice(0, 7)) {
@@ -103,7 +103,7 @@ export interface RiepilogoTDEE {
 
 // pesoCompleto (non filtrato al range) serve a trovaPesoAttivoAlla/trovaProfiloAttivoAlla dentro
 // stimaTDEEAllaData: la verità puntuale su "cosa sapevamo a quella data" va cercata nello storico
-// intero, non solo nelle date che capitano dentro il periodo del report — coerente con
+// intero, non solo nelle date che capitano dentro il periodo del report - coerente con
 // AndamentoTDEEChart, che fa la stessa cosa per lo stesso motivo.
 export function riepilogoTDEE(
   pesoRange: VocePeso[],
@@ -195,7 +195,7 @@ export interface PuntoPesoReport {
 }
 
 // Stesso pattern "ultimo valore registrato il o prima di una data" già usato in PesoPanel per il
-// grafico interattivo — qui ridefinito perché quella versione non è esportata da PesoPanel.tsx.
+// grafico interattivo - qui ridefinito perché quella versione non è esportata da PesoPanel.tsx.
 function obiettivoPesoAttivoAlla(data: string, storico: PuntoStoricoObiettivoPeso[]): number | null {
   let corrente: number | null = null;
   for (const punto of storico) {

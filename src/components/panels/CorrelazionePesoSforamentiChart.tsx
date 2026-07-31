@@ -62,7 +62,7 @@ export const CorrelazionePesoSforamentiChart = memo(function CorrelazionePesoSfo
   }
 
   // Per il grafico: classificazione di OGNI giorno del diario alimentare che ne ha una (kcal-only,
-  // vedi classificaGiornoKcal), indipendente da avere anche il peso 4 giorni dopo — qui serve solo a
+  // vedi classificaGiornoKcal), indipendente da avere anche il peso 4 giorni dopo - qui serve solo a
   // colorare i punti sulla linea del peso, non a calcolare le medie (quello lo fa analizzaCorrelazionePeso).
   const classificazionePerData = new Map<string, "sforato" | "pulito">();
   for (const g of giorni) {
@@ -124,18 +124,18 @@ export const CorrelazionePesoSforamentiChart = memo(function CorrelazionePesoSfo
             Dopo sforamento (n={risultato.nSforati})
           </div>
           <div className="text-lg font-bold text-red-600 dark:text-red-400">
-            {risultato.mediaSforatiKg === null ? "—" : `${risultato.mediaSforatiKg > 0 ? "+" : ""}${risultato.mediaSforatiKg} kg`}
+            {risultato.mediaSforatiKg === null ? "-" : `${risultato.mediaSforatiKg > 0 ? "+" : ""}${risultato.mediaSforatiKg} kg`}
           </div>
         </div>
         <div>
           <div className="text-xs text-slate-400 dark:text-slate-500">Dopo giorno pulito (n={risultato.nPuliti})</div>
           <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-            {risultato.mediaPulitiKg === null ? "—" : `${risultato.mediaPulitiKg > 0 ? "+" : ""}${risultato.mediaPulitiKg} kg`}
+            {risultato.mediaPulitiKg === null ? "-" : `${risultato.mediaPulitiKg > 0 ? "+" : ""}${risultato.mediaPulitiKg} kg`}
           </div>
         </div>
         {datiInsufficienti ? (
           <p className="col-span-2 text-xs text-slate-400 dark:text-slate-500">
-            Dati insufficienti per un confronto affidabile — servono almeno {risultato.sogliaMinimaCampioni} giorni per
+            Dati insufficienti per un confronto affidabile - servono almeno {risultato.sogliaMinimaCampioni} giorni per
             gruppo con una pesata sia il giorno stesso che {risultato.finestraGiorni} giorni dopo.
           </p>
         ) : (

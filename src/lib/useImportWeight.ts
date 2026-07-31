@@ -41,7 +41,7 @@ export function useImportWeight(onImported: () => void) {
       }
 
       const tipo = esitoImport.errori.length > 0 ? "avviso" : "successo";
-      setResult({ tipo, messaggio: parti.join(" — ") });
+      setResult({ tipo, messaggio: parti.join(" - ") });
     } catch (err) {
       setResult({ tipo: "errore", messaggio: err instanceof Error ? err.message : String(err) });
     } finally {

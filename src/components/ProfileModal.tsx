@@ -29,7 +29,7 @@ const ETA_MAX = 120;
 const ALTEZZA_MIN_CM = 50;
 const ALTEZZA_MAX_CM = 250;
 
-// Solo anagrafica e livello di attività: NON tocca il limite kcal (goal/goal_history) — quella
+// Solo anagrafica e livello di attività: NON tocca il limite kcal (goal/goal_history) - quella
 // scelta si fa nella modale "Imposta limite giornaliero di… → Kcal", che può usare questo profilo
 // per calcolare un TDEE live (checkbox "Usa TDEE calcolato"), ma il profilo e il limite restano due
 // cose distinte che convivono, non una sostituisce l'altra.
@@ -81,7 +81,7 @@ export function ProfileModal({ peso, onClose, onSaved }: ProfileModalProps) {
     altezzaNum >= ALTEZZA_MIN_CM &&
     altezzaNum <= ALTEZZA_MAX_CM;
 
-  // Solo un'anteprima informativa qui — niente di persistito finché non si salva, e non è
+  // Solo un'anteprima informativa qui - niente di persistito finché non si salva, e non è
   // comunque questa la modale che applica il valore a un limite: serve solo a farti vedere
   // subito l'effetto di età/altezza/sesso/attività prima di andare a impostare il limite altrove.
   const risultato =
@@ -109,7 +109,7 @@ export function ProfileModal({ peso, onClose, onSaved }: ProfileModalProps) {
     setSaving(true);
     try {
       await salvaProfilo({ etaAnni: etaNum, altezzaCm: altezzaNum, sesso });
-      // Una nuova riga in profile_fitness solo se il livello è davvero cambiato — riselezionare
+      // Una nuova riga in profile_fitness solo se il livello è davvero cambiato - riselezionare
       // lo stesso livello ogni volta che si riapre la modale non deve accumulare storico ridondante.
       if (livelloId !== livelloAttualeId) {
         await impostaLivelloFitness(livelloId);
@@ -202,7 +202,7 @@ export function ProfileModal({ peso, onClose, onSaved }: ProfileModalProps) {
 
             {!ultimoPeso && (
               <p className="text-xs text-amber-600 dark:text-amber-400">
-                Nessun peso registrato — registrane almeno uno nel pannello "Peso Corporeo" per vedere
+                Nessun peso registrato - registrane almeno uno nel pannello "Peso Corporeo" per vedere
                 l'anteprima del TDEE (la formula ha bisogno anche del peso attuale).
               </p>
             )}

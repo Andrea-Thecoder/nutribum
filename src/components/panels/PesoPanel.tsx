@@ -18,7 +18,7 @@ import { SelettoreIstanza } from "../SelettoreIstanza";
 import type { VistaConfronto } from "./ConfrontoPeriodiChart";
 
 // Niente "Giorno": una pesata al giorno rende quel livello di filtro quasi sempre un grafico/tabella
-// con un unico punto, poco utile — il confronto puntuale tra due giorni specifici è già il compito
+// con un unico punto, poco utile - il confronto puntuale tra due giorni specifici è già il compito
 // dedicato del pannello "Confronto periodi", non va duplicato qui.
 const PERIODI_DISPONIBILI: Periodo[] = ["settimana", "mese", "anno"];
 
@@ -61,7 +61,7 @@ function calcolaProiezione(
 }
 
 // Icona "ⓘ" cliccabile: mostra un popover con spiegazione per un tempo fisso invece di un tooltip
-// a hover, poco visibile e inutilizzabile su schermi touch — poi si richiude da sola senza bisogno
+// a hover, poco visibile e inutilizzabile su schermi touch - poi si richiude da sola senza bisogno
 // di un secondo click altrove. Usata sia nell'header della tabella (allineamento a destra) che in
 // linea nel testo del ritmo (allineamento a sinistra), da qui il prop "allineamento". Durata
 // regolabile per testo: 4s bastano per una riga ("Variazione"), non per la spiegazione del ritmo
@@ -96,7 +96,7 @@ function InfoClickabile({
         <div
           className={
             // z-30, non z-20: i pulsanti di SelettoreIstanza in questo stesso pannello hanno anche
-            // loro z-20 sempre attivo (non solo da aperti) — a parità di z-index vince l'elemento
+            // loro z-20 sempre attivo (non solo da aperti) - a parità di z-index vince l'elemento
             // più avanti nel DOM, e quel selettore viene DOPO questo tooltip, quindi lo copriva.
             "absolute top-full z-30 mt-1 w-72 whitespace-normal rounded-lg border border-slate-200 bg-white p-2 text-left text-[11px] font-normal text-slate-600 shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 " +
             (allineamento === "destra" ? "right-0" : "left-0")
@@ -123,7 +123,7 @@ function obiettivoAttivoAlla(data: string, storico: PuntoStoricoObiettivoPeso[])
   return corrente;
 }
 
-// Pulsanti nell'header del pannello (accanto al titolo "PESO CORPOREO"), non nel corpo — per questo
+// Pulsanti nell'header del pannello (accanto al titolo "PESO CORPOREO"), non nel corpo - per questo
 // un componente a parte, usato da headerExtraPannello in App.tsx. Aprono le stesse modali
 // raggiungibili da NavBar → Diario del Peso: un solo posto dove vive ciascun form, due scorciatoie
 // per aprirlo. L'etichetta è dinamica: "Aggiorna" se un record esiste già (peso di oggi già
@@ -246,7 +246,7 @@ export const PesoPanel = memo(function PesoPanel({
         )}
       </div>
 
-      {/* Fatto puntuale ("sono nell'obiettivo?"), indipendente dal ritmo — vedi nelObiettivoPeso. */}
+      {/* Fatto puntuale ("sono nell'obiettivo?"), indipendente dal ritmo - vedi nelObiettivoPeso. */}
       {obiettivoKg !== null && ultimo !== null && (
         <p className="text-xs text-slate-500 dark:text-slate-400">
           {giaNellObiettivo ? (
@@ -265,7 +265,7 @@ export const PesoPanel = memo(function PesoPanel({
         </p>
       )}
 
-      {/* Trend ("a che ritmo mi ci sto muovendo?"), separato dal fatto sopra apposta — vedi il
+      {/* Trend ("a che ritmo mi ci sto muovendo?"), separato dal fatto sopra apposta - vedi il
           commento su calcolaProiezione per il perché di questa separazione. */}
       {proiezione && (
         <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -334,11 +334,11 @@ export const PesoPanel = memo(function PesoPanel({
                       {v.pesoKg.toFixed(1)} kg
                     </td>
                     <td className="py-1.5 text-right text-slate-500 dark:text-slate-400">
-                      {obiettivoAllaData === null ? "—" : `${obiettivoAllaData.toFixed(1)} kg`}
+                      {obiettivoAllaData === null ? "-" : `${obiettivoAllaData.toFixed(1)} kg`}
                     </td>
                     <td className="py-1.5 text-right text-slate-600 dark:text-slate-300">
                       {variazione === null ? (
-                        "—"
+                        "-"
                       ) : (
                         <>
                           {variazione > 0 ? "↑" : variazione < 0 ? "↓" : "→"}{" "}
@@ -367,12 +367,12 @@ export const PesoPanel = memo(function PesoPanel({
               <Tooltip
                 {...stileTooltip(isDark)}
                 labelFormatter={(v) => format(new Date(String(v)), "d MMMM yyyy", { locale: it })}
-                formatter={(v, nome) => [v == null ? "—" : `${v} kg`, nome]}
+                formatter={(v, nome) => [v == null ? "-" : `${v} kg`, nome]}
               />
               {storicoObiettivo.length > 0 && <Legend />}
               <Line type="monotone" dataKey="peso" name="Peso" stroke={colori.peso} strokeWidth={2} dot={{ r: 3 }} />
               {/* A gradini ("stepAfter"), non "monotone": l'obiettivo resta costante finché non lo
-                  cambi di nuovo, non interpola linearmente tra un valore e l'altro — riflette
+                  cambi di nuovo, non interpola linearmente tra un valore e l'altro - riflette
                   davvero come è cambiato nel tempo, invece di una retta piatta sul valore attuale
                   che ignorerebbe cosa era in vigore nei giorni passati. Spezzata (non connessa) nei
                   giorni precedenti al primo obiettivo mai impostato. Pallino solo sui cambi. */}

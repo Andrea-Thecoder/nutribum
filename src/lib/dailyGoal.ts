@@ -10,7 +10,7 @@ import type { VocePeso } from "./weight";
 export interface Goal {
   kcal: number | null;
   // Limite minimo: scendere troppo sotto il proprio fabbisogno è un rischio (denutrizione) quanto
-  // sforare in alto — stesso "gruppo" kcal del limite massimo (stessa riga di goal/goal_history,
+  // sforare in alto - stesso "gruppo" kcal del limite massimo (stessa riga di goal/goal_history,
   // stesso storico), il BMR calcolato ne è il fallback quando non è impostato a mano (vedi tdee.ts).
   kcalMin: number | null;
   proteineG: number | null;
@@ -101,7 +101,7 @@ export async function elencaStoricoObiettivo(): Promise<PuntoStoricoObiettivo[]>
 // Trova l'obiettivo che era effettivamente in vigore in una certa data, risolvendo i 3 macrogruppi
 // indipendentemente e poi combinandoli. Tra tutte le voci di un gruppo il cui intervallo
 // [validoDal, validoAl] contiene la data richiesta, vince quella salvata più di recente (id più
-// alto) — indipendentemente dall'ambito: un "sempre" più recente batte una "questa settimana" più
+// alto) - indipendentemente dall'ambito: un "sempre" più recente batte una "questa settimana" più
 // vecchia sui giorni in comune, e viceversa se è quest'ultima ad essere più recente.
 export function obiettivoEffettivo(storico: PuntoStoricoObiettivo[], data: string): Goal | null {
   function ultimoDelGruppo(gruppo: Gruppo): PuntoStoricoObiettivo | null {
@@ -192,7 +192,7 @@ const METRICHE_CONTROLLATE: { chiaveTotali: keyof Totali; chiaveGoal: keyof Goal
 ];
 
 // Confronta i totali di un giorno con l'obiettivo impostato e ritorna le metriche sforate
-// (solo quelle per cui è stato impostato un limite — un limite non impostato non genera avvisi).
+// (solo quelle per cui è stato impostato un limite - un limite non impostato non genera avvisi).
 export function calcolaSforamenti(totali: Totali, obiettivo: Goal | null): Sforamento[] {
   if (!obiettivo) return [];
   const sforamenti: Sforamento[] = [];
@@ -217,11 +217,11 @@ export interface PercentualeMetrica {
 
 // Media delle percentuali giornaliere sul limite in vigore quel giorno (non il totale del periodo
 // diviso un limite scalato): ogni giorno resta indipendente, coerente con l'uso del limite
-// storicamente in vigore già fatto altrove — un cambio di limite a metà settimana/mese non
+// storicamente in vigore già fatto altrove - un cambio di limite a metà settimana/mese non
 // distorce il calcolo. Un giorno senza limite impostato per una metrica non entra nella media di
 // quella metrica; una metrica senza nessun giorno con limite impostato non compare nel risultato.
 // valoreMedio/limiteMedio sono la media giornaliera di consumo e limite (su un singolo giorno
-// coincidono col valore/limite di quel giorno) — usati per mostrare il dato assoluto nel tooltip
+// coincidono col valore/limite di quel giorno) - usati per mostrare il dato assoluto nel tooltip
 // oltre alla percentuale.
 export function percentualiMedie(giorni: GiornoStorico[], storicoObiettivi: PuntoStoricoObiettivo[]): PercentualeMetrica[] {
   const somme = new Map<string, { percentuale: number; valore: number; limite: number; conteggio: number }>();
@@ -261,7 +261,7 @@ export function percentualiMedie(giorni: GiornoStorico[], storicoObiettivi: Punt
 }
 
 // Speculare a percentualiMedie ma per un solo confronto: kcal consumate rispetto al TDEE stimato
-// (non al limite impostato a mano — quello resta il "Kcal (limite)" dentro percentualiMedie). Le
+// (non al limite impostato a mano - quello resta il "Kcal (limite)" dentro percentualiMedie). Le
 // kcal sono l'unica metrica con due riferimenti sensati insieme (limite manuale E TDEE calcolato);
 // le altre non hanno un equivalente "stimato" con cui confrontarsi, da qui una funzione a parte
 // invece di generalizzare METRICHE_CONTROLLATE per un solo caso. Stessa media di percentuali
@@ -373,7 +373,7 @@ export function dettaglioGiorniSforati(
 }
 
 // Limite minimo effettivo di un giorno: manuale se impostato, altrimenti il BMR calcolato quel
-// giorno come fallback — stessa gerarchia già usata per il limite massimo con il TDEE (vedi
+// giorno come fallback - stessa gerarchia già usata per il limite massimo con il TDEE (vedi
 // classificaGiornoKcal in correlazionePeso.ts). Null se non c'è né un minimo manuale né un BMR
 // calcolabile (es. nessun profilo/peso registrato ancora).
 export function limiteMinimoEffettivo(
@@ -434,7 +434,7 @@ export interface DettaglioGiornoCarente {
   kcalMinimo: number;
 }
 
-// Dettaglio giorno per giorno dei periodi riassunti da calcolaStatoCarenza — stessa struttura di
+// Dettaglio giorno per giorno dei periodi riassunti da calcolaStatoCarenza - stessa struttura di
 // dettaglioGiorniSforati, per "serie"/"mese".
 export function dettaglioGiorniCarenti(
   giorni: GiornoStorico[],
@@ -481,7 +481,7 @@ export interface StatoPositivo {
 }
 
 // Speculare a calcolaStatoSforamenti, ma per i traguardi positivi. Un giorno è "pulito" solo se ha
-// dati registrati, ha un obiettivo effettivo impostato E non lo sfora — un giorno senza dati (o
+// dati registrati, ha un obiettivo effettivo impostato E non lo sfora - un giorno senza dati (o
 // senza nessun limite impostato) non conta come pulito, non c'è nulla da festeggiare se non è stato
 // nemmeno tracciato o non era impostato alcun limite. Serie consecutiva: a ritroso da "oggi", come
 // nella versione negativa. Settimana pulita: dal lunedì della settimana corrente a oggi (non oltre
@@ -530,7 +530,7 @@ export function calcolaStatoPositivo(
 const INIZIO_DEI_TEMPI = "1970-01-01T00:00:00.000Z";
 
 // Calcola l'intervallo [validoDal, validoAl] per l'ambito scelto, ancorato a "ora": "settimana"/"mese"
-// fissano la settimana (lunedì-domenica) o il mese corrente al momento del salvataggio — non si
+// fissano la settimana (lunedì-domenica) o il mese corrente al momento del salvataggio - non si
 // spostano più se il salvataggio avviene in un secondo momento.
 function intervalloPerAmbito(ambito: Ambito): { validoDal: string; validoAl: string | null } {
   const ora = new Date();
@@ -555,7 +555,7 @@ function intervalloPerAmbito(ambito: Ambito): { validoDal: string; validoAl: str
 // Ogni salvataggio registra uno snapshot completo dell'obiettivo aggiornato in goal_history, per
 // mostrare l'andamento nel tempo e calcolare il limite in vigore in un dato giorno. `recorded_at`
 // tiene traccia di quando il salvataggio è stato davvero fatto (sempre "ora"), indipendentemente
-// dall'intervallo di validità scelto — utile per lo storico/grafico.
+// dall'intervallo di validità scelto - utile per lo storico/grafico.
 async function registraStoricoObiettivo(db: Database, ambito: Ambito, gruppo: Gruppo): Promise<void> {
   const { validoDal, validoAl } = intervalloPerAmbito(ambito);
   await db.execute(

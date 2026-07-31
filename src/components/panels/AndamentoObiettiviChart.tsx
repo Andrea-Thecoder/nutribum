@@ -31,7 +31,7 @@ function mappaPunti(storico: PuntoStoricoObiettivo[]): PuntoGrafico[] {
   return storico.map((p) => ({
     // Chiave = quando il salvataggio è stato davvero fatto (non l'inizio dell'intervallo di
     // validità, che per "sempre" è convenzionalmente l'inizio dei tempi e non avrebbe senso in
-    // asse): un timestamp ISO completo, univoco anche con più modifiche lo stesso giorno — usare
+    // asse): un timestamp ISO completo, univoco anche con più modifiche lo stesso giorno - usare
     // solo la data formattata causava collisioni tra punti dello stesso giorno, con recharts che al
     // passaggio del mouse mostrava sempre il valore del primo invece di quello corretto.
     chiave: p.registratoIl,
@@ -55,7 +55,7 @@ function formattaChiaveCompleta(chiave: unknown): string {
   return format(new Date(String(chiave)), "d MMM yyyy HH:mm", { locale: it });
 }
 
-// Descrive l'ambito di validità di un punto, per la riga extra nel tooltip — "da ora in poi" non
+// Descrive l'ambito di validità di un punto, per la riga extra nel tooltip - "da ora in poi" non
 // aggiunge nulla che non sia già ovvio dalla posizione del punto, quindi non mostra riga.
 function descrizioneAmbito(punto: PuntoGrafico): string | null {
   if (punto.ambito === "daOra") return null;
@@ -132,7 +132,7 @@ export const AndamentoObiettiviChart = memo(function AndamentoObiettiviChart({
   if (storico.length === 0) {
     return (
       <p className="text-sm text-slate-500 dark:text-slate-400">
-        Nessun obiettivo impostato ancora — Impostazioni → "Imposta limite giornaliero di…".
+        Nessun obiettivo impostato ancora - Impostazioni → "Imposta limite giornaliero di…".
       </p>
     );
   }

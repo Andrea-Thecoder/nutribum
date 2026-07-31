@@ -16,7 +16,7 @@ interface EsportaPrimaDiCancellareModalProps {
 }
 
 // Secondo passo del flusso di sicurezza per le azioni distruttive (svuota diario / cancella tutti
-// i dati): il primo passo è una conferma semplice (useConferma), questo è il secondo — offre di
+// i dati): il primo passo è una conferma semplice (useConferma), questo è il secondo - offre di
 // esportare un backup PRIMA di procedere, invece di limitarsi a chiedere "sei sicuro?" una seconda
 // volta. "Procedi senza esportare" resta disponibile per chi ha già un backup o non lo vuole.
 export function EsportaPrimaDiCancellareModal({

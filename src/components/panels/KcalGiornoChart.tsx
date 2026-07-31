@@ -31,7 +31,7 @@ import { LegendaManuale } from "./LegendaManuale";
 import type { VocePeso } from "../../lib/weight";
 
 // Memoizzato: App.tsx si ri-renderizza per motivi che non riguardano questo grafico (es. un altro
-// pannello aggiunto/spostato) — senza memo, ricalcolerebbe le aggregazioni e ridisegnerebbe l'SVG
+// pannello aggiunto/spostato) - senza memo, ricalcolerebbe le aggregazioni e ridisegnerebbe l'SVG
 // anche quando i suoi dati (giorni/focusGiorno) non sono affatto cambiati.
 export const KcalGiornoChart = memo(function KcalGiornoChart({
   giorni,
@@ -67,7 +67,7 @@ export const KcalGiornoChart = memo(function KcalGiornoChart({
   const periodoEffettivo = istanza === TUTTO_IL_PERIODO ? periodo : periodoFine(periodo);
   const datiBase = raggruppaPerPeriodo(giorniBase, periodoEffettivo);
 
-  // Le barre kcal sono già una somma sui giorni del periodo (settimana/mese/anno) — le due linee
+  // Le barre kcal sono già una somma sui giorni del periodo (settimana/mese/anno) - le due linee
   // di riferimento sono valori giornalieri, quindi per restare comparabili con la barra si somma
   // anche limite/TDEE sui giorni dello stesso bucket, invece di limitarsi a mostrarle solo per
   // periodoEffettivo === "giorno" (dove la somma di 1 giorno equivale al valore giornaliero).
@@ -124,7 +124,7 @@ export const KcalGiornoChart = memo(function KcalGiornoChart({
             />
             <Bar dataKey="kcal" name="Kcal consumate" fill={colori.kcal} radius={[4, 4, 0, 0]} />
             {/* Quando limite e TDEE coincidono (es. col checkbox "usa TDEE calcolato" nel modale
-                limite kcal) le due linee finiscono esattamente sullo stesso pixel — nessun colore
+                limite kcal) le due linee finiscono esattamente sullo stesso pixel - nessun colore
                 risolve una sovrapposizione perfetta. Due ritmi di tratteggio diversi (corto/fitto vs
                 lungo/largo) restano leggibili anche in quel caso: i tratti dell'una si intravedono
                 nelle fessure dell'altra invece di sparire del tutto sotto una linea continua. */}
