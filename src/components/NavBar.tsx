@@ -17,6 +17,7 @@ import {
   dettaglioGiorniSforati,
   calcolaStatoCarenza,
   dettaglioGiorniCarenti,
+  carenzaGrave,
   type PuntoStoricoObiettivo,
 } from "../lib/dailyGoal";
 import { registraErroreNonBloccante } from "../lib/errorLog";
@@ -229,15 +230,16 @@ export function NavBar({
   // Stesso dominio "kcal" dello sforamento (non un dominio indipendente come il peso), rischio
   // opposto: giorni sotto il limite minimo effettivo (manuale o BMR di fallback). Stesse soglie
   // dello sforamento kcal, coerente perché è la stessa metrica letta dall'altro lato.
-  const { serieConsecutiva: serieConsecutivaCarenza, giorniCarentiNelMese } = calcolaStatoCarenza(
-    giorni,
-    storicoObiettivi,
-    storicoProfilo,
-    storicoFitness,
-    peso,
-    oggi,
-  );
-  const carenzaGrave = giorniCarentiNelMese >= SOGLIA_GIORNI_NEL_MESE;
+  const {
+    serieConsecutiva: serieConsecutivaCarenza,
+    giorniCarentiNelMese,
+    serieConsecutivaGrave: serieConsecutivaCarenzaGrave,
+    giorniCarentiGraviNelMese,
+  } = calcolaStatoCarenza(giorni, storicoObiettivi, storicoProfilo, storicoFitness, peso, oggi);
+  // Rinominata rispetto a prima (era "carenzaGrave"): quel nome ora appartiene alla funzione
+  // importata da dailyGoal.ts che giudica la gravità di UN giorno (kcal < 25% del minimo), un
+  // concetto diverso da "la soglia mensile/di serie è stata superata".
+  const carenzaAllarmeMese = giorniCarentiNelMese >= SOGLIA_GIORNI_NEL_MESE;
   const carenzaSerie = serieConsecutivaCarenza >= SOGLIA_SERIE_CONSECUTIVA;
   const { serieConsecutiva: serieConsecutivaPeso, giorniSforatiNelMese: giorniSforatiNelMesePeso } =
     calcolaStatoSforamentoPeso(peso, obiettivoPesoKg, oggi, margineObiettivoPesoKg);
@@ -246,6 +248,9 @@ export function NavBar({
   const { serieConsecutivaPulita, settimanaPulita, giorniPulitiNelMese } = calcolaStatoPositivo(
     giorni,
     storicoObiettivi,
+    storicoProfilo,
+    storicoFitness,
+    peso,
     oggi,
   );
   const badgePositivo = risolviBadgePositivo(
@@ -254,7 +259,7 @@ export function NavBar({
     giorniPulitiNelMese,
     SOGLIA_SERIE_PULITA,
     SOGLIA_GIORNI_PULITI_MESE,
-    sforamentoGrave || sforamentoSerie || carenzaGrave || carenzaSerie,
+    sforamentoGrave || sforamentoSerie || carenzaAllarmeMese || carenzaSerie,
   );
   const {
     serieConsecutivaPulita: serieConsecutivaPulitaPeso,
@@ -1085,7 +1090,7 @@ export function NavBar({
                   }
                 : null;
 
-          const bannerCarenza: { positivo: boolean; nodo: ReactElement } | null = carenzaGrave
+          const bannerCarenza: { positivo: boolean; nodo: ReactElement } | null = carenzaAllarmeMese
             ? {
                 positivo: false,
                 nodo: (
@@ -1093,9 +1098,11 @@ export function NavBar({
                     key="carenza"
                     onClick={() => setDettaglioCarenzaAperto("mese")}
                     className="rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white shadow-lg hover:bg-red-700"
-                    title={`${giorniCarentiNelMese} giorni sotto il limite minimo di kcal questo mese - clicca per i dettagli`}
+                    title={`${giorniCarentiNelMese} giorni sotto il limite minimo di kcal questo mese (di cui ${giorniCarentiGraviNelMese} molto sotto, meno del 25% del minimo) - clicca per i dettagli`}
                   >
-                    ⚠️ {giorniCarentiNelMese} giorni sotto il minimo kcal questo mese
+                    {giorniCarentiGraviNelMese > 0 ? "🆘" : "⚠️"} {giorniCarentiNelMese} giorni sotto il minimo
+                    kcal questo mese
+                    {giorniCarentiGraviNelMese > 0 && ` (${giorniCarentiGraviNelMese} molto sotto)`}
                   </button>
                 ),
               }
@@ -1107,9 +1114,11 @@ export function NavBar({
                       key="carenza"
                       onClick={() => setDettaglioCarenzaAperto("serie")}
                       className="rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-white shadow-lg hover:bg-amber-600"
-                      title={`${serieConsecutivaCarenza} giorni di fila sotto il limite minimo di kcal - clicca per i dettagli`}
+                      title={`${serieConsecutivaCarenza} giorni di fila sotto il limite minimo di kcal (di cui ${serieConsecutivaCarenzaGrave} molto sotto, meno del 25% del minimo) - clicca per i dettagli`}
                     >
-                      ⚠️ {serieConsecutivaCarenza} giorni di fila sotto il minimo kcal
+                      {serieConsecutivaCarenzaGrave > 0 ? "🆘" : "⚠️"} {serieConsecutivaCarenza} giorni di fila
+                      sotto il minimo kcal
+                      {serieConsecutivaCarenzaGrave > 0 && ` (${serieConsecutivaCarenzaGrave} molto sotto)`}
                     </button>
                   ),
                 }
@@ -1221,7 +1230,15 @@ export function NavBar({
             dettaglioCarenzaAperto,
           ).map((d) => ({
             data: d.data,
-            sforamenti: [{ etichetta: "Kcal (sotto il minimo)", valore: d.kcalConsumate, limite: d.kcalMinimo }],
+            sforamenti: [
+              {
+                etichetta: carenzaGrave(d.kcalConsumate, d.kcalMinimo)
+                  ? "Kcal (molto sotto il minimo)"
+                  : "Kcal (sotto il minimo)",
+                valore: d.kcalConsumate,
+                limite: d.kcalMinimo,
+              },
+            ],
           }))}
           onChiudi={() => setDettaglioCarenzaAperto(null)}
           onApriGiorno={(data) => {

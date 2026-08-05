@@ -387,9 +387,24 @@ export function limiteMinimoEffettivo(
   return stimaTDEEAllaData(data, storicoProfilo, storicoFitness, peso)?.bmr ?? null;
 }
 
+// Sotto questa quota del minimo, la carenza non è più "un po' poco" ma un deficit severo (es. un
+// minimo di 1400 kcal, consumate 155 - siamo all'11%, non semplicemente "sotto"): una seconda
+// soglia solo per distinguere visivamente la gravità, non cambia se il giorno è considerato
+// carente o no (quello resta un semplice kcal < minimo, vedi calcolaStatoCarenza).
+export const SOGLIA_CARENZA_GRAVE = 0.25;
+
+export function carenzaGrave(kcalConsumate: number, minimo: number | null): boolean {
+  return minimo !== null && kcalConsumate < minimo * SOGLIA_CARENZA_GRAVE;
+}
+
 export interface StatoCarenza {
   serieConsecutiva: number;
   giorniCarentiNelMese: number;
+  // Sottoinsieme dei due valori sopra, solo per i giorni gravi (vedi carenzaGrave/
+  // SOGLIA_CARENZA_GRAVE): NON alternativi a serieConsecutiva/giorniCarentiNelMese, un giorno grave
+  // è comunque anche "carente" e conta in entrambi i conteggi.
+  serieConsecutivaGrave: number;
+  giorniCarentiGraviNelMese: number;
 }
 
 // Speculare a calcolaStatoSforamenti/StatoSforamenti, ma per il rischio opposto: giorni in cui le
@@ -406,26 +421,35 @@ export function calcolaStatoCarenza(
   oggi: string,
 ): StatoCarenza {
   const carenteData = new Map<string, boolean>();
+  const carenteGraveData = new Map<string, boolean>();
   for (const g of giorni) {
     const obiettivo = obiettivoEffettivo(storicoObiettivi, g.data);
     const minimo = limiteMinimoEffettivo(g.data, obiettivo, storicoProfilo, storicoFitness, peso);
-    carenteData.set(g.data, minimo !== null && totaliGiorno(g).kcal < minimo);
+    const kcal = totaliGiorno(g).kcal;
+    carenteData.set(g.data, minimo !== null && kcal < minimo);
+    carenteGraveData.set(g.data, carenzaGrave(kcal, minimo));
   }
 
   let serieConsecutiva = 0;
+  let serieConsecutivaGrave = 0;
   let cursore = oggi;
   while (carenteData.get(cursore) === true) {
     serieConsecutiva++;
+    if (carenteGraveData.get(cursore) === true) serieConsecutivaGrave++;
     cursore = format(subDays(new Date(cursore), 1), "yyyy-MM-dd");
   }
 
   const meseCorrente = oggi.slice(0, 7);
   let giorniCarentiNelMese = 0;
+  let giorniCarentiGraviNelMese = 0;
   for (const [data, carente] of carenteData) {
-    if (carente && data.slice(0, 7) === meseCorrente) giorniCarentiNelMese++;
+    if (carente && data.slice(0, 7) === meseCorrente) {
+      giorniCarentiNelMese++;
+      if (carenteGraveData.get(data) === true) giorniCarentiGraviNelMese++;
+    }
   }
 
-  return { serieConsecutiva, giorniCarentiNelMese };
+  return { serieConsecutiva, giorniCarentiNelMese, serieConsecutivaGrave, giorniCarentiGraviNelMese };
 }
 
 export interface DettaglioGiornoCarente {
@@ -481,23 +505,33 @@ export interface StatoPositivo {
 }
 
 // Speculare a calcolaStatoSforamenti, ma per i traguardi positivi. Un giorno è "pulito" solo se ha
-// dati registrati, ha un obiettivo effettivo impostato E non lo sfora - un giorno senza dati (o
-// senza nessun limite impostato) non conta come pulito, non c'è nulla da festeggiare se non è stato
-// nemmeno tracciato o non era impostato alcun limite. Serie consecutiva: a ritroso da "oggi", come
-// nella versione negativa. Settimana pulita: dal lunedì della settimana corrente a oggi (non oltre
-// oggi, stessa logica "presente e passato" della serie). Giorni nel mese: come la versione
-// negativa, include anche i giorni futuri dello stesso mese corrente.
+// dati registrati, ha un obiettivo effettivo impostato, non lo sfora in alto E non è sotto il
+// limite minimo - un giorno senza dati (o senza nessun limite impostato) non conta come pulito, non
+// c'è nulla da festeggiare se non è stato nemmeno tracciato o non era impostato alcun limite. Il
+// controllo sul minimo è lo stesso rischio opposto già usato in calcolaStatoCarenza: sforamento e
+// carenza sono controlli indipendenti, un giorno può non superare nessun massimo (kcal bassissime)
+// ma essere comunque un problema nutrizionale - "pulito" richiede l'assenza di ENTRAMBI i rischi,
+// non solo del primo. Serie consecutiva: a ritroso da "oggi", come nella versione negativa.
+// Settimana pulita: dal lunedì della settimana corrente a oggi (non oltre oggi, stessa logica
+// "presente e passato" della serie). Giorni nel mese: come la versione negativa, include anche i
+// giorni futuri dello stesso mese corrente.
 export function calcolaStatoPositivo(
   giorni: GiornoStorico[],
   storicoObiettivi: PuntoStoricoObiettivo[],
+  storicoProfilo: PuntoStoricoProfilo[],
+  storicoFitness: PuntoStoricoFitness[],
+  peso: VocePeso[],
   oggi: string,
 ): StatoPositivo {
   const pulitoPerData = new Map<string, boolean>();
   for (const g of giorni) {
     const obiettivo = obiettivoEffettivo(storicoObiettivi, g.data);
+    const totali = totaliGiorno(g);
+    const minimo = limiteMinimoEffettivo(g.data, obiettivo, storicoProfilo, storicoFitness, peso);
+    const sottoMinimo = minimo !== null && totali.kcal < minimo;
     pulitoPerData.set(
       g.data,
-      obiettivo !== null && calcolaSforamenti(totaliGiorno(g), obiettivo).length === 0,
+      obiettivo !== null && !sottoMinimo && calcolaSforamenti(totali, obiettivo).length === 0,
     );
   }
 

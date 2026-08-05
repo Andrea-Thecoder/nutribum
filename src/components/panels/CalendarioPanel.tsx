@@ -8,6 +8,7 @@ import {
   obiettivoEffettivo,
   calcolaSforamenti,
   limiteMinimoEffettivo,
+  carenzaGrave,
   type PuntoStoricoObiettivo,
 } from "../../lib/dailyGoal";
 import { registraErroreNonBloccante } from "../../lib/errorLog";
@@ -80,6 +81,9 @@ export const CalendarioPanel = memo(function CalendarioPanel({
           // massimo, imposto nella modale), quindi i due colori restano mutuamente esclusivi.
           const minimoKcal = limiteMinimoEffettivo(cella.chiave, obiettivoGiorno, storicoProfilo, storicoFitness, peso);
           const sottoMinimo = cella.totali !== null && minimoKcal !== null && cella.totali.kcal < minimoKcal;
+          // Stesso colore ambra della carenza "semplice" (non un terzo colore che rischierebbe di
+          // confondersi col rosso dello sforamento): solo l'icona cambia, a segnalare quanto è grave.
+          const grave = cella.totali !== null && carenzaGrave(cella.totali.kcal, minimoKcal);
           // Colonna della settimana (0=Lun...6=Dom, la griglia parte da lunedì): il tooltip si
           // ancora al bordo vicino invece di restare sempre centrato, altrimenti nelle colonne
           // estreme finirebbe fuori dal pannello.
@@ -136,7 +140,11 @@ export const CalendarioPanel = memo(function CalendarioPanel({
               )}
               {!sfora && sottoMinimo && (
                 <div className="absolute right-0.5 top-0.5 text-[11px] leading-none">
-                  <span title="Kcal sotto il minimo">⚠️</span>
+                  {grave ? (
+                    <span title="Kcal molto sotto il minimo (meno del 25%)">🆘</span>
+                  ) : (
+                    <span title="Kcal sotto il minimo">⚠️</span>
+                  )}
                 </div>
               )}
               {!cella.fuoriMese && (
@@ -160,7 +168,9 @@ export const CalendarioPanel = memo(function CalendarioPanel({
                         {obiettivoGiorno?.kcal != null && ` - Limite ${obiettivoGiorno.kcal}`}
                       </div>
                       {sottoMinimo && minimoKcal !== null && (
-                        <div className="text-amber-300">Sotto il minimo di {Math.round(minimoKcal)}</div>
+                        <div className="text-amber-300">
+                          {grave ? "Molto sotto" : "Sotto"} il minimo di {Math.round(minimoKcal)}
+                        </div>
                       )}
                       {altriSforamenti.length > 0 && (
                         <>
