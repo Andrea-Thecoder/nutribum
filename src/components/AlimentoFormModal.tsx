@@ -8,6 +8,7 @@ import {
   type UnitaAlimento,
 } from "../lib/food";
 import { useConfermaChiusura } from "./ConfermaModal";
+import { accettaDueDecimali } from "../lib/inputNumerico";
 
 interface AlimentoFormModalProps {
   alimento?: AlimentoCatalogo;
@@ -18,12 +19,13 @@ interface AlimentoFormModalProps {
 const CAMPO =
   "w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100";
 
-// Arrotonda a 1 decimale; null se il campo è vuoto, undefined se il valore non è un numero valido (≥ 0).
+// Arrotonda a 2 decimali (coerente col limite imposto ai campi in input, vedi accettaDueDecimali);
+// null se il campo è vuoto, undefined se il valore non è un numero valido (≥ 0).
 function parseNumeroPositivo(v: string): number | null | undefined {
   if (v.trim() === "") return null;
   const n = Number(v);
   if (!Number.isFinite(n) || n < 0) return undefined;
-  return Math.round(n * 10) / 10;
+  return Math.round(n * 100) / 100;
 }
 
 function valoreIniziale(v: number | null | undefined): string {
@@ -117,7 +119,7 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato }: AlimentoFor
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+        className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
@@ -174,35 +176,35 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato }: AlimentoFor
           <div className="grid grid-cols-2 gap-2">
             <label className="flex flex-col gap-0.5">
               Kcal
-              <input className={CAMPO} type="number" min={0} step="0.1" value={kcal} onChange={(e) => setKcal(e.target.value)} />
+              <input className={CAMPO} type="number" min={0} step="0.01" value={kcal} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setKcal(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
               Proteine (g)
-              <input className={CAMPO} type="number" min={0} step="0.1" value={proteine} onChange={(e) => setProteine(e.target.value)} />
+              <input className={CAMPO} type="number" min={0} step="0.01" value={proteine} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setProteine(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
               Carboidrati (g)
-              <input className={CAMPO} type="number" min={0} step="0.1" value={carboidrati} onChange={(e) => setCarboidrati(e.target.value)} />
+              <input className={CAMPO} type="number" min={0} step="0.01" value={carboidrati} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setCarboidrati(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
               di cui zuccheri (g)
-              <input className={CAMPO} type="number" min={0} step="0.1" value={zuccheri} onChange={(e) => setZuccheri(e.target.value)} />
+              <input className={CAMPO} type="number" min={0} step="0.01" value={zuccheri} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setZuccheri(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
               Grassi (g)
-              <input className={CAMPO} type="number" min={0} step="0.1" value={grassi} onChange={(e) => setGrassi(e.target.value)} />
+              <input className={CAMPO} type="number" min={0} step="0.01" value={grassi} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setGrassi(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
               di cui saturi (g)
-              <input className={CAMPO} type="number" min={0} step="0.1" value={grassiSaturi} onChange={(e) => setGrassiSaturi(e.target.value)} />
+              <input className={CAMPO} type="number" min={0} step="0.01" value={grassiSaturi} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setGrassiSaturi(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
               Fibre (g)
-              <input className={CAMPO} type="number" min={0} step="0.1" value={fibre} onChange={(e) => setFibre(e.target.value)} />
+              <input className={CAMPO} type="number" min={0} step="0.01" value={fibre} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setFibre(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
               Sale (g)
-              <input className={CAMPO} type="number" min={0} step="0.1" value={sale} onChange={(e) => setSale(e.target.value)} />
+              <input className={CAMPO} type="number" min={0} step="0.01" value={sale} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setSale(e.target.value); }} />
             </label>
           </div>
 

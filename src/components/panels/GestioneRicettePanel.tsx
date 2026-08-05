@@ -149,7 +149,7 @@ export const GestioneRicettePanel = memo(function GestioneRicettePanel({
         <InfoModal
           titolo={visualizzaRicetta.nome}
           onChiudi={() => setVisualizzaRicetta(null)}
-          larghezzaClasse="max-w-3xl"
+          larghezzaClasse="w-full max-w-3xl"
         >
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm">

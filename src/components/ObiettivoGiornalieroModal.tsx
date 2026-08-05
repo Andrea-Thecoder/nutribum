@@ -13,6 +13,7 @@ import { registraErroreNonBloccante } from "../lib/errorLog";
 import type { VocePeso } from "../lib/weight";
 import { SelettorePersonalizzato } from "./SelettorePersonalizzato";
 import { useConfermaChiusura } from "./ConfermaModal";
+import { accettaDueDecimali } from "../lib/inputNumerico";
 
 export type TipoObiettivo = "kcal" | "macro" | "altro";
 
@@ -46,12 +47,13 @@ const DESCRIZIONI_AMBITO: Record<Ambito, string> = {
   mese: "Vale solo dal primo all'ultimo giorno di questo mese.",
 };
 
-// Arrotonda a 1 decimale; null se il campo è vuoto (nessun limite impostato), undefined se non valido.
+// Arrotonda a 2 decimali (coerente col limite imposto ai campi in input, vedi accettaDueDecimali);
+// null se il campo è vuoto (nessun limite impostato), undefined se non valido.
 function parseNumeroPositivoOVuoto(v: string): number | null | undefined {
   if (v.trim() === "") return null;
   const n = Number(v);
   if (!Number.isFinite(n) || n < 0) return undefined;
-  return Math.round(n * 10) / 10;
+  return Math.round(n * 100) / 100;
 }
 
 // Ricorda l'ultimo ambito effettivamente usato in un salvataggio riuscito, per tipo di obiettivo:
@@ -232,7 +234,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+        className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{TITOLI[tipo]}</h2>
@@ -256,9 +258,9 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     className={CAMPO}
                     type="number"
                     min={0}
-                    step="0.1"
+                    step="0.01"
                     value={kcal}
-                    onChange={(e) => setKcal(e.target.value)}
+                    onChange={(e) => { if (accettaDueDecimali(e.target.value)) setKcal(e.target.value); }}
                     disabled={usaTDEE}
                     autoFocus
                   />
@@ -295,9 +297,9 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     className={CAMPO}
                     type="number"
                     min={0}
-                    step="0.1"
+                    step="0.01"
                     value={kcalMin}
-                    onChange={(e) => setKcalMin(e.target.value)}
+                    onChange={(e) => { if (accettaDueDecimali(e.target.value)) setKcalMin(e.target.value); }}
                     disabled={usaBMR}
                   />
                 </label>
@@ -334,9 +336,9 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     className={CAMPO}
                     type="number"
                     min={0}
-                    step="0.1"
+                    step="0.01"
                     value={grassi}
-                    onChange={(e) => setGrassi(e.target.value)}
+                    onChange={(e) => { if (accettaDueDecimali(e.target.value)) setGrassi(e.target.value); }}
                     autoFocus
                   />
                 </label>
@@ -346,9 +348,9 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     className={CAMPO}
                     type="number"
                     min={0}
-                    step="0.1"
+                    step="0.01"
                     value={proteine}
-                    onChange={(e) => setProteine(e.target.value)}
+                    onChange={(e) => { if (accettaDueDecimali(e.target.value)) setProteine(e.target.value); }}
                   />
                 </label>
                 <label className="flex flex-col gap-0.5">
@@ -357,9 +359,9 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     className={CAMPO}
                     type="number"
                     min={0}
-                    step="0.1"
+                    step="0.01"
                     value={carboidrati}
-                    onChange={(e) => setCarboidrati(e.target.value)}
+                    onChange={(e) => { if (accettaDueDecimali(e.target.value)) setCarboidrati(e.target.value); }}
                   />
                 </label>
               </div>
@@ -373,9 +375,9 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     className={CAMPO}
                     type="number"
                     min={0}
-                    step="0.1"
+                    step="0.01"
                     value={sale}
-                    onChange={(e) => setSale(e.target.value)}
+                    onChange={(e) => { if (accettaDueDecimali(e.target.value)) setSale(e.target.value); }}
                     autoFocus
                   />
                 </label>
@@ -385,9 +387,9 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     className={CAMPO}
                     type="number"
                     min={0}
-                    step="0.1"
+                    step="0.01"
                     value={fibre}
-                    onChange={(e) => setFibre(e.target.value)}
+                    onChange={(e) => { if (accettaDueDecimali(e.target.value)) setFibre(e.target.value); }}
                   />
                 </label>
               </div>

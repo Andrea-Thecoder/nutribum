@@ -14,6 +14,7 @@ import { registraErroreNonBloccante } from "../lib/errorLog";
 import type { VocePeso } from "../lib/weight";
 import { SelettorePersonalizzato } from "./SelettorePersonalizzato";
 import { useConfermaChiusura } from "./ConfermaModal";
+import { accettaDueDecimali } from "../lib/inputNumerico";
 
 interface ProfileModalProps {
   peso: VocePeso[];
@@ -131,7 +132,7 @@ export function ProfileModal({ peso, onClose, onSaved }: ProfileModalProps) {
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+        className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Profilo (per il TDEE)</h2>
@@ -167,8 +168,11 @@ export function ProfileModal({ peso, onClose, onSaved }: ProfileModalProps) {
                   type="number"
                   min={ALTEZZA_MIN_CM}
                   max={ALTEZZA_MAX_CM}
+                  step="0.01"
                   value={altezza}
-                  onChange={(e) => setAltezza(e.target.value)}
+                  onChange={(e) => {
+                    if (accettaDueDecimali(e.target.value)) setAltezza(e.target.value);
+                  }}
                 />
               </label>
             </div>

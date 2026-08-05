@@ -989,10 +989,10 @@ export function NavBar({
               switchMenuOnHover("graph");
             }}
             disabled={pannelliDisponibili.length === 0}
-            title={pannelliDisponibili.length === 0 ? "Tutti i grafici sono già presenti sulla board" : undefined}
+            title={pannelliDisponibili.length === 0 ? "Tutte le schede sono già presenti sulla board" : undefined}
             className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:hover:bg-slate-300 dark:disabled:bg-slate-700 dark:disabled:text-slate-400 dark:disabled:hover:bg-slate-700"
           >
-            + Aggiungi grafico
+            + Aggiungi scheda
           </button>
           {menu.isAperto("graph") && pannelliDisponibili.length > 0 && (
             <div className="absolute left-0 top-full mt-1 w-56 rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-800 dark:bg-black">
@@ -1001,10 +1001,10 @@ export function NavBar({
                   onAddAllPanels();
                   menu.chiudi();
                 }}
-                title="Aggiunge tutti i grafici mancanti, disposti 3 per riga (dove possibile) con la stessa altezza nella stessa riga"
+                title="Aggiunge tutte le schede mancanti, disposte 3 per riga (dove possibile) con la stessa altezza nella stessa riga"
                 className="block w-full px-3 py-1.5 text-left text-sm font-medium text-blue-600 hover:bg-slate-100 dark:text-blue-400 dark:hover:bg-slate-800"
               >
-                Aggiungi tutti i grafici
+                Aggiungi tutte le schede
               </button>
               <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
               {pannelliDisponibili.map((def) => (

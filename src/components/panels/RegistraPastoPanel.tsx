@@ -15,6 +15,7 @@ import {
 import { useConferma } from "../ConfermaModal";
 import { CalendarioPopover } from "../CalendarioPopover";
 import { SelettorePersonalizzato } from "../SelettorePersonalizzato";
+import { accettaDueDecimali } from "../../lib/inputNumerico";
 import { registraErroreNonBloccante } from "../../lib/errorLog";
 import type { RicettaConIngredienti } from "../../lib/recipes";
 
@@ -77,17 +78,17 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
   const [salvataggio, setSalvataggio] = useState(false);
   const { chiedi, elemento: modaleConferma } = useConferma();
 
+  // Carica sempre le voci già salvate per il giorno selezionato, non solo per oggi: il calendario
+  // permette di scegliere qualsiasi giorno passato (per registrare/gestire un pasto retroattivo),
+  // quindi la lista deve rispecchiare quello che c'è davvero nel diario per QUEL giorno, non solo
+  // per quello odierno.
   useEffect(() => {
-    if (data === oggi()) {
-      elencaDiarioGiorno(data)
-        .then(setGiaSalvate)
-        .catch((e) => {
-          setErrore(e instanceof Error ? e.message : String(e));
-          registraErroreNonBloccante(e, "Caricamento diario del giorno (registra pasto) fallito");
-        });
-    } else {
-      setGiaSalvate([]);
-    }
+    elencaDiarioGiorno(data)
+      .then(setGiaSalvate)
+      .catch((e) => {
+        setErrore(e instanceof Error ? e.message : String(e));
+        registraErroreNonBloccante(e, "Caricamento diario del giorno (registra pasto) fallito");
+      });
   }, [data]);
 
   useEffect(() => {
@@ -149,10 +150,10 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
       return;
     }
     if (!Number.isFinite(quantitaGrezza) || quantitaGrezza <= 0) {
-      setErrore("La quantità deve essere un numero maggiore di zero, con al massimo un decimale");
+      setErrore("La quantità deve essere un numero maggiore di zero, con al massimo due decimali");
       return;
     }
-    const quantita = Math.round(quantitaGrezza * 10) / 10;
+    const quantita = Math.round(quantitaGrezza * 100) / 100;
 
     const duplicato = [...giaSalvateVisibili, ...bozzaNuove].some(
       (v) =>
@@ -255,6 +256,41 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
     setBozzaNuove((prev) => prev.filter((v) => v.idBozza !== idBozza));
   }
 
+  // "Modifica in place" della quantità di una voce già salvata: dietro le quinte resta
+  // cancella+reinserisci (stesso meccanismo di bozza usato per tutto il resto in questo pannello,
+  // niente scrive sul DB finché non premi Conferma), ma per chi la usa è un semplice click sulla
+  // quantità - non serve rimuovere la riga e riaggiungerla a mano da zero.
+  function modificaQuantitaSalvata(voce: VoceDiario, nuovaQuantita: number) {
+    const alimento = alimenti.find((a) => a.id === voce.alimentoId);
+    if (!alimento) return;
+    setIdsDaEliminare((prev) => new Set(prev).add(voce.id));
+    setBozzaNuove((prev) => [
+      ...prev,
+      {
+        idBozza: crypto.randomUUID(),
+        alimentoId: voce.alimentoId,
+        nomeAlimento: voce.nomeAlimento,
+        unita: voce.unita,
+        data: voce.data,
+        orario: voce.orario ?? "",
+        tipoPasto: voce.tipoPasto,
+        quantita: nuovaQuantita,
+        ...calcolaValoriPorzione(alimento, nuovaQuantita),
+      },
+    ]);
+  }
+
+  function modificaQuantitaBozza(idBozza: string, nuovaQuantita: number) {
+    setBozzaNuove((prev) =>
+      prev.map((v) => {
+        if (v.idBozza !== idBozza) return v;
+        const alimento = alimenti.find((a) => a.id === v.alimentoId);
+        if (!alimento) return v;
+        return { ...v, quantita: nuovaQuantita, ...calcolaValoriPorzione(alimento, nuovaQuantita) };
+      }),
+    );
+  }
+
   async function handleSvuotaLista() {
     const totale = giaSalvateVisibili.length + bozzaNuove.length;
     if (totale === 0) return;
@@ -298,7 +334,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
       }
       setBozzaNuove([]);
       setIdsDaEliminare(new Set());
-      setGiaSalvate(data === oggi() ? await elencaDiarioGiorno(data) : []);
+      setGiaSalvate(await elencaDiarioGiorno(data));
       onSalvato();
     } catch (err) {
       const messaggio = err instanceof Error ? err.message : String(err);
@@ -391,9 +427,11 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
                 <input
                   type="number"
                   min={0}
-                  step="0.1"
+                  step="0.01"
                   value={quantitaTesto}
-                  onChange={(e) => setQuantitaTesto(e.target.value)}
+                  onChange={(e) => {
+                    if (accettaDueDecimali(e.target.value)) setQuantitaTesto(e.target.value);
+                  }}
                   className={`w-20 ${CAMPO}`}
                 />
               </label>
@@ -450,6 +488,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
             grassiG={v.grassiG}
             salvata
             onRimuovi={() => handleRimuoviGiaSalvata(v.id, v.nomeAlimento)}
+            onModificaQuantita={(nuovaQuantita) => modificaQuantitaSalvata(v, nuovaQuantita)}
           />
         ))}
 
@@ -467,6 +506,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
             grassiG={v.grassiG}
             salvata={false}
             onRimuovi={() => handleRimuoviBozza(v.idBozza, v.nomeAlimento)}
+            onModificaQuantita={(nuovaQuantita) => modificaQuantitaBozza(v.idBozza, nuovaQuantita)}
           />
         ))}
       </div>
@@ -509,6 +549,7 @@ function VoceRow({
   grassiG,
   salvata,
   onRimuovi,
+  onModificaQuantita,
 }: {
   nome: string;
   quantita: number;
@@ -521,12 +562,59 @@ function VoceRow({
   grassiG: number;
   salvata: boolean;
   onRimuovi: () => void;
+  onModificaQuantita: (nuovaQuantita: number) => void;
 }) {
+  const [editando, setEditando] = useState(false);
+  const [valoreEdit, setValoreEdit] = useState(String(quantita));
+
+  function iniziaEdit() {
+    setValoreEdit(String(quantita));
+    setEditando(true);
+  }
+
+  function confermaEdit() {
+    const numero = Number(valoreEdit);
+    if (Number.isFinite(numero) && numero > 0) {
+      const arrotondato = Math.round(numero * 100) / 100;
+      if (arrotondato !== quantita) onModificaQuantita(arrotondato);
+    }
+    setEditando(false);
+  }
+
   return (
     <div className="flex items-center justify-between gap-2 rounded border border-slate-200 px-2 py-1 dark:border-slate-800">
       <div>
         <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-200">
-          {nome} ({quantita}{unita}) · {ETICHETTA_PASTO[tipoPasto]}
+          {nome} (
+          {editando ? (
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              autoFocus
+              value={valoreEdit}
+              onChange={(e) => {
+                if (accettaDueDecimali(e.target.value)) setValoreEdit(e.target.value);
+              }}
+              onBlur={confermaEdit}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") confermaEdit();
+                if (e.key === "Escape") setEditando(false);
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-14 rounded border border-slate-300 bg-white px-1 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={iniziaEdit}
+              title="Modifica quantità"
+              className="underline decoration-dotted hover:text-blue-600 dark:hover:text-blue-400"
+            >
+              {quantita}
+            </button>
+          )}
+          {unita}) · {ETICHETTA_PASTO[tipoPasto]}
           {orario && <span className="text-slate-400 dark:text-slate-500">· {orario}</span>}
           {!salvata && (
             <span className="rounded bg-amber-100 px-1 py-0.5 text-[10px] font-normal uppercase text-amber-700 dark:bg-amber-950 dark:text-amber-400">

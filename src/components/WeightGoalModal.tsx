@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { salvaObiettivoPeso } from "../lib/weight";
 import { useConfermaChiusura } from "./ConfermaModal";
+import { accettaDueDecimali } from "../lib/inputNumerico";
 
 interface WeightGoalModalProps {
   goalKg: number | null;
@@ -68,7 +69,7 @@ export function WeightGoalModal({ goalKg, margineKg, onClose, onSaved, onSalvaMa
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+        className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Obiettivo peso</h2>
@@ -88,9 +89,11 @@ export function WeightGoalModal({ goalKg, margineKg, onClose, onSaved, onSalvaMa
               type="number"
               min={PESO_MIN_KG}
               max={PESO_MAX_KG}
-              step="0.1"
+              step="0.01"
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              onChange={(e) => {
+                if (accettaDueDecimali(e.target.value)) setValue(e.target.value);
+              }}
               autoFocus
               placeholder="Lascia vuoto per rimuovere l'obiettivo"
             />
@@ -103,9 +106,11 @@ export function WeightGoalModal({ goalKg, margineKg, onClose, onSaved, onSalvaMa
               type="number"
               min={MARGINE_MIN_KG}
               max={MARGINE_MAX_KG}
-              step="0.5"
+              step="0.01"
               value={margine}
-              onChange={(e) => setMargine(e.target.value)}
+              onChange={(e) => {
+                if (accettaDueDecimali(e.target.value)) setMargine(e.target.value);
+              }}
             />
             <span className="text-[11px] text-slate-400 dark:text-slate-500">
               Un peso entro l'obiettivo + questo margine conta come "raggiunto" (oscillazioni normali di

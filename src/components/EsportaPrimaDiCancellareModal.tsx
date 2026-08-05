@@ -65,7 +65,7 @@ export function EsportaPrimaDiCancellareModal({
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-red-300 bg-white p-4 shadow-xl dark:border-red-800 dark:bg-slate-900"
+        className="w-96 min-h-85 rounded-xl border border-red-300 bg-white p-4 shadow-xl dark:border-red-800 dark:bg-slate-900"
       >
         <h2 className="mb-2 text-sm font-semibold text-red-700 dark:text-red-400">{titolo}</h2>
         <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{messaggio}</p>

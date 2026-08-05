@@ -4,6 +4,7 @@ import type { AlimentoCatalogo } from "../lib/food";
 import { creaRicetta, aggiornaRicetta, type RicettaConIngredienti } from "../lib/recipes";
 import { SelettorePersonalizzato } from "./SelettorePersonalizzato";
 import { useConfermaChiusura } from "./ConfermaModal";
+import { accettaDueDecimali } from "../lib/inputNumerico";
 
 interface RicettaFormModalProps {
   ricetta?: RicettaConIngredienti;
@@ -85,7 +86,7 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato }: Ric
         setErrore("Ogni quantità deve essere un numero maggiore di zero");
         return;
       }
-      ingredienti.push({ alimentoId: r.alimentoId, quantita: Math.round(quantita * 10) / 10 });
+      ingredienti.push({ alimentoId: r.alimentoId, quantita: Math.round(quantita * 100) / 100 });
     }
 
     setSalvataggio(true);
@@ -112,7 +113,7 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato }: Ric
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[85vh] min-h-0 w-full max-w-md flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+        className="flex max-h-[85vh] min-h-85 w-96 flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="mb-3 flex shrink-0 items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
@@ -148,9 +149,11 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato }: Ric
                 <input
                   type="number"
                   min={0}
-                  step="0.1"
+                  step="0.01"
                   value={r.quantita}
-                  onChange={(e) => aggiornaRiga(r.idBozza, "quantita", e.target.value)}
+                  onChange={(e) => {
+                    if (accettaDueDecimali(e.target.value)) aggiornaRiga(r.idBozza, "quantita", e.target.value);
+                  }}
                   className={`w-20 ${CAMPO}`}
                   placeholder={alimenti.find((a) => a.id === r.alimentoId)?.unita ?? "g"}
                 />

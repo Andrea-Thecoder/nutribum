@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { registraPeso } from "../lib/weight";
 import { CalendarioPopover } from "./CalendarioPopover";
 import { useConfermaChiusura } from "./ConfermaModal";
+import { accettaDueDecimali } from "../lib/inputNumerico";
 
 interface WeightEntryModalProps {
   // Peso già registrato per la data di default (oggi), se presente: precompila il campo così
@@ -67,7 +68,7 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
+        className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Registra peso</h2>
@@ -97,9 +98,11 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
               type="number"
               min={PESO_MIN_KG}
               max={PESO_MAX_KG}
-              step="0.1"
+              step="0.01"
               value={valore}
-              onChange={(e) => setValore(e.target.value)}
+              onChange={(e) => {
+                if (accettaDueDecimali(e.target.value)) setValore(e.target.value);
+              }}
               autoFocus
             />
           </label>

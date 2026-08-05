@@ -36,6 +36,17 @@ fn chiudi_app_per_errore(app: tauri::AppHandle) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // Deve essere il primo plugin registrato (convenzione Tauri): un secondo lancio dell'app
+        // non apre una nuova finestra/processo indipendente (comportamento di default, nessuna
+        // protezione altrimenti) - porta in primo piano quella già aperta invece.
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+            } else if let Some(window) = app.get_webview_window("splashscreen") {
+                let _ = window.set_focus();
+            }
+        }))
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
