@@ -89,10 +89,10 @@ export const CalendarioPanel = memo(function CalendarioPanel({
           // estreme finirebbe fuori dal pannello.
           const colonna = (cella.data.getDay() + 6) % 7;
           const posizioneTooltip = colonna <= 1 ? "left-0" : colonna >= 5 ? "right-0" : "left-1/2 -translate-x-1/2";
-          const kcalSforato = sforamenti.some((s) => s.etichetta === "Kcal");
+          const kcalSforato = sforamenti.some((s) => s.etichetta === "Kcal (limite)");
           const macroSforato = sforamenti.some((s) => ["Proteine", "Carboidrati", "Grassi"].includes(s.etichetta));
           const altroSforato = sforamenti.some((s) => ["Fibre", "Sale"].includes(s.etichetta));
-          const altriSforamenti = sforamenti.filter((s) => s.etichetta !== "Kcal");
+          const altriSforamenti = sforamenti.filter((s) => s.etichetta !== "Kcal (limite)");
           return (
             <div
               key={cella.chiave}

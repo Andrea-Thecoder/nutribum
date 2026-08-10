@@ -122,7 +122,7 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
   const sforamenti = calcolaSforamenti(totali, obiettivoGiorno);
   const sforamentoDi = (etichetta: string): Sforamento | undefined =>
     sforamenti.find((s) => s.etichetta === etichetta);
-  const sKcal = sforamentoDi("Kcal");
+  const sKcal = sforamentoDi("Kcal (limite)");
   const minimoKcal = limiteMinimoEffettivo(data, obiettivoGiorno, storicoProfilo, storicoFitness, peso);
   const sottoMinimo = !sKcal && minimoKcal !== null && totali.kcal < minimoKcal;
   const sProteine = sforamentoDi("Proteine");
