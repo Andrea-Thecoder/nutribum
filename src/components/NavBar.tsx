@@ -74,6 +74,11 @@ interface NavBarProps {
   onApriObiettivoPeso: () => void;
   onAzzeraImpostazioni: () => void;
   onRiavviaTour: () => void;
+  // Forza aperto un menu di primo livello ("file", "alimenti", "diario", "peso") indipendentemente
+  // dal click reale dell'utente - usato dal tour guidato per mostrare cosa c'è dentro ogni menu.
+  // Stesso nome delle chiavi di useMenuApribile qui sotto, non un enum a parte: sono lo stesso
+  // concetto, solo pilotato da fuori invece che da un click.
+  menuForzatoAperto: string | null;
   onSvuotaDiario: () => Promise<void>;
   onCancellaTuttiIDati: () => Promise<void>;
   onEsportaBackupCompletoJson: () => Promise<boolean>;
@@ -172,6 +177,7 @@ export function NavBar({
   onApriObiettivoPeso,
   onAzzeraImpostazioni,
   onRiavviaTour,
+  menuForzatoAperto,
   onSvuotaDiario,
   onCancellaTuttiIDati,
   onEsportaBackupCompletoJson,
@@ -180,6 +186,9 @@ export function NavBar({
   onImportaBackupCompleto,
 }: NavBarProps) {
   const menu = useMenuApribile();
+  // OR col forzato-da-tour, non un rimpiazzo: un click reale dell'utente deve continuare a
+  // funzionare normalmente anche a tour attivo (edge case raro, non vale la pena bloccarlo).
+  const isMenuAperto = (nome: string) => menu.isAperto(nome) || menuForzatoAperto === nome;
   const [settingsSubmenuOpen, setSettingsSubmenuOpen] = useState(false);
   const [limiteSubmenuAperto, setLimiteSubmenuAperto] = useState(false);
   const [foodsSubmenu, setFoodsSubmenu] = useState<ImportExportSubmenu>(null);
@@ -436,10 +445,11 @@ export function NavBar({
           >
             File
           </button>
-          {menu.isAperto("file") && (
+          {isMenuAperto("file") && (
             <div className="absolute left-0 top-full mt-1 w-56 rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-800 dark:bg-black">
               <div className="relative">
                 <button
+                  data-tour="file-impostazioni"
                   onClick={() => setSettingsSubmenuOpen((a) => !a)}
                   onMouseEnter={() => setSettingsSubmenuOpen(true)}
                   className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
@@ -560,8 +570,12 @@ export function NavBar({
           >
             Scheda Alimenti
           </button>
-          {menu.isAperto("alimenti") && (
+          {isMenuAperto("alimenti") && (
             <div className="absolute left-0 top-full mt-1 w-60 rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-800 dark:bg-black">
+              {/* Wrapper senza stile proprio, solo per dare al tour un unico bersaglio che copra
+                  import+export insieme (vedi tours.ts, data-tour="alimenti-import-export") invece
+                  di uno step per bottone - due azioni gemelle, ha senso presentarle assieme. */}
+              <div data-tour="alimenti-import-export">
               <div className="relative">
                 <button
                   onClick={() => setFoodsSubmenu((s) => (s === "import" ? null : "import"))}
@@ -636,8 +650,10 @@ export function NavBar({
                   </div>
                 )}
               </div>
+              </div>
 
               <button
+                data-tour="alimenti-aggiungi-singolo"
                 onClick={() => {
                   onNuovoAlimento();
                   closeAll();
@@ -649,6 +665,7 @@ export function NavBar({
                 Aggiungi singolo alimento
               </button>
               <button
+                data-tour="alimenti-nuova-ricetta"
                 onClick={() => {
                   onNuovaRicetta();
                   closeAll();
@@ -673,10 +690,11 @@ export function NavBar({
           >
             Diario Alimentare
           </button>
-          {menu.isAperto("diario") && (
+          {isMenuAperto("diario") && (
             <div className="absolute left-0 top-full mt-1 w-64 rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-800 dark:bg-black">
               <div className="relative">
                 <button
+                  data-tour="diario-limite-giornaliero"
                   onClick={() => setLimiteSubmenuAperto((a) => !a)}
                   onMouseEnter={() => {
                     setLimiteSubmenuAperto(true);
@@ -725,6 +743,7 @@ export function NavBar({
               </div>
 
               <button
+                data-tour="diario-profilo"
                 onClick={() => {
                   setProfileModalAperta(true);
                   closeAll();
@@ -736,6 +755,9 @@ export function NavBar({
                 Profilo (per il TDEE)…
               </button>
 
+              {/* Wrapper senza stile proprio: un unico bersaglio per il tour che copra import,
+                  export e report PDF insieme (vedi tours.ts, data-tour="diario-import-export"). */}
+              <div data-tour="diario-import-export">
               <div className="relative">
                 <button
                   onClick={() => setDiarySubmenu((s) => (s === "import" ? null : "import"))}
@@ -827,6 +849,7 @@ export function NavBar({
               >
                 Esporta report PDF…
               </button>
+              </div>
             </div>
           )}
         </div>
@@ -841,9 +864,10 @@ export function NavBar({
           >
             Diario del Peso
           </button>
-          {menu.isAperto("peso") && (
+          {isMenuAperto("peso") && (
             <div className="absolute left-0 top-full mt-1 w-64 rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-800 dark:bg-black">
               <button
+                data-tour="peso-imposta-peso"
                 onClick={() => {
                   onApriInserimentoPeso();
                   closeAll();
@@ -855,6 +879,7 @@ export function NavBar({
                 Imposta peso…
               </button>
               <button
+                data-tour="peso-imposta-obiettivo"
                 onClick={() => {
                   onApriObiettivoPeso();
                   closeAll();
@@ -866,6 +891,9 @@ export function NavBar({
                 Imposta obiettivo peso…
               </button>
 
+              {/* Wrapper senza stile proprio: un unico bersaglio per il tour che copra import ed
+                  export insieme (vedi tours.ts, data-tour="peso-import-export"). */}
+              <div data-tour="peso-import-export">
               <div className="relative">
                 <button
                   onClick={() => setWeightSubmenu((s) => (s === "import" ? null : "import"))}
@@ -939,6 +967,7 @@ export function NavBar({
                     </button>
                   </div>
                 )}
+              </div>
               </div>
             </div>
           )}

@@ -270,6 +270,9 @@ function App() {
   // sia quella automatica al primo avvio (sotto, in ricaricaImpostazioni) sia quella manuale da
   // "Aiuto → Rivedi tutorial" - vedi il commento su TourGuidatoProps.avviaRichiesta per il perché.
   const [avviaTourRichiesta, setAvviaTourRichiesta] = useState(0);
+  // Specchiato da TourGuidato (step.data.menu, vedi tours.ts) verso NavBar: forza aperto un menu di
+  // primo livello mentre il tour ne evidenzia i bottoni interni.
+  const [menuTourForzato, setMenuTourForzato] = useState<string | null>(null);
   const isDark = useIsDarkMode();
   const [modaleAlimentoAperta, setModaleAlimentoAperta] = useState(false);
   const [modaleRicettaAperta, setModaleRicettaAperta] = useState(false);
@@ -906,9 +909,14 @@ function App() {
         onApriInserimentoPeso={() => setWeightEntryModalOpen(true)}
         onApriObiettivoPeso={() => setWeightGoalModalOpen(true)}
         onRiavviaTour={handleRiavviaTour}
+        menuForzatoAperto={menuTourForzato}
       />
 
-      <TourGuidato avviaRichiesta={avviaTourRichiesta} onCompletato={handleTourBenvenutoCompletato} />
+      <TourGuidato
+        avviaRichiesta={avviaTourRichiesta}
+        onCompletato={handleTourBenvenutoCompletato}
+        onApriMenu={setMenuTourForzato}
+      />
 
       {modaleAlimentoAperta && (
         <AlimentoFormModal onChiudi={() => setModaleAlimentoAperta(false)} onSalvato={ricaricaAlimenti} />

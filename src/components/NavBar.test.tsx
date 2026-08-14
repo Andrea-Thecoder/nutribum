@@ -57,6 +57,7 @@ function renderNavBar(overrides: Partial<Parameters<typeof NavBar>[0]> = {}) {
       onApriObiettivoPeso={vi.fn()}
       onAzzeraImpostazioni={vi.fn()}
       onRiavviaTour={vi.fn()}
+      menuForzatoAperto={null}
       onSvuotaDiario={vi.fn()}
       onCancellaTuttiIDati={vi.fn()}
       onEsportaBackupCompletoJson={vi.fn()}
@@ -78,5 +79,11 @@ describe("NavBar", () => {
     await utente.click(screen.getByText("Rivedi tutorial"));
 
     expect(onRiavviaTour).toHaveBeenCalledTimes(1);
+  });
+
+  it("NavBar_menuForzatoApertoAlimenti_mostraIBottoniDelMenuAlimentiSenzaClick", () => {
+    renderNavBar({ menuForzatoAperto: "alimenti" });
+
+    expect(screen.getByText("Aggiungi singolo alimento")).toBeInTheDocument();
   });
 });

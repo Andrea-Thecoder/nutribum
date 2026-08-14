@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Joyride, STATUS, type EventData } from "react-joyride";
+import { Joyride, STATUS, type EventData, type TourData } from "react-joyride";
 import { useIsDarkMode } from "../lib/useIsDarkMode";
-import { TOURS } from "../lib/tours";
+import { TOURS, type DatiStep } from "../lib/tours";
 
 interface TourGuidatoProps {
   // Contatore, non un booleano: ogni incremento (dal caricamento impostazioni al primo avvio, o dal
@@ -10,6 +10,12 @@ interface TourGuidatoProps {
   // step: Joyride tiene l'indice corrente nel proprio stato interno, non nei props.
   avviaRichiesta: number;
   onCompletato: () => void;
+  // Specchia step.data.menu (vedi tours.ts) verso NavBar (prop menuForzatoAperto): quando lo step
+  // in arrivo dichiara un menu, questo lo forza aperto per evidenziarne i bottoni interni; null lo
+  // richiude. Pilotato dall'hook "before" qui sotto (non da onEvent): deve essere GARANTITO aperto
+  // prima che Joyride cerchi il target, altrimenti per un istante non lo trova e mostra il loader
+  // di attesa (loaderDelay) invece del tooltip.
+  onApriMenu: (nome: string | null) => void;
 }
 
 // Sopra 9999: nel progetto TUTTE le modali e il dropdown aperto della NavBar usano z-9999 (bare
@@ -17,7 +23,7 @@ interface TourGuidatoProps {
 // aperto durante uno dei suoi step.
 const Z_INDEX_TOUR = 10000;
 
-export function TourGuidato({ avviaRichiesta, onCompletato }: TourGuidatoProps) {
+export function TourGuidato({ avviaRichiesta, onCompletato, onApriMenu }: TourGuidatoProps) {
   const isDark = useIsDarkMode();
   const [run, setRun] = useState(false);
 
@@ -27,9 +33,26 @@ export function TourGuidato({ avviaRichiesta, onCompletato }: TourGuidatoProps) 
 
   function handleEvent(data: EventData) {
     if (data.status === STATUS.FINISHED || data.status === STATUS.SKIPPED) {
+      // Chiudere qui, non solo lasciarlo all'hook "before" del prossimo step (che con Salta/Fine
+      // non scatta mai, il tour finisce senza "prossimo step"): altrimenti un menu aperto
+      // dall'ultimo step attivo resterebbe aperto dopo la chiusura del tour.
+      onApriMenu(null);
       setRun(false);
       onCompletato();
     }
+  }
+
+  // Garantisce che il menu richiesto dallo step in arrivo sia aperto (o richiuso) PRIMA che
+  // Joyride provi a cercarne il target - a differenza di reagire dentro onEvent, dove lo stato si
+  // aggiorna un frame troppo tardi rispetto alla ricerca del target e per un istante scatta il
+  // loader di attesa invece del tooltip.
+  function apriMenuPrimaDelloStep(data: TourData): Promise<void> {
+    return new Promise((resolve) => {
+      onApriMenu((data.step.data as DatiStep | undefined)?.menu ?? null);
+      // Due frame, non uno: garantisce che React abbia sia committato sia dipinto il nuovo stato
+      // (il menu aperto nel DOM) prima che Joyride misuri il target.
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
   }
 
   return (
@@ -66,6 +89,7 @@ export function TourGuidato({ avviaRichiesta, onCompletato }: TourGuidatoProps) 
         },
       }}
       options={{
+        before: apriMenuPrimaDelloStep,
         zIndex: Z_INDEX_TOUR,
         buttons: ["back", "close", "primary", "skip"],
         showProgress: true,
@@ -89,8 +113,7 @@ export function TourGuidato({ avviaRichiesta, onCompletato }: TourGuidatoProps) 
         // Un po' più arrotondato del default (4): il buco segue meglio i bottoni della navbar,
         // che hanno già angoli smussati loro stessi (classe Tailwind "rounded"/"rounded-lg").
         spotlightRadius: 8,
-        // Un po' più ampio del default (10): più margine tra il bordo dell'elemento e il contorno
-        // blu, che altrimenti lo abbraccia quasi a ridosso del testo del bottone.
+        // Valore scelto a mano dall'utente dopo aver provato il default (10): NON toccare.
         spotlightPadding: 4,
         primaryColor: "#2563eb",
         backgroundColor: isDark ? "#0f172a" : "#ffffff",
