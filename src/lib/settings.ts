@@ -16,6 +16,10 @@ export interface Impostazioni {
   // Default attivo: guida visiva per capire dove si allineeranno i pannelli durante drag/resize,
   // al posto dello sfondo pieno.
   mostraGriglia: boolean;
+  // Default disattivato: se falso, il tour di benvenuto parte da solo al prossimo avvio. Campo
+  // piatto (non un oggetto tipo tourCompletati.benvenuto) per restare coerente con lo stile del
+  // resto del file e perché il merge col default qui sopra è shallow, non deep.
+  tourBenvenutoCompletato: boolean;
 }
 
 export const IMPOSTAZIONI_DEFAULT: Impostazioni = {
@@ -23,6 +27,7 @@ export const IMPOSTAZIONI_DEFAULT: Impostazioni = {
   aggiornamentiAutomatici: false,
   comprimiSpazioAutomaticamente: false,
   mostraGriglia: true,
+  tourBenvenutoCompletato: false,
 };
 
 async function assicuraDirDati(): Promise<void> {

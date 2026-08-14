@@ -93,4 +93,10 @@ describe("PanelChrome", () => {
 
     expect(screen.getByText("Extra")).toBeInTheDocument();
   });
+
+  it("PanelChrome_dataTourFornito_vieneApplicatoComeAttributoSulDivRadice", () => {
+    renderChrome({ dataTour: "dashboard-panel-calendario" });
+
+    expect(document.querySelector('[data-tour="dashboard-panel-calendario"]')).toBeInTheDocument();
+  });
 });

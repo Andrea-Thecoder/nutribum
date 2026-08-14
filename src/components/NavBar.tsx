@@ -73,6 +73,7 @@ interface NavBarProps {
   onApriInserimentoPeso: () => void;
   onApriObiettivoPeso: () => void;
   onAzzeraImpostazioni: () => void;
+  onRiavviaTour: () => void;
   onSvuotaDiario: () => Promise<void>;
   onCancellaTuttiIDati: () => Promise<void>;
   onEsportaBackupCompletoJson: () => Promise<boolean>;
@@ -170,6 +171,7 @@ export function NavBar({
   onApriInserimentoPeso,
   onApriObiettivoPeso,
   onAzzeraImpostazioni,
+  onRiavviaTour,
   onSvuotaDiario,
   onCancellaTuttiIDati,
   onEsportaBackupCompletoJson,
@@ -426,6 +428,7 @@ export function NavBar({
       <div className="relative z-9999 flex items-center gap-1 px-3 py-2">
         <div className="relative">
           <button
+            data-tour="navbar-file"
             onClick={() => toggleTopMenu("file")}
             onMouseEnter={() => switchMenuOnHover("file")}
             className="rounded px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
@@ -549,6 +552,7 @@ export function NavBar({
 
         <div className="relative">
           <button
+            data-tour="navbar-alimenti"
             onClick={() => toggleTopMenu("alimenti")}
             onMouseEnter={() => switchMenuOnHover("alimenti")}
             className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
@@ -661,6 +665,7 @@ export function NavBar({
 
         <div className="relative">
           <button
+            data-tour="navbar-diario"
             onClick={() => toggleTopMenu("diario")}
             onMouseEnter={() => switchMenuOnHover("diario")}
             className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
@@ -828,6 +833,7 @@ export function NavBar({
 
         <div className="relative">
           <button
+            data-tour="navbar-peso"
             onClick={() => toggleTopMenu("peso")}
             onMouseEnter={() => switchMenuOnHover("peso")}
             className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
@@ -940,6 +946,7 @@ export function NavBar({
 
         <div className="relative">
           <button
+            data-tour="navbar-aiuto"
             onClick={() => toggleTopMenu("aiuto")}
             onMouseEnter={() => switchMenuOnHover("aiuto")}
             className="rounded px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
@@ -979,12 +986,24 @@ export function NavBar({
               >
                 Informazioni
               </button>
+              <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
+              <button
+                onClick={() => {
+                  onRiavviaTour();
+                  closeAll();
+                }}
+                title="Rifà il tour guidato di benvenuto (navbar e dashboard)"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Rivedi tutorial
+              </button>
             </div>
           )}
         </div>
 
         <div className="relative">
           <button
+            data-tour="navbar-aggiungi-scheda"
             onClick={() => {
               if (pannelliDisponibili.length === 0) return;
               menu.toggle("graph");

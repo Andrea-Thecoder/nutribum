@@ -11,6 +11,9 @@ interface PanelChromeProps {
   onIniziaDrag: (e: MouseEvent) => void;
   onIniziaResize: (e: MouseEvent, direzione: DirezioneResize) => void;
   children: ReactNode;
+  // Ancora stabile per il tour guidato (TourGuidato/tours.ts), non per lo stile: se assente, il
+  // div radice non ha semplicemente l'attributo - nessun altro effetto.
+  dataTour?: string;
 }
 
 export function PanelChrome({
@@ -23,9 +26,11 @@ export function PanelChrome({
   onIniziaDrag,
   onIniziaResize,
   children,
+  dataTour,
 }: PanelChromeProps) {
   return (
     <div
+      data-tour={dataTour}
       className={
         "relative flex h-full flex-col overflow-hidden border bg-white dark:bg-slate-900 " +
         // Durante drag/resize niente ombra+angoli arrotondati: su WebKitGTK (webview Linux di

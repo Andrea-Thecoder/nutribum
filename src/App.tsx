@@ -28,6 +28,7 @@ import { AlimentoFormModal } from "./components/AlimentoFormModal";
 import { RicettaFormModal } from "./components/RicettaFormModal";
 import { WeightEntryModal } from "./components/WeightEntryModal";
 import { WeightGoalModal } from "./components/WeightGoalModal";
+import { TourGuidato } from "./components/TourGuidato";
 import {
   elencaAlimenti,
   elencaStoricoCompleto,
@@ -265,6 +266,10 @@ function App() {
   // Idem: placeholder finché caricaImpostazioni() non risponde, valore vero in IMPOSTAZIONI_DEFAULT.
   const [comprimiSpazioAutomaticamente, setComprimiSpazioAutomaticamente] = useState(false);
   const [mostraGriglia, setMostraGriglia] = useState(true);
+  // Contatore, non un booleano: ogni incremento è una richiesta di (ri)partenza del tour guidato,
+  // sia quella automatica al primo avvio (sotto, in ricaricaImpostazioni) sia quella manuale da
+  // "Aiuto → Rivedi tutorial" - vedi il commento su TourGuidatoProps.avviaRichiesta per il perché.
+  const [avviaTourRichiesta, setAvviaTourRichiesta] = useState(0);
   const isDark = useIsDarkMode();
   const [modaleAlimentoAperta, setModaleAlimentoAperta] = useState(false);
   const [modaleRicettaAperta, setModaleRicettaAperta] = useState(false);
@@ -319,7 +324,18 @@ function App() {
       setMargineObiettivoPesoKg(imp.margineObiettivoPesoKg);
       setComprimiSpazioAutomaticamente(imp.comprimiSpazioAutomaticamente);
       setMostraGriglia(imp.mostraGriglia);
+      // Solo se non è mai stato completato: un utente che ha già visto il tour non deve rivederlo
+      // ad ogni avvio, solo dal menu Aiuto.
+      if (!imp.tourBenvenutoCompletato) setAvviaTourRichiesta((n) => n + 1);
     });
+  }, []);
+
+  const handleTourBenvenutoCompletato = useCallback(async () => {
+    await salvaImpostazioni({ tourBenvenutoCompletato: true });
+  }, []);
+
+  const handleRiavviaTour = useCallback(() => {
+    setAvviaTourRichiesta((n) => n + 1);
   }, []);
 
   const handleSalvaMargineObiettivoPeso = useCallback(async (nuovoMargineKg: number) => {
@@ -889,7 +905,10 @@ function App() {
         onExportWeightCsv={handleExportWeightCsv}
         onApriInserimentoPeso={() => setWeightEntryModalOpen(true)}
         onApriObiettivoPeso={() => setWeightGoalModalOpen(true)}
+        onRiavviaTour={handleRiavviaTour}
       />
+
+      <TourGuidato avviaRichiesta={avviaTourRichiesta} onCompletato={handleTourBenvenutoCompletato} />
 
       {modaleAlimentoAperta && (
         <AlimentoFormModal onChiudi={() => setModaleAlimentoAperta(false)} onSalvato={ricaricaAlimenti} />
@@ -942,6 +961,7 @@ function App() {
                 onMouseDownCapture={() => handlePortaInPrimoPiano(p.id)}
               >
                 <PanelChrome
+                  dataTour={`dashboard-panel-${p.tipo}`}
                   titolo={titoloPannello(p)}
                   headerExtra={headerExtraPannello(
                     p,
