@@ -37,4 +37,12 @@ describe("LegendaManuale", () => {
     expect(swatchBarra.className).toContain("h-2.5");
     expect(swatchLinea.className).toContain("h-0.5");
   });
+
+  it("LegendaManuale_voce_haLAncoraDataTourBasataSullEtichettaPerIMiniTourDelleAnteprime", () => {
+    const voci: VoceLegenda[] = [{ etichetta: "Limite massimo", colore: "#000", tipo: "linea" }];
+
+    render(<LegendaManuale voci={voci} />);
+
+    expect(document.querySelector('[data-tour="legenda-Limite massimo"]')).toBeInTheDocument();
+  });
 });

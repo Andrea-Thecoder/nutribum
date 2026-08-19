@@ -69,4 +69,17 @@ describe("AndamentoObiettiviChart", () => {
 
     expect(within(sezione("Macronutrienti")).queryByText(/Nessun limite impostato/)).not.toBeInTheDocument();
   });
+
+  it("AndamentoObiettiviChart_storicoOverrideFornito_nonChiamaElencaStoricoObiettivoENonMostraCaricamento", () => {
+    vi.mocked(elencaStoricoObiettivo).mockClear();
+    render(
+      <AndamentoObiettiviChart
+        versione={0}
+        storicoOverride={[creaPunto({ id: 1, gruppo: "kcal", kcal: 2000 })]}
+      />,
+    );
+
+    expect(screen.getByText("Kcal")).toBeInTheDocument();
+    expect(elencaStoricoObiettivo).not.toHaveBeenCalled();
+  });
 });

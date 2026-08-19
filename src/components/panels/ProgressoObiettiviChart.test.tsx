@@ -63,6 +63,21 @@ describe("ProgressoObiettiviChart", () => {
     expect(screen.queryByText(/Nessun limite impostato ancora/)).not.toBeInTheDocument();
   });
 
+  it("ProgressoObiettiviChart_storicoObiettiviOverrideFornito_nonChiamaElencaStoricoObiettivoReale", async () => {
+    vi.mocked(elencaStoricoObiettivo).mockClear();
+    render(
+      <ProgressoObiettiviChart
+        {...PROPS_BASE}
+        giorni={[creaGiorno("2020-01-01", 2500)]}
+        storicoObiettiviOverride={[creaLimiteKcal(2000)]}
+      />,
+    );
+
+    await screen.findByRole("button", { name: /1 gen 2020/ });
+    expect(screen.queryByText(/Nessun limite impostato ancora/)).not.toBeInTheDocument();
+    expect(elencaStoricoObiettivo).not.toHaveBeenCalled();
+  });
+
   it("ProgressoObiettiviChart_focusGiorno_tornaAlPeriodoGiornoESelezionaQuellaData", () => {
     render(
       <ProgressoObiettiviChart

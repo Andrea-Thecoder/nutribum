@@ -12,6 +12,7 @@ function renderChrome(overrides: Partial<Parameters<typeof PanelChrome>[0]> = {}
       onRimuovi={vi.fn()}
       onIniziaDrag={vi.fn()}
       onIniziaResize={vi.fn()}
+      onInfo={vi.fn()}
       {...overrides}
     >
       <p>Contenuto</p>
@@ -98,5 +99,24 @@ describe("PanelChrome", () => {
     renderChrome({ dataTour: "dashboard-panel-calendario" });
 
     expect(document.querySelector('[data-tour="dashboard-panel-calendario"]')).toBeInTheDocument();
+  });
+
+  it("PanelChrome_mousedownSulBottoneInfo_nonChiamaOnIniziaDrag", () => {
+    const onIniziaDrag = vi.fn();
+    renderChrome({ onIniziaDrag });
+
+    fireEvent.mouseDown(screen.getByTitle("Cosa mostra questa scheda"));
+
+    expect(onIniziaDrag).not.toHaveBeenCalled();
+  });
+
+  it("PanelChrome_clicSulBottoneInfo_chiamaOnInfo", async () => {
+    const onInfo = vi.fn();
+    const utente = userEvent.setup();
+    renderChrome({ onInfo });
+
+    await utente.click(screen.getByTitle("Cosa mostra questa scheda"));
+
+    expect(onInfo).toHaveBeenCalledTimes(1);
   });
 });

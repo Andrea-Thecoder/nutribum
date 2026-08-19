@@ -111,20 +111,27 @@ function ContenutoTooltipStorico(props: {
 
 interface AndamentoObiettiviChartProps {
   versione: number;
+  // Salta la lettura reale (elencaStoricoObiettivo, l'unica in questo pannello non già ricevuta
+  // via prop) e usa questi dati invece - solo per l'anteprima "?" della scheda (vedi
+  // anteprimaPannelli.tsx), MAI in produzione: senza, la demo mostrerebbe lo storico obiettivi
+  // vero dell'utente invece di quello finto.
+  storicoOverride?: PuntoStoricoObiettivo[];
 }
 
 export const AndamentoObiettiviChart = memo(function AndamentoObiettiviChart({
   versione,
+  storicoOverride,
 }: AndamentoObiettiviChartProps) {
   const isDark = useIsDarkMode();
   const colori = paletteGrafici(isDark);
-  const [storico, setStorico] = useState<PuntoStoricoObiettivo[] | null>(null);
+  const [storico, setStorico] = useState<PuntoStoricoObiettivo[] | null>(storicoOverride ?? null);
 
   useEffect(() => {
+    if (storicoOverride) return;
     elencaStoricoObiettivo()
       .then(setStorico)
       .catch((err) => registraErroreNonBloccante(err, "Caricamento storico obiettivi (grafico andamento) fallito"));
-  }, [versione]);
+  }, [versione, storicoOverride]);
 
   if (storico === null) {
     return <p className="text-sm text-slate-500 dark:text-slate-400">Caricamento…</p>;

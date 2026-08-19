@@ -115,6 +115,21 @@ describe("AlimentoFormModal - nuovo alimento", () => {
     expect(onSalvato).toHaveBeenCalledTimes(1);
     expect(onChiudi).toHaveBeenCalledTimes(1);
   });
+
+  it("AlimentoFormModal_anteprima_mostraAvvisoSenzaChiamareCreaAlimentoNeChiudere", async () => {
+    vi.mocked(creaAlimento).mockClear();
+    const onChiudi = vi.fn();
+    const utente = userEvent.setup();
+    render(<AlimentoFormModal onChiudi={onChiudi} onSalvato={vi.fn()} anteprima />);
+    await utente.type(screen.getByLabelText("Nome"), "Pasta");
+    await compilaCampiObbligatori(utente);
+
+    await utente.click(screen.getByText("Crea alimento"));
+
+    expect(await screen.findByText(/Anteprima:/)).toBeInTheDocument();
+    expect(creaAlimento).not.toHaveBeenCalled();
+    expect(onChiudi).not.toHaveBeenCalled();
+  });
 });
 
 describe("AlimentoFormModal - modifica alimento esistente", () => {

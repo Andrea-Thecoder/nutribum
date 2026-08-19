@@ -58,4 +58,17 @@ describe("SelettoreIstanza", () => {
 
     expect(screen.queryByText(/Febbraio 2024/)).not.toBeInTheDocument();
   });
+
+  it("SelettoreIstanza_dataTourNonSpecificato_usaIlValoreDiDefault", () => {
+    render(<SelettoreIstanza giorni={GIORNI} periodo="mese" istanza="tutto" onChange={vi.fn()} />);
+
+    expect(document.querySelector('[data-tour="selettore-istanza"]')).toBeInTheDocument();
+  });
+
+  it("SelettoreIstanza_dataTourSpecificato_sovrascriveIlDefault", () => {
+    render(<SelettoreIstanza giorni={GIORNI} periodo="mese" istanza="tutto" onChange={vi.fn()} dataTour="selettore-istanza-a" />);
+
+    expect(document.querySelector('[data-tour="selettore-istanza-a"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-tour="selettore-istanza"]')).not.toBeInTheDocument();
+  });
 });

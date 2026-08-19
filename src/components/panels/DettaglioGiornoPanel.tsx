@@ -79,6 +79,8 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
   peso,
   storicoProfilo,
   storicoFitness,
+  storicoObiettiviOverride,
+  anteprima,
 }: {
   giorni: GiornoStorico[];
   data: string;
@@ -87,15 +89,25 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
   peso: VocePeso[];
   storicoProfilo: PuntoStoricoProfilo[];
   storicoFitness: PuntoStoricoFitness[];
+  // Salta la lettura reale (elencaStoricoObiettivo, non ricevuta via prop come le altre) e usa
+  // questi dati - solo per l'anteprima "?" della scheda (vedi anteprimaPannelli.tsx), MAI in
+  // produzione.
+  storicoObiettiviOverride?: PuntoStoricoObiettivo[];
+  // Anteprima "?" della scheda: "Elimina giorno" mostra solo un avviso di cosa succederebbe,
+  // invece di chiamare onElimina (che nella demo non porterebbe comunque a nulla di visibile - non
+  // esiste nessun giorno vero da togliere dal dataset finto).
+  anteprima?: boolean;
 }) {
   const { chiedi, elemento: modaleConferma } = useConferma();
-  const [storicoObiettivi, setStoricoObiettivi] = useState<PuntoStoricoObiettivo[]>([]);
+  const [storicoObiettivi, setStoricoObiettivi] = useState<PuntoStoricoObiettivo[]>(storicoObiettiviOverride ?? []);
+  const [avvisoAnteprima, setAvvisoAnteprima] = useState<string | null>(null);
 
   useEffect(() => {
+    if (storicoObiettiviOverride) return;
     elencaStoricoObiettivo()
       .then(setStoricoObiettivi)
       .catch((err) => registraErroreNonBloccante(err, "Caricamento storico obiettivi (dettaglio giorno) fallito"));
-  }, [versioneObiettivi]);
+  }, [versioneObiettivi, storicoObiettiviOverride]);
 
   if (data === "") {
     return (
@@ -137,7 +149,7 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
       {modaleConferma}
 
       {giorno.pasti.map((pasto, i) => (
-        <div key={i}>
+        <div key={i} data-tour="dettaglio-giorno-pasto">
           <div className="mb-1 font-medium text-slate-500 dark:text-slate-400">
             {pasto.tipo ?? "Pasto"} {pasto.orario ? `· ${pasto.orario}` : ""}
           </div>
@@ -150,6 +162,7 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
                     {a.unita})
                     {a.da_etichetta === false && (
                       <sup
+                        data-tour="dettaglio-giorno-stima"
                         className="ml-0.5 text-amber-600 dark:text-amber-400"
                         title="Valore stimato, non da etichetta nutrizionale"
                       >
@@ -177,6 +190,7 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
           </div>
         )}
         <div
+          data-tour="dettaglio-giorno-totale-kcal"
           className={
             sKcal
               ? "text-red-600 dark:text-red-400"
@@ -211,8 +225,15 @@ export const DettaglioGiornoPanel = memo(function DettaglioGiornoPanel({
         )}
       </div>
 
+      {avvisoAnteprima && <p className="text-amber-600 dark:text-amber-400">{avvisoAnteprima}</p>}
+
       <button
+        data-tour="dettaglio-giorno-elimina"
         onClick={async () => {
+          if (anteprima) {
+            setAvvisoAnteprima(`Anteprima: qui il giorno ${data} verrebbe eliminato definitivamente dal diario.`);
+            return;
+          }
           const ok = await chiedi(`Eliminare definitivamente il giorno ${data} dallo storico?`, {
             distruttivo: true,
           });

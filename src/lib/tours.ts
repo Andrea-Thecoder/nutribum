@@ -136,7 +136,7 @@ const TOUR_BENVENUTO: Step[] = [
     placement: "bottom",
     title: "Dashboard modulare",
     content:
-      "La dashboard è fatta di schede che trascini e ridimensioni a piacere. Da qui ne aggiungi altre: calendario, grafici, registra pasto, ricette e altro.",
+      "La dashboard è fatta di schede che trascini e ridimensioni a piacere. Da qui ne aggiungi altre: calendario, grafici, registra pasto, ricette e altro. Ogni scheda ha un \"?\" nel suo header con tutti i dettagli su cosa mostra.",
   },
   {
     target: '[data-tour="navbar-aiuto"]',

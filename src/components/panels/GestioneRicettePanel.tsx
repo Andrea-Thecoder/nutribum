@@ -12,6 +12,9 @@ interface GestioneRicettePanelProps {
   ricette: RicettaConIngredienti[];
   alimenti: AlimentoCatalogo[];
   onCambiato: () => void;
+  // Anteprima "?" della scheda (vedi anteprimaPannelli.tsx): niente eliminazione reale, e viene
+  // propagata alla form annidata (nuova/modifica ricetta) così anche il suo submit è innocuo.
+  anteprima?: boolean;
 }
 
 const CAMPO =
@@ -21,6 +24,7 @@ export const GestioneRicettePanel = memo(function GestioneRicettePanel({
   ricette,
   alimenti,
   onCambiato,
+  anteprima,
 }: GestioneRicettePanelProps) {
   const [filtro, setFiltro] = useState("");
   const [azioneRicetta, setAzioneRicetta] = useState<RicettaConIngredienti | null>(null);
@@ -28,6 +32,7 @@ export const GestioneRicettePanel = memo(function GestioneRicettePanel({
   const [ricettaModifica, setRicettaModifica] = useState<RicettaConIngredienti | null>(null);
   const [nuovaRicettaAperta, setNuovaRicettaAperta] = useState(false);
   const [erroreEliminazione, setErroreEliminazione] = useState<string | null>(null);
+  const [avvisoAnteprima, setAvvisoAnteprima] = useState<string | null>(null);
   const { chiedi, elemento: modaleConferma } = useConferma();
 
   const filtrate = ricette.filter((r) => r.nome.toLowerCase().includes(filtro.trim().toLowerCase()));
@@ -109,6 +114,11 @@ export const GestioneRicettePanel = memo(function GestioneRicettePanel({
   }
 
   async function gestisciElimina(ricetta: RicettaConIngredienti) {
+    if (anteprima) {
+      setAvvisoAnteprima(`Anteprima: qui la ricetta "${ricetta.nome}" verrebbe eliminata.`);
+      return;
+    }
+
     const ok = await chiedi(`Eliminare la ricetta "${ricetta.nome}"? I pasti già registrati non vengono toccati.`, {
       distruttivo: true,
     });
@@ -126,6 +136,9 @@ export const GestioneRicettePanel = memo(function GestioneRicettePanel({
       {modaleConferma}
       {erroreEliminazione && (
         <EsitoPopup tipo="errore" messaggio={erroreEliminazione} onChiudi={() => setErroreEliminazione(null)} />
+      )}
+      {avvisoAnteprima && (
+        <EsitoPopup tipo="avviso" messaggio={avvisoAnteprima} onChiudi={() => setAvvisoAnteprima(null)} />
       )}
       {azioneRicetta && (
         <AzioniRicettaModal
@@ -218,14 +231,21 @@ export const GestioneRicettePanel = memo(function GestioneRicettePanel({
           alimenti={alimenti}
           onChiudi={() => setRicettaModifica(null)}
           onSalvato={onCambiato}
+          anteprima={anteprima}
         />
       )}
       {nuovaRicettaAperta && (
-        <RicettaFormModal alimenti={alimenti} onChiudi={() => setNuovaRicettaAperta(false)} onSalvato={onCambiato} />
+        <RicettaFormModal
+          alimenti={alimenti}
+          onChiudi={() => setNuovaRicettaAperta(false)}
+          onSalvato={onCambiato}
+          anteprima={anteprima}
+        />
       )}
 
       <div className="flex gap-2">
         <input
+          data-tour="gestione-ricette-cerca"
           type="text"
           placeholder="Cerca ricetta…"
           value={filtro}
@@ -233,6 +253,7 @@ export const GestioneRicettePanel = memo(function GestioneRicettePanel({
           className={CAMPO + " flex-1"}
         />
         <button
+          data-tour="gestione-ricette-aggiungi"
           onClick={() => setNuovaRicettaAperta(true)}
           disabled={alimenti.length === 0}
           className="shrink-0 rounded-lg bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
@@ -242,7 +263,7 @@ export const GestioneRicettePanel = memo(function GestioneRicettePanel({
         </button>
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div data-tour="gestione-ricette-lista" className="flex-1 overflow-auto">
         {filtrate.length === 0 ? (
           <p className="py-4 text-center text-slate-400 dark:text-slate-500">
             {ricette.length === 0 ? "Nessuna ricetta creata ancora." : "Nessuna ricetta trovata."}

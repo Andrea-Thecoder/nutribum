@@ -63,6 +63,40 @@ describe("CalendarioPanel", () => {
     expect(onApriGiorno).toHaveBeenCalledWith(chiave);
   });
 
+  it("CalendarioPanel_dataTourPerDataFornito_applicaLAttributoSullaCellaCorrispondente", () => {
+    const oggi = new Date();
+    const chiave = `${oggi.getFullYear()}-${String(oggi.getMonth() + 1).padStart(2, "0")}-10`;
+    render(
+      <CalendarioPanel
+        {...PROPS_BASE}
+        giorni={[creaGiorno(chiave, 2000)]}
+        dataTourPerData={{ [chiave]: "cella-di-esempio" }}
+      />,
+    );
+
+    expect(document.querySelector('[data-tour="cella-di-esempio"]')).toBeInTheDocument();
+  });
+
+  it("CalendarioPanel_interattivoAFalse_clicSuUnaCellaConDatiNonChiamaOnApriGiorno", async () => {
+    const onApriGiorno = vi.fn();
+    const utente = userEvent.setup();
+    const oggi = new Date();
+    const giornoConDati = new Date(oggi.getFullYear(), oggi.getMonth(), 10);
+    const chiave = `${giornoConDati.getFullYear()}-${String(giornoConDati.getMonth() + 1).padStart(2, "0")}-10`;
+    render(
+      <CalendarioPanel
+        {...PROPS_BASE}
+        onApriGiorno={onApriGiorno}
+        giorni={[creaGiorno(chiave, 2000)]}
+        interattivo={false}
+      />,
+    );
+
+    await utente.click(screen.getByText("10"));
+
+    expect(onApriGiorno).not.toHaveBeenCalled();
+  });
+
   it("CalendarioPanel_clicSuUnaCellaSenzaDati_nonChiamaOnApriGiorno", async () => {
     const onApriGiorno = vi.fn();
     const utente = userEvent.setup();
@@ -92,5 +126,21 @@ describe("CalendarioPanel", () => {
     render(<CalendarioPanel {...PROPS_BASE} giorni={[creaGiorno(chiave, 2500)]} />);
 
     expect(await screen.findByTitle("Kcal superate")).toBeInTheDocument();
+  });
+
+  it("CalendarioPanel_storicoObiettiviOverrideFornito_nonChiamaElencaStoricoObiettivoReale", async () => {
+    vi.mocked(elencaStoricoObiettivo).mockClear();
+    const oggi = new Date();
+    const chiave = `${oggi.getFullYear()}-${String(oggi.getMonth() + 1).padStart(2, "0")}-10`;
+    render(
+      <CalendarioPanel
+        {...PROPS_BASE}
+        giorni={[creaGiorno(chiave, 2500)]}
+        storicoObiettiviOverride={[creaLimiteKcal(2000)]}
+      />,
+    );
+
+    expect(await screen.findByTitle("Kcal superate")).toBeInTheDocument();
+    expect(elencaStoricoObiettivo).not.toHaveBeenCalled();
   });
 });

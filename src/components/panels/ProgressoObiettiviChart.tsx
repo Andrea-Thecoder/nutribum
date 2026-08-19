@@ -42,6 +42,10 @@ interface ProgressoObiettiviChartProps {
   peso: VocePeso[];
   storicoProfilo: PuntoStoricoProfilo[];
   storicoFitness: PuntoStoricoFitness[];
+  // Salta la lettura reale (elencaStoricoObiettivo, non ricevuta via prop come le altre) e usa
+  // questi dati - solo per l'anteprima "?" della scheda (vedi anteprimaPannelli.tsx), MAI in
+  // produzione.
+  storicoObiettiviOverride?: PuntoStoricoObiettivo[];
 }
 
 // Colori di stato (entro/oltre il limite): validati con lo script del design-system per entrambe
@@ -98,18 +102,20 @@ export const ProgressoObiettiviChart = memo(function ProgressoObiettiviChart({
   peso,
   storicoProfilo,
   storicoFitness,
+  storicoObiettiviOverride,
 }: ProgressoObiettiviChartProps) {
   const isDark = useIsDarkMode();
   const colori = paletteGrafici(isDark);
-  const [storicoObiettivi, setStoricoObiettivi] = useState<PuntoStoricoObiettivo[]>([]);
+  const [storicoObiettivi, setStoricoObiettivi] = useState<PuntoStoricoObiettivo[]>(storicoObiettiviOverride ?? []);
   const [periodo, setPeriodo] = useState<Periodo>("giorno");
   const [istanza, setIstanza] = useState<string>(() => istanzaPredefinita(giorni, "giorno"));
 
   useEffect(() => {
+    if (storicoObiettiviOverride) return;
     elencaStoricoObiettivo()
       .then(setStoricoObiettivi)
       .catch((err) => registraErroreNonBloccante(err, "Caricamento storico obiettivi (progresso) fallito"));
-  }, [versioneObiettivi]);
+  }, [versioneObiettivi, storicoObiettiviOverride]);
 
   useEffect(() => {
     if (!focusGiorno) return;

@@ -70,10 +70,15 @@ function InfoClickabile({
   testo,
   allineamento = "sinistra",
   durataMs = 4000,
+  dataTour,
 }: {
   testo: string;
   allineamento?: "sinistra" | "destra";
   durataMs?: number;
+  // Ancora per i mini-tour delle anteprime "?" (vedi lib/tourAnteprimaContenuti.tsx) - le due
+  // istanze di questo componente in PesoPanel condividono lo stesso aria-label, serve un valore
+  // diverso per puntare a quella giusta.
+  dataTour?: string;
 }) {
   const [visibile, setVisibile] = useState(false);
 
@@ -86,6 +91,7 @@ function InfoClickabile({
     <span className="relative inline-flex">
       <button
         type="button"
+        data-tour={dataTour}
         onClick={mostra}
         className="rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
         aria-label="Maggiori informazioni"
@@ -272,6 +278,7 @@ export const PesoPanel = memo(function PesoPanel({
           Ritmo attuale{" "}
           <InfoClickabile
             durataMs={10000}
+            dataTour="peso-info-ritmo"
             testo={`Prende il primo e l'ultimo peso registrato negli ultimi ${GIORNI_FINESTRA_RITMO_PESO} giorni e calcola (ultimo − primo) ÷ giorni trascorsi, poi ×7 per ottenere un valore settimanale. Ignora le misurazioni intermedie: due sole pesate contano, non una media di tutte. Serve almeno ${GIORNI_MINIMI_RITMO_PESO} giorni tra le due per essere mostrato, altrimenti due pesate troppo ravvicinate darebbero un ritmo esagerato una volta moltiplicato ×7.`}
           />
           : {proiezione.ritmoKgSettimana > 0 ? "+" : ""}
@@ -314,6 +321,7 @@ export const PesoPanel = memo(function PesoPanel({
                     Variazione
                     <InfoClickabile
                       allineamento="destra"
+                      dataTour="peso-info-variazione"
                       testo="Differenza rispetto alla misurazione nella riga sopra (la precedente in ordine di data), non rispetto all'obiettivo."
                     />
                   </span>

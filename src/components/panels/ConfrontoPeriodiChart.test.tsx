@@ -59,6 +59,13 @@ describe("ConfrontoPeriodiChart", () => {
     expect(screen.getByText("80.0 kg")).toBeInTheDocument();
     expect(screen.getByText("79.0 kg")).toBeInTheDocument();
   });
+
+  it("ConfrontoPeriodiChart_renderizzato_haLeAncoreDataTourDistinteSuiDueSelettoriDIstanza", () => {
+    render(<ConfrontoPeriodiChart giorni={GIORNI_DUE_SETTIMANE} peso={[]} vista="tabella" />);
+
+    expect(document.querySelector('[data-tour="selettore-istanza-a"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-tour="selettore-istanza-b"]')).toBeInTheDocument();
+  });
 });
 
 describe("SelettoreVistaConfronto", () => {
@@ -70,5 +77,11 @@ describe("SelettoreVistaConfronto", () => {
     await utente.click(screen.getByText("tabella"));
 
     expect(onChange).toHaveBeenCalledWith("tabella");
+  });
+
+  it("SelettoreVistaConfronto_renderizzato_haLAncoraDataTourPerIMiniTourDelleAnteprime", () => {
+    render(<SelettoreVistaConfronto vista="grafico" onChange={vi.fn()} />);
+
+    expect(document.querySelector('[data-tour="selettore-vista"]')).toBeInTheDocument();
   });
 });

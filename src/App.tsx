@@ -29,6 +29,9 @@ import { RicettaFormModal } from "./components/RicettaFormModal";
 import { WeightEntryModal } from "./components/WeightEntryModal";
 import { WeightGoalModal } from "./components/WeightGoalModal";
 import { TourGuidato } from "./components/TourGuidato";
+import { InfoModal } from "./components/InfoModal";
+import { INFO_PANNELLI } from "./lib/infoPannelli";
+import { anteprimaPannello } from "./lib/anteprimaPannelli";
 import {
   elencaAlimenti,
   elencaStoricoCompleto,
@@ -203,8 +206,8 @@ function chiudiTabDelPannello(p: Pannello, data: string): Pannello {
   return { ...p, dataGiorni, tabAttiva };
 }
 
-function titoloPannello(p: Pannello): string {
-  return DEFINIZIONI_PANNELLI.find((d) => d.tipo === p.tipo)!.titolo;
+function titoloPannello(tipo: TipoPannello): string {
+  return DEFINIZIONI_PANNELLI.find((d) => d.tipo === tipo)!.titolo;
 }
 
 function oggi(): string {
@@ -273,6 +276,8 @@ function App() {
   // Specchiato da TourGuidato (step.data.menu, vedi tours.ts) verso NavBar: forza aperto un menu di
   // primo livello mentre il tour ne evidenzia i bottoni interni.
   const [menuTourForzato, setMenuTourForzato] = useState<string | null>(null);
+  // Quale scheda ha l'InfoModal aperta (bottone "?" nell'header di PanelChrome) - vedi infoPannelli.ts.
+  const [pannelloInfoAperto, setPannelloInfoAperto] = useState<TipoPannello | null>(null);
   const isDark = useIsDarkMode();
   const [modaleAlimentoAperta, setModaleAlimentoAperta] = useState(false);
   const [modaleRicettaAperta, setModaleRicettaAperta] = useState(false);
@@ -918,6 +923,23 @@ function App() {
         onApriMenu={setMenuTourForzato}
       />
 
+      {pannelloInfoAperto && (
+        <InfoModal
+          titolo={titoloPannello(pannelloInfoAperto)}
+          onChiudi={() => setPannelloInfoAperto(null)}
+          larghezzaClasse="w-full max-w-3xl"
+          chiudiSuClickFuori={false}
+        >
+          <p className="mb-3">{INFO_PANNELLI[pannelloInfoAperto]}</p>
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+            Anteprima con dati di esempio (non i tuoi dati reali)
+          </p>
+          <div className="h-96 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+            {anteprimaPannello(pannelloInfoAperto, () => setPannelloInfoAperto(null))}
+          </div>
+        </InfoModal>
+      )}
+
       {modaleAlimentoAperta && (
         <AlimentoFormModal onChiudi={() => setModaleAlimentoAperta(false)} onSalvato={ricaricaAlimenti} />
       )}
@@ -970,7 +992,8 @@ function App() {
               >
                 <PanelChrome
                   dataTour={`dashboard-panel-${p.tipo}`}
-                  titolo={titoloPannello(p)}
+                  onInfo={() => setPannelloInfoAperto(p.tipo)}
+                  titolo={titoloPannello(p.tipo)}
                   headerExtra={headerExtraPannello(
                     p,
                     handleCambiaTab,

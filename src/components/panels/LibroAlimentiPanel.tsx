@@ -8,6 +8,9 @@ import { useConferma } from "../ConfermaModal";
 interface LibroAlimentiPanelProps {
   alimenti: AlimentoCatalogo[];
   onCambiato: () => void;
+  // Anteprima "?" della scheda (vedi anteprimaPannelli.tsx): niente eliminazione reale, e viene
+  // propagata alle form annidate (nuovo/modifica alimento) così anche il loro submit è innocuo.
+  anteprima?: boolean;
 }
 
 const CAMPO =
@@ -26,6 +29,7 @@ const PER_PAGINA = 20;
 export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
   alimenti,
   onCambiato,
+  anteprima,
 }: LibroAlimentiPanelProps) {
   const [filtro, setFiltro] = useState("");
   const [pagina, setPagina] = useState(0);
@@ -33,6 +37,7 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
   const [alimentoModifica, setAlimentoModifica] = useState<AlimentoCatalogo | null>(null);
   const [nuovoAlimentoAperto, setNuovoAlimentoAperto] = useState(false);
   const [erroreEliminazione, setErroreEliminazione] = useState<string | null>(null);
+  const [avvisoAnteprima, setAvvisoAnteprima] = useState<string | null>(null);
   const { chiedi, elemento: modaleConferma } = useConferma();
 
   const filtrati = alimenti.filter((a) => a.nome.toLowerCase().includes(filtro.trim().toLowerCase()));
@@ -45,6 +50,12 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
 
   async function gestisciElimina(alimento: AlimentoCatalogo) {
     setAlimentoAzioni(null);
+
+    if (anteprima) {
+      setAvvisoAnteprima(`Anteprima: qui "${alimento.nome}" verrebbe eliminato dal catalogo.`);
+      return;
+    }
+
     const ok = await chiedi(`Eliminare "${alimento.nome}" dal catalogo?`, { distruttivo: true });
     if (!ok) return;
 
@@ -62,6 +73,9 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
       {erroreEliminazione && (
         <EsitoPopup tipo="errore" messaggio={erroreEliminazione} onChiudi={() => setErroreEliminazione(null)} />
       )}
+      {avvisoAnteprima && (
+        <EsitoPopup tipo="avviso" messaggio={avvisoAnteprima} onChiudi={() => setAvvisoAnteprima(null)} />
+      )}
       {alimentoAzioni && (
         <AzioniAlimentoModal
           alimento={alimentoAzioni}
@@ -78,14 +92,16 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
           alimento={alimentoModifica}
           onChiudi={() => setAlimentoModifica(null)}
           onSalvato={onCambiato}
+          anteprima={anteprima}
         />
       )}
       {nuovoAlimentoAperto && (
-        <AlimentoFormModal onChiudi={() => setNuovoAlimentoAperto(false)} onSalvato={onCambiato} />
+        <AlimentoFormModal onChiudi={() => setNuovoAlimentoAperto(false)} onSalvato={onCambiato} anteprima={anteprima} />
       )}
 
       <div className="flex gap-2">
         <input
+          data-tour="libro-alimenti-cerca"
           type="text"
           placeholder="Cerca alimento…"
           value={filtro}
@@ -96,6 +112,7 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
           className={CAMPO + " flex-1"}
         />
         <button
+          data-tour="libro-alimenti-aggiungi"
           onClick={() => setNuovoAlimentoAperto(true)}
           className="shrink-0 rounded-lg bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700"
         >
@@ -104,7 +121,7 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
       </div>
 
       <div className="flex-1 overflow-auto">
-        <table className="w-full border-collapse text-left">
+        <table data-tour="libro-alimenti-tabella" className="w-full border-collapse text-left">
           <thead className="sticky top-0 bg-slate-50 text-slate-500 dark:bg-slate-900 dark:text-slate-400">
             <tr>
               <th className="px-2 py-1 font-medium">Nome</th>

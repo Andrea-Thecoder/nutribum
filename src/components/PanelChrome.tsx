@@ -14,6 +14,10 @@ interface PanelChromeProps {
   // Ancora stabile per il tour guidato (TourGuidato/tours.ts), non per lo stile: se assente, il
   // div radice non ha semplicemente l'attributo - nessun altro effetto.
   dataTour?: string;
+  // Apre la spiegazione dettagliata di QUESTO tipo di pannello (vedi infoPannelli.ts). Sempre
+  // visibile (non solo in hover come le maniglie di resize) - scelta esplicita dell'utente per
+  // massima scopribilità, anche a costo di un'icona fissa in più nell'header.
+  onInfo: () => void;
 }
 
 export function PanelChrome({
@@ -27,6 +31,7 @@ export function PanelChrome({
   onIniziaResize,
   children,
   dataTour,
+  onInfo,
 }: PanelChromeProps) {
   return (
     <div
@@ -64,9 +69,16 @@ export function PanelChrome({
           </div>
         )}
         <button
+          onClick={onInfo}
+          className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-[10px] font-bold text-slate-400 hover:border-blue-500 hover:text-blue-600 dark:border-slate-600 dark:text-slate-500 dark:hover:border-blue-400 dark:hover:text-blue-400"
+          title="Cosa mostra questa scheda"
+        >
+          ?
+        </button>
+        <button
           onClick={onToggleAncora}
           className={
-            "ml-auto shrink-0 rounded px-1.5 " +
+            "shrink-0 rounded px-1.5 " +
             (ancorato
               ? "bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400"
               : "text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-100")

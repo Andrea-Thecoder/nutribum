@@ -114,6 +114,17 @@ describe("PesoPanel", () => {
     expect(screen.getByText(/Il ritmo attuale non sta andando verso l'obiettivo\./)).toBeInTheDocument();
   });
 
+  it("PesoPanel_conProiezioneCalcolabile_mostraLAncoraDataTourSulBottoneInfoDelRitmo", () => {
+    const peso: VocePeso[] = [
+      { data: "2024-01-01", pesoKg: 78 },
+      { data: "2024-01-08", pesoKg: 80 },
+    ];
+
+    render(<PesoPanel {...PROPS_BASE} peso={peso} obiettivoKg={70} />);
+
+    expect(document.querySelector('[data-tour="peso-info-ritmo"]')).toBeInTheDocument();
+  });
+
   it("PesoPanel_vistaTabella_mostraObiettivoStoricoEVariazionePerRiga", () => {
     const peso: VocePeso[] = [
       { data: "2024-01-01", pesoKg: 82 },

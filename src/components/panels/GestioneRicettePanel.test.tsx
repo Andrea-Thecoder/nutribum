@@ -114,4 +114,18 @@ describe("GestioneRicettePanel", () => {
 
     expect(await screen.findByText("errore di rete")).toBeInTheDocument();
   });
+
+  it("GestioneRicettePanel_anteprimaConElimina_mostraAvvisoSenzaChiedereConfermaNeChiamareEliminaRicetta", async () => {
+    vi.mocked(eliminaRicetta).mockClear();
+    const utente = userEvent.setup();
+    render(
+      <GestioneRicettePanel ricette={[creaRicetta(1, "Pasta al pomodoro")]} alimenti={[PASTA]} onCambiato={vi.fn()} anteprima />,
+    );
+    await utente.click(screen.getByText("Pasta al pomodoro"));
+
+    await utente.click(screen.getByText("Elimina"));
+
+    expect(await screen.findByText(/Anteprima:/)).toBeInTheDocument();
+    expect(eliminaRicetta).not.toHaveBeenCalled();
+  });
 });

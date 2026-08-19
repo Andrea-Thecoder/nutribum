@@ -12,7 +12,7 @@ export function LegendaManuale({ voci }: { voci: VoceLegenda[] }) {
   return (
     <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 px-2 pt-1 text-xs text-slate-600 dark:text-slate-300">
       {voci.map((v) => (
-        <li key={v.etichetta} className="flex items-center gap-1.5">
+        <li key={v.etichetta} data-tour={`legenda-${v.etichetta}`} className="flex items-center gap-1.5">
           {v.tipo === "barra" ? (
             <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: v.colore }} />
           ) : (

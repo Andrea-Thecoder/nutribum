@@ -24,6 +24,18 @@ interface CalendarioPanelProps {
   peso: VocePeso[];
   storicoProfilo: PuntoStoricoProfilo[];
   storicoFitness: PuntoStoricoFitness[];
+  // Salta la lettura reale (elencaStoricoObiettivo, non ricevuta via prop come le altre) e usa
+  // questi dati - solo per l'anteprima "?" della scheda (vedi anteprimaPannelli.tsx), MAI in
+  // produzione: senza, la demo mostrerebbe lo storico obiettivi vero dell'utente.
+  storicoObiettiviOverride?: PuntoStoricoObiettivo[];
+  // Default true. A false (solo nell'anteprima "?"), i giorni non aprono più il Dettaglio Giorno
+  // al click: quella scheda non esiste da nessuna parte dentro l'anteprima isolata, cliccare
+  // sembrerebbe funzionare (cursore a manina, hover) ma non porterebbe a nulla.
+  interattivo?: boolean;
+  // Chiave = data (cella.chiave), valore = data-tour da applicare a quella cella - usato solo dal
+  // mini-tour della legenda (TourAnteprimaCalendario.tsx) per puntare a celle di esempio precise
+  // (una per condizione: pulito, kcal superate, ecc. - vedi GIORNI_ESEMPIO_CALENDARIO).
+  dataTourPerData?: Record<string, string>;
 }
 
 export const CalendarioPanel = memo(function CalendarioPanel({
@@ -33,16 +45,20 @@ export const CalendarioPanel = memo(function CalendarioPanel({
   peso,
   storicoProfilo,
   storicoFitness,
+  storicoObiettiviOverride,
+  interattivo = true,
+  dataTourPerData,
 }: CalendarioPanelProps) {
   const [mese, setMese] = useState(() => new Date());
-  const [storicoObiettivi, setStoricoObiettivi] = useState<PuntoStoricoObiettivo[]>([]);
+  const [storicoObiettivi, setStoricoObiettivi] = useState<PuntoStoricoObiettivo[]>(storicoObiettiviOverride ?? []);
   const celle = costruisciMese(mese, giorni);
 
   useEffect(() => {
+    if (storicoObiettiviOverride) return;
     elencaStoricoObiettivo()
       .then(setStoricoObiettivi)
       .catch((err) => registraErroreNonBloccante(err, "Caricamento storico obiettivi (calendario) fallito"));
-  }, [versioneObiettivi]);
+  }, [versioneObiettivi, storicoObiettiviOverride]);
 
   return (
     <div className="flex h-full flex-col gap-2">
@@ -72,7 +88,7 @@ export const CalendarioPanel = memo(function CalendarioPanel({
 
       <div className="grid flex-1 grid-cols-7 gap-1 select-none">
         {celle.map((cella) => {
-          const cliccabile = cella.kcal !== null && !cella.fuoriMese;
+          const cliccabile = cella.kcal !== null && !cella.fuoriMese && interattivo;
           const obiettivoGiorno = obiettivoEffettivo(storicoObiettivi, cella.chiave);
           const sforamenti = cella.totali ? calcolaSforamenti(cella.totali, obiettivoGiorno) : [];
           const sfora = sforamenti.length > 0;
@@ -96,6 +112,7 @@ export const CalendarioPanel = memo(function CalendarioPanel({
           return (
             <div
               key={cella.chiave}
+              data-tour={dataTourPerData?.[cella.chiave]}
               onClick={() => {
                 if (!cliccabile) return;
                 onApriGiorno(cella.chiave);

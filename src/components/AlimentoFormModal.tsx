@@ -14,6 +14,9 @@ interface AlimentoFormModalProps {
   alimento?: AlimentoCatalogo;
   onChiudi: () => void;
   onSalvato: () => void;
+  // Anteprima "?" della scheda Libro Alimenti (vedi anteprimaPannelli.tsx): niente scrittura reale
+  // sul catalogo, il submit mostra solo un avviso di cosa succederebbe.
+  anteprima?: boolean;
 }
 
 const CAMPO =
@@ -32,7 +35,7 @@ function valoreIniziale(v: number | null | undefined): string {
   return v === null || v === undefined ? "" : String(v);
 }
 
-export function AlimentoFormModal({ alimento, onChiudi, onSalvato }: AlimentoFormModalProps) {
+export function AlimentoFormModal({ alimento, onChiudi, onSalvato, anteprima }: AlimentoFormModalProps) {
   const inModifica = alimento !== undefined;
 
   const [nome, setNome] = useState(alimento?.nome ?? "");
@@ -47,6 +50,7 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato }: AlimentoFor
   const [sale, setSale] = useState(valoreIniziale(alimento?.sale_100));
   const [daEtichetta, setDaEtichetta] = useState(alimento?.da_etichetta ?? false);
   const [errore, setErrore] = useState<string | null>(null);
+  const [avvisoAnteprima, setAvvisoAnteprima] = useState<string | null>(null);
   const [salvataggio, setSalvataggio] = useState(false);
   const [modificato, setModificato] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
@@ -94,6 +98,13 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato }: AlimentoFor
       sale_100: saleN ?? null,
       da_etichetta: daEtichetta,
     };
+
+    if (anteprima) {
+      setAvvisoAnteprima(
+        `Anteprima: qui "${input.nome}" verrebbe ${inModifica ? "aggiornato nel" : "aggiunto al"} catalogo.`,
+      );
+      return;
+    }
 
     setSalvataggio(true);
     try {
@@ -219,6 +230,7 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato }: AlimentoFor
           </label>
 
           {errore && <p className="text-xs text-red-600 dark:text-red-400">{errore}</p>}
+          {avvisoAnteprima && <p className="text-xs text-amber-600 dark:text-amber-400">{avvisoAnteprima}</p>}
 
           <div className="mt-2 flex justify-end gap-2">
             <button

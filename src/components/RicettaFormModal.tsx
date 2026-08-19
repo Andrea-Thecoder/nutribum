@@ -11,6 +11,9 @@ interface RicettaFormModalProps {
   alimenti: AlimentoCatalogo[];
   onChiudi: () => void;
   onSalvato: () => void;
+  // Anteprima "?" della scheda Gestione Ricette (vedi anteprimaPannelli.tsx): niente scrittura
+  // reale, il submit mostra solo un avviso di cosa succederebbe.
+  anteprima?: boolean;
 }
 
 const CAMPO =
@@ -33,12 +36,13 @@ function righeIniziali(ricetta: RicettaConIngredienti | undefined, alimenti: Ali
   return [{ idBozza: crypto.randomUUID(), alimentoId: alimenti[0]?.id ?? "", quantita: "100" }];
 }
 
-export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato }: RicettaFormModalProps) {
+export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato, anteprima }: RicettaFormModalProps) {
   const inModifica = ricetta !== undefined;
 
   const [nome, setNome] = useState(ricetta?.nome ?? "");
   const [righe, setRighe] = useState<RigaBozza[]>(righeIniziali(ricetta, alimenti));
   const [errore, setErrore] = useState<string | null>(null);
+  const [avvisoAnteprima, setAvvisoAnteprima] = useState<string | null>(null);
   const [salvataggio, setSalvataggio] = useState(false);
   const [modificato, setModificato] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
@@ -87,6 +91,11 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato }: Ric
         return;
       }
       ingredienti.push({ alimentoId: r.alimentoId, quantita: Math.round(quantita * 100) / 100 });
+    }
+
+    if (anteprima) {
+      setAvvisoAnteprima(`Anteprima: qui la ricetta "${nome.trim()}" verrebbe ${inModifica ? "aggiornata" : "creata"}.`);
+      return;
     }
 
     setSalvataggio(true);
@@ -180,6 +189,9 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato }: Ric
           </div>
 
           {errore && <p className="shrink-0 text-xs text-red-600 dark:text-red-400">{errore}</p>}
+          {avvisoAnteprima && (
+            <p className="shrink-0 text-xs text-amber-600 dark:text-amber-400">{avvisoAnteprima}</p>
+          )}
 
           <div className="mt-2 flex shrink-0 justify-end gap-2">
             <button

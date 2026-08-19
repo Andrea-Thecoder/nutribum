@@ -121,4 +121,16 @@ describe("LibroAlimentiPanel", () => {
 
     expect(await screen.findByText("alimento in uso")).toBeInTheDocument();
   });
+
+  it("LibroAlimentiPanel_anteprimaConElimina_mostraAvvisoSenzaChiedereConfermaNeChiamareEliminaAlimento", async () => {
+    vi.mocked(eliminaAlimento).mockClear();
+    const utente = userEvent.setup();
+    render(<LibroAlimentiPanel alimenti={[creaAlimento(1, "Pasta")]} onCambiato={vi.fn()} anteprima />);
+    await utente.click(screen.getByText("Pasta"));
+
+    await utente.click(screen.getByText("Elimina"));
+
+    expect(await screen.findByText(/Anteprima:/)).toBeInTheDocument();
+    expect(eliminaAlimento).not.toHaveBeenCalled();
+  });
 });

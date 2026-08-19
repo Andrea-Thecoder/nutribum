@@ -23,6 +23,11 @@ interface RegistraPastoPanelProps {
   alimenti: AlimentoCatalogo[];
   ricette: RicettaConIngredienti[];
   onSalvato: () => void;
+  // Anteprima "?" della scheda (vedi anteprimaPannelli.tsx): niente lettura/scrittura reale sul
+  // diario, "Conferma" mostra solo un avviso di cosa succederebbe. Tutto il resto (scegliere
+  // alimento/quantità, aggiungere/togliere dalla lista) resta identico perché è già solo stato
+  // locale finché non si preme Conferma - nessun altro punto da bloccare.
+  anteprima?: boolean;
 }
 
 interface BozzaNuova extends VocePorzione {
@@ -58,6 +63,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
   alimenti,
   ricette,
   onSalvato,
+  anteprima,
 }: RegistraPastoPanelProps) {
   const [data, setData] = useState(oggi());
   const [dataRichiesta, setDataRichiesta] = useState<string | null>(null);
@@ -75,21 +81,24 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
   const [idsDaEliminare, setIdsDaEliminare] = useState<Set<number>>(new Set());
 
   const [errore, setErrore] = useState<string | null>(null);
+  const [avvisoAnteprima, setAvvisoAnteprima] = useState<string | null>(null);
   const [salvataggio, setSalvataggio] = useState(false);
   const { chiedi, elemento: modaleConferma } = useConferma();
 
   // Carica sempre le voci già salvate per il giorno selezionato, non solo per oggi: il calendario
   // permette di scegliere qualsiasi giorno passato (per registrare/gestire un pasto retroattivo),
   // quindi la lista deve rispecchiare quello che c'è davvero nel diario per QUEL giorno, non solo
-  // per quello odierno.
+  // per quello odierno. In anteprima niente fetch reale: resta il diario finto (vuoto) passato da
+  // fuori, non quello dell'utente.
   useEffect(() => {
+    if (anteprima) return;
     elencaDiarioGiorno(data)
       .then(setGiaSalvate)
       .catch((e) => {
         setErrore(e instanceof Error ? e.message : String(e));
         registraErroreNonBloccante(e, "Caricamento diario del giorno (registra pasto) fallito");
       });
-  }, [data]);
+  }, [data, anteprima]);
 
   useEffect(() => {
     if (alimentoId === "" && alimenti.length > 0) setAlimentoId(alimenti[0].id);
@@ -309,6 +318,12 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
     const parti: string[] = [];
     if (bozzaNuove.length > 0) parti.push(`salvare ${bozzaNuove.length} nuovi alimenti`);
     if (idsDaEliminare.size > 0) parti.push(`eliminare ${idsDaEliminare.size} alimenti già salvati`);
+
+    if (anteprima) {
+      setAvvisoAnteprima(`Anteprima: qui premendo Conferma andresti a ${parti.join(" e ")} nel diario.`);
+      return;
+    }
+
     const ok = await chiedi(`Confermi di voler ${parti.join(" e ")} nel database?`);
     if (!ok) return;
 
@@ -351,7 +366,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
   return (
     <div className="flex h-full flex-col gap-3 text-xs">
       {modaleConferma}
-      <div className="flex flex-wrap gap-2">
+      <div data-tour="registra-pasto-giorno-orario" className="flex flex-wrap gap-2">
         <label className="flex flex-col gap-0.5 text-sm">
           Giorno
           <CalendarioPopover value={data} onChange={setDataRichiesta} />
@@ -364,7 +379,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
 
       <fieldset disabled={salvataggio} className="contents">
         {ricette.length > 0 && (
-          <div className="flex gap-2 pb-1">
+          <div data-tour="registra-pasto-modalita" className="flex gap-2 pb-1">
             <button
               type="button"
               onClick={() => setModalitaAggiunta("alimento")}
@@ -399,6 +414,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
               handleAggiungi(e);
             }
           }}
+          data-tour="registra-pasto-campi"
           className="flex flex-wrap items-end gap-2 border-b border-slate-200 pb-3 dark:border-slate-800"
         >
           <label className="flex flex-col gap-0.5">
@@ -468,8 +484,9 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
       </fieldset>
 
       {errore && <p className="text-red-600 dark:text-red-400">{errore}</p>}
+      {avvisoAnteprima && <p className="text-amber-600 dark:text-amber-400">{avvisoAnteprima}</p>}
 
-      <div className="flex flex-col gap-1 overflow-auto">
+      <div data-tour="registra-pasto-lista" className="flex flex-col gap-1 overflow-auto">
         {giaSalvateVisibili.length === 0 && bozzaNuove.length === 0 && (
           <p className="text-slate-400 dark:text-slate-500">Nessun alimento in lista per questo giorno.</p>
         )}
@@ -525,6 +542,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
             Svuota lista
           </button>
           <button
+            data-tour="registra-pasto-conferma"
             onClick={handleConferma}
             disabled={salvataggio || numeroModifichePendenti === 0}
             className="rounded-lg bg-emerald-600 px-3 py-1.5 font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"

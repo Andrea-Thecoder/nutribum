@@ -123,6 +123,20 @@ describe("RicettaFormModal - nuova ricetta", () => {
     expect(onSalvato).toHaveBeenCalledTimes(1);
     expect(onChiudi).toHaveBeenCalledTimes(1);
   });
+
+  it("RicettaFormModal_anteprima_mostraAvvisoSenzaChiamareCreaRicettaNeChiudere", async () => {
+    vi.mocked(creaRicetta).mockClear();
+    const onChiudi = vi.fn();
+    const utente = userEvent.setup();
+    render(<RicettaFormModal alimenti={ALIMENTI} onChiudi={onChiudi} onSalvato={vi.fn()} anteprima />);
+    await utente.type(screen.getByLabelText("Nome ricetta"), "Pasta al pomodoro");
+
+    await utente.click(screen.getByText("Crea ricetta"));
+
+    expect(await screen.findByText(/Anteprima:/)).toBeInTheDocument();
+    expect(creaRicetta).not.toHaveBeenCalled();
+    expect(onChiudi).not.toHaveBeenCalled();
+  });
 });
 
 describe("RicettaFormModal - modifica ricetta esistente", () => {

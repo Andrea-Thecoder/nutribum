@@ -133,6 +133,22 @@ describe("DettaglioGiornoPanel", () => {
     expect(await screen.findByText(/limite 2000/)).toBeInTheDocument();
   });
 
+  it("DettaglioGiornoPanel_storicoObiettiviOverrideFornito_nonChiamaElencaStoricoObiettivoReale", async () => {
+    vi.mocked(elencaStoricoObiettivo).mockClear();
+    const giorno = creaGiorno("2024-01-01", [creaAlimento("Torta", 2500)]);
+    render(
+      <DettaglioGiornoPanel
+        {...PROPS_BASE}
+        giorni={[giorno]}
+        data="2024-01-01"
+        storicoObiettiviOverride={[creaLimiteKcal(2000)]}
+      />,
+    );
+
+    expect(await screen.findByText(/limite 2000/)).toBeInTheDocument();
+    expect(elencaStoricoObiettivo).not.toHaveBeenCalled();
+  });
+
   it("DettaglioGiornoPanel_clicEliminaGiornoConConferma_chiamaOnEliminaConLaData", async () => {
     const onElimina = vi.fn();
     const giorno = creaGiorno("2024-01-01", [creaAlimento("Pasta", 350)]);
@@ -143,6 +159,18 @@ describe("DettaglioGiornoPanel", () => {
     await utente.click(screen.getByText("Conferma"));
 
     expect(onElimina).toHaveBeenCalledWith("2024-01-01");
+  });
+
+  it("DettaglioGiornoPanel_anteprimaConClicEliminaGiorno_mostraAvvisoSenzaChiedereConfermaNeChiamareOnElimina", async () => {
+    const onElimina = vi.fn();
+    const giorno = creaGiorno("2024-01-01", [creaAlimento("Pasta", 350)]);
+    const utente = userEvent.setup();
+    render(<DettaglioGiornoPanel {...PROPS_BASE} onElimina={onElimina} giorni={[giorno]} data="2024-01-01" anteprima />);
+
+    await utente.click(screen.getByText("Elimina giorno"));
+
+    expect(await screen.findByText(/Anteprima:/)).toBeInTheDocument();
+    expect(onElimina).not.toHaveBeenCalled();
   });
 
   it("DettaglioGiornoPanel_clicEliminaGiornoEAnnulla_nonChiamaOnElimina", async () => {

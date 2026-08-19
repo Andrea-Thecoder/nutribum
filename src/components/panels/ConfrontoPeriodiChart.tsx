@@ -133,7 +133,13 @@ export function SelettoreVistaConfronto({
   onChange: (v: VistaConfronto) => void;
 }) {
   return (
-    <div className="flex gap-1 rounded-lg bg-slate-100 p-0.5 text-xs dark:bg-slate-800">
+    <div
+      // Ancora per i mini-tour delle anteprime "?" (vedi lib/tourAnteprimaContenuti.tsx): condivisa
+      // tra Confronto Periodi e Peso Corporeo, gli unici due usi di questo toggle - mai insieme
+      // nella stessa modale, un valore fisso basta.
+      data-tour="selettore-vista"
+      className="flex gap-1 rounded-lg bg-slate-100 p-0.5 text-xs dark:bg-slate-800"
+    >
       {(["grafico", "tabella"] as const).map((v) => (
         <button
           key={v}
@@ -220,9 +226,23 @@ export const ConfrontoPeriodiChart = memo(function ConfrontoPeriodiChart({
       </div>
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
         <span>Confronta</span>
-        <SelettoreIstanza giorni={giorni} periodo={periodo} istanza={istanzaA} onChange={setIstanzaA} mostraTutto={false} />
+        <SelettoreIstanza
+          giorni={giorni}
+          periodo={periodo}
+          istanza={istanzaA}
+          onChange={setIstanzaA}
+          mostraTutto={false}
+          dataTour="selettore-istanza-a"
+        />
         <span>con</span>
-        <SelettoreIstanza giorni={giorni} periodo={periodo} istanza={istanzaB} onChange={setIstanzaB} mostraTutto={false} />
+        <SelettoreIstanza
+          giorni={giorni}
+          periodo={periodo}
+          istanza={istanzaB}
+          onChange={setIstanzaB}
+          mostraTutto={false}
+          dataTour="selettore-istanza-b"
+        />
       </div>
 
       {!valoriA || !valoriB ? (

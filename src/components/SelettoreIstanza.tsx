@@ -8,6 +8,10 @@ export function SelettoreIstanza({
   istanza,
   onChange,
   mostraTutto = true,
+  // Ancora per i mini-tour delle anteprime "?" (vedi lib/tourAnteprimaContenuti.tsx). Default
+  // valido ovunque ce n'è uno solo a schermo; Confronto Periodi ne usa DUE insieme (A e B) e passa
+  // un valore diverso per ciascuno, altrimenti il tour troverebbe sempre il primo dei due.
+  dataTour = "selettore-istanza",
 }: {
   giorni: { data: string }[];
   periodo: Periodo;
@@ -16,6 +20,7 @@ export function SelettoreIstanza({
   // false nei pannelli dove "Tutto" non ha senso (es. confronto tra periodi: non si può
   // confrontare "tutto" con "il periodo prima di tutto").
   mostraTutto?: boolean;
+  dataTour?: string;
 }) {
   const [aperto, setAperto] = useState(false);
   const [evidenziato, setEvidenziato] = useState(0);
@@ -68,7 +73,7 @@ export function SelettoreIstanza({
   }, [evidenziato]);
 
   return (
-    <div className="relative">
+    <div className="relative" data-tour={dataTour}>
       {aperto && <div className="fixed inset-0 z-10" onClick={() => setAperto(false)} />}
 
       <button

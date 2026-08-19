@@ -56,4 +56,18 @@ describe("InfoModal", () => {
 
     expect(onChiudi).not.toHaveBeenCalled();
   });
+
+  it("InfoModal_chiudiSuClickFuoriAFalse_clicSulloSfondoNonChiamaOnChiudi", async () => {
+    const onChiudi = vi.fn();
+    const utente = userEvent.setup();
+    render(
+      <InfoModal titolo="Glossario" onChiudi={onChiudi} chiudiSuClickFuori={false}>
+        <p>Testo</p>
+      </InfoModal>,
+    );
+
+    await utente.click(screen.getByText("Glossario").closest(".fixed")!);
+
+    expect(onChiudi).not.toHaveBeenCalled();
+  });
 });

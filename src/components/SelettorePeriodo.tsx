@@ -21,7 +21,12 @@ export function SelettorePeriodo({
     : TUTTE_LE_OPZIONI;
 
   return (
-    <div className="flex gap-1 self-start rounded-lg bg-slate-100 p-0.5 text-xs dark:bg-slate-800">
+    <div
+      // Ancora fissa per i mini-tour delle anteprime "?" (vedi lib/tourAnteprimaContenuti.tsx):
+      // sempre lo stesso valore perché in ogni modale ne compare al massimo uno alla volta.
+      data-tour="selettore-periodo"
+      className="flex gap-1 self-start rounded-lg bg-slate-100 p-0.5 text-xs dark:bg-slate-800"
+    >
       {daMostrare.map((o) => (
         <button
           key={o.valore}

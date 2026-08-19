@@ -10,16 +10,27 @@ interface InfoModalProps {
   // nutrienti di "Visualizza ricetta") può passare "w-full max-w-3xl" per crescere col viewport -
   // eccezione dichiarata, non il comportamento normale di questa modale.
   larghezzaClasse?: string;
+  // Default true (comportamento invariato per glossario/feedback/informazioni). L'anteprima "?"
+  // dei pannelli lo passa a false: contiene un'anteprima viva interattiva (filtri, vista
+  // tabella/grafico), un click "a vuoto" vicino al bordo la chiuderebbe per sbaglio - stessa
+  // scelta già fatta per l'overlay del tour guidato (TourGuidato.tsx, overlayClickAction: false).
+  chiudiSuClickFuori?: boolean;
 }
 
 // Modale generica di sola lettura (glossario, feedback, informazioni - menu "Aiuto"): stesso
 // pattern (portal, cuscinetto, max-h-[85vh], min-h-85 come le modali di scrittura) ma senza form
 // né conferma alla chiusura, non c'è nessun dato da perdere qui.
-export function InfoModal({ titolo, onChiudi, children, larghezzaClasse = "w-96" }: InfoModalProps) {
+export function InfoModal({
+  titolo,
+  onChiudi,
+  children,
+  larghezzaClasse = "w-96",
+  chiudiSuClickFuori = true,
+}: InfoModalProps) {
   return createPortal(
     <div
       className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100"
-      onClick={onChiudi}
+      onClick={chiudiSuClickFuori ? onChiudi : undefined}
     >
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
         <div

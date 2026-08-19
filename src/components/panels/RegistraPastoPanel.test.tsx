@@ -189,4 +189,25 @@ describe("RegistraPastoPanel", () => {
 
     expect(eliminaVoceDiario).toHaveBeenCalledWith(42);
   });
+
+  it("RegistraPastoPanel_anteprima_nonChiamaElencaDiarioGiornoReale", async () => {
+    vi.mocked(elencaDiarioGiorno).mockClear();
+    render(<RegistraPastoPanel alimenti={[PASTA]} ricette={[]} onSalvato={vi.fn()} anteprima />);
+    await attendiCaricamento();
+
+    expect(elencaDiarioGiorno).not.toHaveBeenCalled();
+  });
+
+  it("RegistraPastoPanel_anteprimaConBozzaPendente_confermaMostraAvvisoSenzaChiamareRegistraVoceDiario", async () => {
+    vi.mocked(registraVoceDiario).mockClear();
+    const utente = userEvent.setup();
+    render(<RegistraPastoPanel alimenti={[PASTA]} ricette={[]} onSalvato={vi.fn()} anteprima />);
+    await attendiCaricamento();
+    await utente.click(screen.getByText("Aggiungi"));
+
+    await utente.click(screen.getByText("Conferma"));
+
+    expect(await screen.findByText(/Anteprima:/)).toBeInTheDocument();
+    expect(registraVoceDiario).not.toHaveBeenCalled();
+  });
 });

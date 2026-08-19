@@ -32,4 +32,10 @@ describe("SelettorePeriodo", () => {
     expect(screen.getByText("Anno").className).toContain("bg-blue-600");
     expect(screen.getByText("Mese").className).not.toContain("bg-blue-600");
   });
+
+  it("SelettorePeriodo_renderizzato_haLAncoraDataTourPerIMiniTourDelleAnteprime", () => {
+    render(<SelettorePeriodo periodo="mese" onChange={vi.fn()} />);
+
+    expect(document.querySelector('[data-tour="selettore-periodo"]')).toBeInTheDocument();
+  });
 });
