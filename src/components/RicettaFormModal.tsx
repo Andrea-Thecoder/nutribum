@@ -5,6 +5,8 @@ import { creaRicetta, aggiornaRicetta, type RicettaConIngredienti } from "../lib
 import { SelettorePersonalizzato } from "./SelettorePersonalizzato";
 import { useConfermaChiusura } from "./ConfermaModal";
 import { accettaDueDecimali } from "../lib/inputNumerico";
+import { TourAnteprimaPannello } from "./TourAnteprimaPannello";
+import { stepsNuovaRicetta } from "../lib/tourImpostazioni";
 
 interface RicettaFormModalProps {
   ricetta?: RicettaConIngredienti;
@@ -45,6 +47,7 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato, antep
   const [avvisoAnteprima, setAvvisoAnteprima] = useState<string | null>(null);
   const [salvataggio, setSalvataggio] = useState(false);
   const [modificato, setModificato] = useState(false);
+  const [tourAperto, setTourAperto] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
 
   function aggiungiRiga() {
@@ -121,29 +124,45 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato, antep
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={richiediChiusura}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        id={anteprima ? undefined : "anteprima-tour-root"}
         onClick={(e) => e.stopPropagation()}
         className="flex max-h-[85vh] min-h-85 w-96 flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
-        <div className="mb-3 flex shrink-0 items-center justify-between">
+        {tourAperto && (
+          <TourAnteprimaPannello steps={stepsNuovaRicetta} onCompletato={() => setTourAperto(false)} />
+        )}
+        <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
             {inModifica ? "Modifica ricetta" : "Nuova ricetta"}
           </h2>
-          <button
-            onClick={richiediChiusura}
-            className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-1">
+            {!anteprima && (
+              <button
+                type="button"
+                onClick={() => setTourAperto(true)}
+                title="Cosa sono questi campi"
+                className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+              >
+                ?
+              </button>
+            )}
+            <button
+              onClick={richiediChiusura}
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} onChange={() => setModificato(true)} className="flex min-h-0 flex-1 flex-col gap-2 text-sm">
-          <label className="flex shrink-0 flex-col gap-0.5">
-            Nome ricetta
+          <label className="flex shrink-0 flex-col gap-0.5" data-tour="ricetta-nome">
+            Nome ricetta *
             <input className={CAMPO} value={nome} onChange={(e) => setNome(e.target.value)} autoFocus />
           </label>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-1.5">
-            <span className="shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">Ingredienti</span>
+          <div className="flex min-h-0 flex-1 flex-col gap-1.5" data-tour="ricetta-ingredienti">
+            <span className="shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">Ingredienti *</span>
             <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
               {righe.map((r) => (
               <div key={r.idBozza} className="flex items-center gap-1.5">

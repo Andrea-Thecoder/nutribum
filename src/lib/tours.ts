@@ -139,6 +139,13 @@ const TOUR_BENVENUTO: Step[] = [
       "La dashboard è fatta di schede che trascini e ridimensioni a piacere. Da qui ne aggiungi altre: calendario, grafici, registra pasto, ricette e altro. Ogni scheda ha un \"?\" nel suo header con tutti i dettagli su cosa mostra.",
   },
   {
+    target: "body",
+    placement: "center",
+    title: "L'intestazione di ogni scheda",
+    content:
+      "In alto su ogni scheda, sempre gli stessi controlli: \"?\" spiega nel dettaglio cosa mostra quella scheda, il lucchetto la ancora (blocca la posizione e la protegge da un reset del layout), la ✕ la rimuove dalla dashboard. Trascina un angolo per ridimensionarla.",
+  },
+  {
     target: '[data-tour="navbar-aiuto"]',
     placement: "bottom",
     title: "Aiuto",

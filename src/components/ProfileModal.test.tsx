@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ProfileModal } from "./ProfileModal";
 import {
@@ -38,11 +38,11 @@ async function attendiCaricamento() {
 }
 
 function campoEta() {
-  return screen.getByLabelText("Età (anni)");
+  return screen.getByLabelText("Età (anni) *");
 }
 
 function campoAltezza() {
-  return screen.getByLabelText("Altezza (cm)");
+  return screen.getByLabelText("Altezza (cm) *");
 }
 
 describe("ProfileModal", () => {
@@ -148,4 +148,52 @@ describe("ProfileModal", () => {
     expect(screen.getByText("1780 kcal")).toBeInTheDocument();
     expect(screen.getByText("2759 kcal")).toBeInTheDocument();
   });
+});
+
+// Il mini-tour gira sui campi VERI della modale (niente copia con dati finti): non scrive nulla
+// finché l'utente non preme "Salva profilo" di sua iniziativa.
+// Il titolo del primo step del tour ("Profilo (per il TDEE)") coincide col titolo della modale
+// stessa (h2): le asserzioni sul tour restano scoperte al div separato che react-joyride crea come
+// portale, invece di query globali che troverebbero entrambi.
+function portaleTour() {
+  const portale = document.getElementById("react-joyride-portal");
+  return portale ? within(portale) : null;
+}
+
+describe("ProfileModal - mini-tour", () => {
+  it("ProfileModal_clicSulPuntoInterrogativo_avviaIlTourSulPrimoStep", async () => {
+    const utente = userEvent.setup();
+    render(<ProfileModal peso={[]} onClose={vi.fn()} onSaved={vi.fn()} />);
+    await attendiCaricamento();
+
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+
+    expect(await portaleTour()!.findByText("Profilo (per il TDEE)")).toBeInTheDocument();
+  });
+
+  it("ProfileModal_saltaIlTour_nonChiudeLaModale", async () => {
+    const onClose = vi.fn();
+    const utente = userEvent.setup();
+    render(<ProfileModal peso={[]} onClose={onClose} onSaved={vi.fn()} />);
+    await attendiCaricamento();
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+    await portaleTour()!.findByText("Profilo (per il TDEE)");
+
+    await utente.click(screen.getByRole("button", { name: "Salta" }));
+
+    // "Salta" smonta TourAnteprimaPannello: react-joyride rimuove anche il proprio div portale da
+    // document.body (vedi usePortalElement.ts) - null qui è la conferma che il tour è sparito.
+    expect(portaleTour()).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it.each(["profilo-eta", "profilo-altezza", "profilo-sesso", "profilo-livello-attivita", "profilo-salva"])(
+    "ProfileModal_haLAncoraDataTour_%s",
+    async (dataTour) => {
+      render(<ProfileModal peso={[]} onClose={vi.fn()} onSaved={vi.fn()} />);
+      await attendiCaricamento();
+
+      expect(document.querySelector(`[data-tour="${dataTour}"]`)).toBeInTheDocument();
+    },
+  );
 });

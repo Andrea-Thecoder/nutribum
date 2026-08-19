@@ -9,6 +9,8 @@ import {
 } from "../lib/food";
 import { useConfermaChiusura } from "./ConfermaModal";
 import { accettaDueDecimali } from "../lib/inputNumerico";
+import { TourAnteprimaPannello } from "./TourAnteprimaPannello";
+import { stepsAggiungiAlimento } from "../lib/tourImpostazioni";
 
 interface AlimentoFormModalProps {
   alimento?: AlimentoCatalogo;
@@ -53,6 +55,7 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato, anteprima }: 
   const [avvisoAnteprima, setAvvisoAnteprima] = useState<string | null>(null);
   const [salvataggio, setSalvataggio] = useState(false);
   const [modificato, setModificato] = useState(false);
+  const [tourAperto, setTourAperto] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
 
   async function handleSubmit(e: FormEvent) {
@@ -129,28 +132,44 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato, anteprima }: 
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={richiediChiusura}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        id={anteprima ? undefined : "anteprima-tour-root"}
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
-        <div className="mb-3 flex items-center justify-between">
+        {tourAperto && (
+          <TourAnteprimaPannello steps={stepsAggiungiAlimento} onCompletato={() => setTourAperto(false)} />
+        )}
+        <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
             {inModifica ? `Modifica alimento (valori per 100${unita})` : `Nuovo alimento (valori per 100${unita})`}
           </h2>
-          <button
-            onClick={richiediChiusura}
-            className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-1">
+            {!anteprima && (
+              <button
+                type="button"
+                onClick={() => setTourAperto(true)}
+                title="Cosa sono questi campi"
+                className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+              >
+                ?
+              </button>
+            )}
+            <button
+              onClick={richiediChiusura}
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} onChange={() => setModificato(true)} className="flex flex-col gap-2 text-sm">
-          <label className="flex flex-col gap-0.5">
-            Nome
+          <label className="flex flex-col gap-0.5" data-tour="alimento-nome">
+            Nome *
             <input className={CAMPO} value={nome} onChange={(e) => setNome(e.target.value)} autoFocus />
           </label>
 
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-0.5" data-tour="alimento-unita">
             Unità di riferimento
             <div className="flex gap-1.5">
               <button
@@ -185,16 +204,16 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato, anteprima }: 
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-0.5">
-              Kcal
+            <label className="flex flex-col gap-0.5" data-tour="alimento-kcal">
+              Kcal *
               <input className={CAMPO} type="number" min={0} step="0.01" value={kcal} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setKcal(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
-              Proteine (g)
+              Proteine (g) *
               <input className={CAMPO} type="number" min={0} step="0.01" value={proteine} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setProteine(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
-              Carboidrati (g)
+              Carboidrati (g) *
               <input className={CAMPO} type="number" min={0} step="0.01" value={carboidrati} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setCarboidrati(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
@@ -202,7 +221,7 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato, anteprima }: 
               <input className={CAMPO} type="number" min={0} step="0.01" value={zuccheri} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setZuccheri(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
-              Grassi (g)
+              Grassi (g) *
               <input className={CAMPO} type="number" min={0} step="0.01" value={grassi} onChange={(e) => { if (accettaDueDecimali(e.target.value)) setGrassi(e.target.value); }} />
             </label>
             <label className="flex flex-col gap-0.5">
@@ -219,7 +238,7 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato, anteprima }: 
             </label>
           </div>
 
-          <label className="flex items-center gap-2 py-1">
+          <label className="flex items-center gap-2 py-1" data-tour="alimento-etichetta">
             <input
               type="checkbox"
               checked={daEtichetta}

@@ -14,6 +14,8 @@ import type { VocePeso } from "../lib/weight";
 import { SelettorePersonalizzato } from "./SelettorePersonalizzato";
 import { useConfermaChiusura } from "./ConfermaModal";
 import { accettaDueDecimali } from "../lib/inputNumerico";
+import { TourAnteprimaPannello } from "./TourAnteprimaPannello";
+import { stepsObiettivoKcal, stepsObiettivoMacro, stepsObiettivoAltro } from "../lib/tourImpostazioni";
 
 export type TipoObiettivo = "kcal" | "macro" | "altro";
 
@@ -31,6 +33,12 @@ const TITOLI: Record<TipoObiettivo, string> = {
   kcal: "Limite giornaliero - Kcal",
   macro: "Limite giornaliero - Macronutrienti",
   altro: "Limite giornaliero - Altro",
+};
+
+const STEP_TOUR: Record<TipoObiettivo, typeof stepsObiettivoKcal> = {
+  kcal: stepsObiettivoKcal,
+  macro: stepsObiettivoMacro,
+  altro: stepsObiettivoAltro,
 };
 
 const ETICHETTE_AMBITO: Record<Ambito, string> = {
@@ -85,6 +93,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
   const [errore, setErrore] = useState<string | null>(null);
   const [salvataggio, setSalvataggio] = useState(false);
   const [modificato, setModificato] = useState(false);
+  const [tourAperto, setTourAperto] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
 
   // Solo per il tab kcal: profilo/livello attività per calcolare il TDEE live se l'utente spunta
@@ -233,17 +242,31 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={richiediChiusura}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        id="anteprima-tour-root"
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
-        <div className="mb-3 flex items-center justify-between">
+        {tourAperto && (
+          <TourAnteprimaPannello steps={STEP_TOUR[tipo]} onCompletato={() => setTourAperto(false)} />
+        )}
+        <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{TITOLI[tipo]}</h2>
-          <button
-            onClick={richiediChiusura}
-            className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setTourAperto(true)}
+              title="Cosa sono questi campi"
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ?
+            </button>
+            <button
+              onClick={richiediChiusura}
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {caricamento ? (
@@ -252,7 +275,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
           <form onSubmit={handleSubmit} onChange={() => setModificato(true)} className="flex flex-col gap-2 text-sm">
             {tipo === "kcal" && (
               <>
-                <label className="flex flex-col gap-0.5">
+                <label className="flex flex-col gap-0.5" data-tour="obiettivo-kcal-max">
                   Kcal al giorno
                   <input
                     className={CAMPO}
@@ -269,6 +292,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                 <label
                   className="flex items-center gap-2 py-1"
                   title={motivoTDEENonDisponibile ?? undefined}
+                  data-tour="obiettivo-usa-tdee"
                 >
                   <input
                     type="checkbox"
@@ -291,7 +315,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                   <p className="text-[11px] text-amber-600 dark:text-amber-400">{motivoTDEENonDisponibile}</p>
                 )}
 
-                <label className="mt-2 flex flex-col gap-0.5">
+                <label className="mt-2 flex flex-col gap-0.5" data-tour="obiettivo-kcal-min">
                   Kcal minimo al giorno
                   <input
                     className={CAMPO}
@@ -307,6 +331,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                 <label
                   className="flex items-center gap-2 py-1"
                   title={motivoTDEENonDisponibile ?? undefined}
+                  data-tour="obiettivo-usa-bmr"
                 >
                   <input
                     type="checkbox"
@@ -330,7 +355,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
 
             {tipo === "macro" && (
               <div className="flex flex-col gap-2">
-                <label className="flex flex-col gap-0.5">
+                <label className="flex flex-col gap-0.5" data-tour="obiettivo-macro-grassi">
                   Grassi (g)
                   <input
                     className={CAMPO}
@@ -342,7 +367,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     autoFocus
                   />
                 </label>
-                <label className="flex flex-col gap-0.5">
+                <label className="flex flex-col gap-0.5" data-tour="obiettivo-macro-proteine">
                   Proteine (g)
                   <input
                     className={CAMPO}
@@ -353,7 +378,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     onChange={(e) => { if (accettaDueDecimali(e.target.value)) setProteine(e.target.value); }}
                   />
                 </label>
-                <label className="flex flex-col gap-0.5">
+                <label className="flex flex-col gap-0.5" data-tour="obiettivo-macro-carboidrati">
                   Carboidrati (g)
                   <input
                     className={CAMPO}
@@ -369,7 +394,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
 
             {tipo === "altro" && (
               <div className="flex flex-col gap-2">
-                <label className="flex flex-col gap-0.5">
+                <label className="flex flex-col gap-0.5" data-tour="obiettivo-altro-sale">
                   Sale (g)
                   <input
                     className={CAMPO}
@@ -381,7 +406,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
                     autoFocus
                   />
                 </label>
-                <label className="flex flex-col gap-0.5">
+                <label className="flex flex-col gap-0.5" data-tour="obiettivo-altro-fibre">
                   Fibre (g)
                   <input
                     className={CAMPO}
@@ -395,7 +420,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
               </div>
             )}
 
-            <label className="flex flex-col gap-0.5 py-1">
+            <label className="flex flex-col gap-0.5 py-1" data-tour="obiettivo-ambito">
               Ambito di validità
               <SelettorePersonalizzato
                 valore={ambito}
@@ -426,6 +451,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
               <button
                 type="submit"
                 disabled={salvataggio}
+                data-tour="obiettivo-salva"
                 className="rounded-lg bg-blue-600 px-3 py-1.5 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {salvataggio ? "Salvataggio…" : "Salva"}

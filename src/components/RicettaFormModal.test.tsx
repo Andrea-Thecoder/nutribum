@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RicettaFormModal } from "./RicettaFormModal";
 import { aggiornaRicetta, creaRicetta, type RicettaConIngredienti } from "../lib/recipes";
@@ -56,7 +56,7 @@ describe("RicettaFormModal - nuova ricetta", () => {
   it("RicettaFormModal_nessunAlimentoSelezionabile_mostraErroreSenzaSalvare", async () => {
     const utente = userEvent.setup();
     render(<RicettaFormModal alimenti={[]} onChiudi={vi.fn()} onSalvato={vi.fn()} />);
-    await utente.type(screen.getByLabelText("Nome ricetta"), "Insalata");
+    await utente.type(screen.getByLabelText("Nome ricetta *"), "Insalata");
 
     await utente.click(screen.getByText("Crea ricetta"));
 
@@ -67,7 +67,7 @@ describe("RicettaFormModal - nuova ricetta", () => {
   it("RicettaFormModal_quantitaAZero_mostraErroreSenzaSalvare", async () => {
     const utente = userEvent.setup();
     render(<RicettaFormModal alimenti={ALIMENTI} onChiudi={vi.fn()} onSalvato={vi.fn()} />);
-    await utente.type(screen.getByLabelText("Nome ricetta"), "Pasta al pomodoro");
+    await utente.type(screen.getByLabelText("Nome ricetta *"), "Pasta al pomodoro");
     await utente.clear(screen.getByRole("spinbutton"));
 
     await utente.click(screen.getByText("Crea ricetta"));
@@ -104,7 +104,7 @@ describe("RicettaFormModal - nuova ricetta", () => {
   it("RicettaFormModal_datiValidi_chiamaCreaRicettaConNomeEIngredienti", async () => {
     const utente = userEvent.setup();
     render(<RicettaFormModal alimenti={ALIMENTI} onChiudi={vi.fn()} onSalvato={vi.fn()} />);
-    await utente.type(screen.getByLabelText("Nome ricetta"), "Pasta al pomodoro");
+    await utente.type(screen.getByLabelText("Nome ricetta *"), "Pasta al pomodoro");
 
     await utente.click(screen.getByText("Crea ricetta"));
 
@@ -116,7 +116,7 @@ describe("RicettaFormModal - nuova ricetta", () => {
     const onChiudi = vi.fn();
     const utente = userEvent.setup();
     render(<RicettaFormModal alimenti={ALIMENTI} onChiudi={onChiudi} onSalvato={onSalvato} />);
-    await utente.type(screen.getByLabelText("Nome ricetta"), "Pasta al pomodoro");
+    await utente.type(screen.getByLabelText("Nome ricetta *"), "Pasta al pomodoro");
 
     await utente.click(screen.getByText("Crea ricetta"));
 
@@ -129,7 +129,7 @@ describe("RicettaFormModal - nuova ricetta", () => {
     const onChiudi = vi.fn();
     const utente = userEvent.setup();
     render(<RicettaFormModal alimenti={ALIMENTI} onChiudi={onChiudi} onSalvato={vi.fn()} anteprima />);
-    await utente.type(screen.getByLabelText("Nome ricetta"), "Pasta al pomodoro");
+    await utente.type(screen.getByLabelText("Nome ricetta *"), "Pasta al pomodoro");
 
     await utente.click(screen.getByText("Crea ricetta"));
 
@@ -152,7 +152,7 @@ describe("RicettaFormModal - modifica ricetta esistente", () => {
   it("RicettaFormModal_ricettaEsistente_precompilaNomeETutteLeRigheDiIngredienti", () => {
     render(<RicettaFormModal ricetta={RICETTA} alimenti={ALIMENTI} onChiudi={vi.fn()} onSalvato={vi.fn()} />);
 
-    expect(screen.getByLabelText("Nome ricetta")).toHaveValue("Pasta al pomodoro");
+    expect(screen.getByLabelText("Nome ricetta *")).toHaveValue("Pasta al pomodoro");
     expect(screen.getAllByRole("spinbutton").map((el) => (el as HTMLInputElement).value)).toEqual(["100", "200"]);
   });
 
@@ -166,5 +166,47 @@ describe("RicettaFormModal - modifica ricetta esistente", () => {
       { alimentoId: 1, quantita: 100 },
       { alimentoId: 2, quantita: 200 },
     ]);
+  });
+});
+
+function portaleTour() {
+  const portale = document.getElementById("react-joyride-portal");
+  return portale ? within(portale) : null;
+}
+
+describe("RicettaFormModal - mini-tour", () => {
+  it("RicettaFormModal_clicSulPuntoInterrogativo_avviaIlTour", async () => {
+    const utente = userEvent.setup();
+    render(<RicettaFormModal alimenti={ALIMENTI} onChiudi={vi.fn()} onSalvato={vi.fn()} />);
+
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+
+    expect(await portaleTour()!.findByText("Nuova ricetta")).toBeInTheDocument();
+  });
+
+  it("RicettaFormModal_saltaIlTour_nonChiudeLaModale", async () => {
+    const onChiudi = vi.fn();
+    const utente = userEvent.setup();
+    render(<RicettaFormModal alimenti={ALIMENTI} onChiudi={onChiudi} onSalvato={vi.fn()} />);
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+    await portaleTour()!.findByText("Nuova ricetta");
+
+    await utente.click(screen.getByRole("button", { name: "Salta" }));
+
+    expect(portaleTour()).toBeNull();
+    expect(onChiudi).not.toHaveBeenCalled();
+  });
+
+  it.each(["ricetta-nome", "ricetta-ingredienti"])("RicettaFormModal_haLAncoraDataTour_%s", (dataTour) => {
+    render(<RicettaFormModal alimenti={ALIMENTI} onChiudi={vi.fn()} onSalvato={vi.fn()} />);
+
+    expect(document.querySelector(`[data-tour="${dataTour}"]`)).toBeInTheDocument();
+  });
+
+  it("RicettaFormModal_anteprima_nonMostraIlPuntoInterrogativoNeLIdDiScoping", () => {
+    render(<RicettaFormModal alimenti={ALIMENTI} onChiudi={vi.fn()} onSalvato={vi.fn()} anteprima />);
+
+    expect(screen.queryByTitle("Cosa sono questi campi")).not.toBeInTheDocument();
+    expect(document.getElementById("anteprima-tour-root")).not.toBeInTheDocument();
   });
 });

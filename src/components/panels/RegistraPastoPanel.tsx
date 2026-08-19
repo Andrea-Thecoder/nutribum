@@ -418,7 +418,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
           className="flex flex-wrap items-end gap-2 border-b border-slate-200 pb-3 dark:border-slate-800"
         >
           <label className="flex flex-col gap-0.5">
-            Pasto
+            Pasto *
             <SelettorePersonalizzato
               valore={tipoPasto}
               opzioni={TIPI_PASTO.map((t) => ({ valore: t, etichetta: ETICHETTA_PASTO[t] }))}
@@ -429,7 +429,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
           {modalitaAggiunta === "alimento" ? (
             <>
               <label className="flex min-w-40 flex-col gap-0.5">
-                Alimento
+                Alimento *
                 <SelettorePersonalizzato
                   valore={alimentoId}
                   opzioni={alimenti.map((a) => ({ valore: a.id, etichetta: a.nome }))}
@@ -439,7 +439,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
               </label>
 
               <label className="flex flex-col gap-0.5">
-                Quantità ({alimenti.find((a) => a.id === alimentoId)?.unita ?? "g"})
+                Quantità ({alimenti.find((a) => a.id === alimentoId)?.unita ?? "g"}) *
                 <input
                   type="number"
                   min={0}
@@ -463,7 +463,7 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
           ) : (
             <>
               <label className="flex min-w-40 flex-col gap-0.5">
-                Ricetta
+                Ricetta *
                 <SelettorePersonalizzato
                   valore={ricettaId}
                   opzioni={ricette.map((r) => ({ valore: r.id, etichetta: r.nome }))}

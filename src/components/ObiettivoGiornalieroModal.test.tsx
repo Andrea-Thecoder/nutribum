@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ObiettivoGiornalieroModal } from "./ObiettivoGiornalieroModal";
 import { leggiObiettivo, salvaObiettivoAltro, salvaObiettivoKcal, salvaObiettivoMacro } from "../lib/dailyGoal";
@@ -158,4 +158,75 @@ describe("ObiettivoGiornalieroModal - tipo altro", () => {
 
     expect(salvaObiettivoAltro).toHaveBeenCalledWith({ saleG: 5, fibreG: 25 }, "daOra");
   });
+});
+
+// Il mini-tour gira sui campi VERI della modale (non su una copia con dati finti, a differenza
+// delle schede della dashboard): niente viene scritto finché l'utente non preme "Salva" di sua
+// iniziativa, quindi non serve nessuna anteprima separata. Vedi anche TourAnteprimaPannello, che
+// applica lo scoping a #anteprima-tour-root (già presente su questo contenitore) per evitare di
+// puntare a un elemento omonimo altrove nella pagina.
+// Il titolo del primo step del tour ("Limite giornaliero - Kcal") coincide col titolo della
+// modale stessa (h2): le asserzioni sul tour restano scoperte al div separato che react-joyride
+// crea come portale, invece di query globali che troverebbero entrambi.
+function portaleTour() {
+  const portale = document.getElementById("react-joyride-portal");
+  return portale ? within(portale) : null;
+}
+
+describe("ObiettivoGiornalieroModal - mini-tour", () => {
+  it("ObiettivoGiornalieroModal_clicSulPuntoInterrogativo_avviaIlTourSulPrimoStep", async () => {
+    const utente = userEvent.setup();
+    render(<ObiettivoGiornalieroModal tipo="kcal" peso={[]} onChiudi={vi.fn()} />);
+    await attendiCaricamento();
+
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+
+    expect(await portaleTour()!.findByText("Limite giornaliero - Kcal")).toBeInTheDocument();
+  });
+
+  it("ObiettivoGiornalieroModal_saltaIlTour_nonChiudeLaModale", async () => {
+    const onChiudi = vi.fn();
+    const utente = userEvent.setup();
+    render(<ObiettivoGiornalieroModal tipo="kcal" peso={[]} onChiudi={onChiudi} />);
+    await attendiCaricamento();
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+    await portaleTour()!.findByText("Limite giornaliero - Kcal");
+
+    await utente.click(screen.getByRole("button", { name: "Salta" }));
+
+    // "Salta" smonta TourAnteprimaPannello: react-joyride rimuove anche il proprio div portale da
+    // document.body (vedi usePortalElement.ts) - null qui è la conferma che il tour è sparito.
+    expect(portaleTour()).toBeNull();
+    expect(onChiudi).not.toHaveBeenCalled();
+  });
+
+  it.each(["obiettivo-kcal-max", "obiettivo-usa-tdee", "obiettivo-kcal-min", "obiettivo-usa-bmr"])(
+    "ObiettivoGiornalieroModal_tipoKcal_haLAncoraDataTour_%s",
+    async (dataTour) => {
+      render(<ObiettivoGiornalieroModal tipo="kcal" peso={[]} onChiudi={vi.fn()} />);
+      await attendiCaricamento();
+
+      expect(document.querySelector(`[data-tour="${dataTour}"]`)).toBeInTheDocument();
+    },
+  );
+
+  it.each(["obiettivo-macro-grassi", "obiettivo-macro-proteine", "obiettivo-macro-carboidrati"])(
+    "ObiettivoGiornalieroModal_tipoMacro_haLAncoraDataTour_%s",
+    async (dataTour) => {
+      render(<ObiettivoGiornalieroModal tipo="macro" peso={[]} onChiudi={vi.fn()} />);
+      await attendiCaricamento();
+
+      expect(document.querySelector(`[data-tour="${dataTour}"]`)).toBeInTheDocument();
+    },
+  );
+
+  it.each(["obiettivo-altro-sale", "obiettivo-altro-fibre"])(
+    "ObiettivoGiornalieroModal_tipoAltro_haLAncoraDataTour_%s",
+    async (dataTour) => {
+      render(<ObiettivoGiornalieroModal tipo="altro" peso={[]} onChiudi={vi.fn()} />);
+      await attendiCaricamento();
+
+      expect(document.querySelector(`[data-tour="${dataTour}"]`)).toBeInTheDocument();
+    },
+  );
 });

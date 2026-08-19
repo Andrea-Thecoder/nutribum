@@ -65,7 +65,7 @@ beforeEach(() => {
 });
 
 async function attendiCaricamento() {
-  await screen.findByLabelText("Pasto");
+  await screen.findByLabelText("Pasto *");
 }
 
 // Il pannello di conferma sul fondo si chiama anch'esso "Conferma" quanto il bottone del dialogo

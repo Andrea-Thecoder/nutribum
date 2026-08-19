@@ -92,7 +92,7 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
             />
           </label>
           <label className="flex flex-col gap-0.5">
-            Peso (kg)
+            Peso (kg) *
             <input
               className={CAMPO}
               type="number"
