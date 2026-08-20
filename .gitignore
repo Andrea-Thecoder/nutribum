@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Note interne di release, non pubbliche
+RELEASE.md
+
 # Database e segreti locali
 *.sqlite
 *.sqlite3

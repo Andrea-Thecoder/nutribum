@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { generaReportPdf, type DatiFonteReport } from "./generaReportPdf";
+import { TourAnteprimaPannello } from "../TourAnteprimaPannello";
+import { stepsReportPdf } from "../../lib/tourImpostazioni";
 
 interface ReportPdfModalProps {
   fonte: DatiFonteReport;
@@ -20,6 +22,7 @@ export function ReportPdfModal({ fonte, onClose }: ReportPdfModalProps) {
   const [meseA, setMeseA] = useState(meseCorrente());
   const [error, setError] = useState<string | null>(null);
   const [generando, setGenerando] = useState(false);
+  const [tourAperto, setTourAperto] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -50,21 +53,33 @@ export function ReportPdfModal({ fonte, onClose }: ReportPdfModalProps) {
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        id="anteprima-tour-root"
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
-        <div className="mb-3 flex items-center justify-between">
+        {tourAperto && <TourAnteprimaPannello steps={stepsReportPdf} onCompletato={() => setTourAperto(false)} />}
+        <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Esporta report PDF</h2>
-          <button
-            onClick={onClose}
-            className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setTourAperto(true)}
+              title="Cosa sono questi campi"
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ?
+            </button>
+            <button
+              onClick={onClose}
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 text-sm">
-          <div className="flex gap-2">
+          <div className="flex gap-2" data-tour="report-modo">
             <button
               type="button"
               onClick={() => setModo("range")}
@@ -90,7 +105,7 @@ export function ReportPdfModal({ fonte, onClose }: ReportPdfModalProps) {
           </div>
 
           {modo === "range" && (
-            <div className="flex gap-2">
+            <div className="flex gap-2" data-tour="report-periodo">
               <label className="flex flex-1 flex-col gap-0.5">
                 Da
                 <input
@@ -132,6 +147,7 @@ export function ReportPdfModal({ fonte, onClose }: ReportPdfModalProps) {
             <button
               type="submit"
               disabled={generando}
+              data-tour="report-genera"
               className="rounded-lg bg-blue-600 px-3 py-1.5 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {generando ? "Generazione…" : "Genera PDF"}

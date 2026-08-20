@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { salvaObiettivoPeso } from "../lib/weight";
 import { useConfermaChiusura } from "./ConfermaModal";
 import { accettaDueDecimali } from "../lib/inputNumerico";
+import { TourAnteprimaPannello } from "./TourAnteprimaPannello";
+import { stepsObiettivoPeso } from "../lib/tourImpostazioni";
 
 interface WeightGoalModalProps {
   goalKg: number | null;
@@ -30,6 +32,7 @@ export function WeightGoalModal({ goalKg, margineKg, onClose, onSaved, onSalvaMa
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [modificato, setModificato] = useState(false);
+  const [tourAperto, setTourAperto] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onClose);
 
   async function handleSubmit(e: FormEvent) {
@@ -68,21 +71,35 @@ export function WeightGoalModal({ goalKg, margineKg, onClose, onSaved, onSalvaMa
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={richiediChiusura}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        id="anteprima-tour-root"
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
-        <div className="mb-3 flex items-center justify-between">
+        {tourAperto && (
+          <TourAnteprimaPannello steps={stepsObiettivoPeso} onCompletato={() => setTourAperto(false)} />
+        )}
+        <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Obiettivo peso</h2>
-          <button
-            onClick={richiediChiusura}
-            className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setTourAperto(true)}
+              title="Cosa sono questi campi"
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ?
+            </button>
+            <button
+              onClick={richiediChiusura}
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} onChange={() => setModificato(true)} className="flex flex-col gap-2 text-sm">
-          <label className="flex flex-col gap-0.5">
+          <label className="flex flex-col gap-0.5" data-tour="peso-obiettivo-valore">
             Peso obiettivo (kg)
             <input
               className={CAMPO}
@@ -99,7 +116,7 @@ export function WeightGoalModal({ goalKg, margineKg, onClose, onSaved, onSalvaMa
             />
           </label>
 
-          <label className="flex flex-col gap-0.5">
+          <label className="flex flex-col gap-0.5" data-tour="peso-obiettivo-margine">
             Margine di tolleranza (kg)
             <input
               className={CAMPO}
@@ -131,6 +148,7 @@ export function WeightGoalModal({ goalKg, margineKg, onClose, onSaved, onSalvaMa
             <button
               type="submit"
               disabled={saving}
+              data-tour="peso-obiettivo-salva"
               className="rounded-lg bg-blue-600 px-3 py-1.5 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {saving ? "Salvataggio…" : "Salva"}

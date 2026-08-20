@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { WeightGoalModal } from "./WeightGoalModal";
 import { salvaObiettivoPeso } from "../lib/weight";
@@ -116,4 +116,50 @@ describe("WeightGoalModal", () => {
     expect(onSaved).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+});
+
+// Il titolo del primo step del tour coincide col titolo della modale (entrambi "Obiettivo peso"):
+// le asserzioni sul tour restano scoperte al portale separato di react-joyride.
+function portaleTour() {
+  const portale = document.getElementById("react-joyride-portal");
+  return portale ? within(portale) : null;
+}
+
+describe("WeightGoalModal - mini-tour", () => {
+  it("WeightGoalModal_clicSulPuntoInterrogativo_avviaIlTour", async () => {
+    const utente = userEvent.setup();
+    render(
+      <WeightGoalModal goalKg={null} margineKg={2} onClose={vi.fn()} onSaved={vi.fn()} onSalvaMargine={vi.fn()} />,
+    );
+
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+
+    expect(await portaleTour()!.findByText("Obiettivo peso")).toBeInTheDocument();
+  });
+
+  it("WeightGoalModal_saltaIlTour_nonChiudeLaModale", async () => {
+    const onClose = vi.fn();
+    const utente = userEvent.setup();
+    render(
+      <WeightGoalModal goalKg={null} margineKg={2} onClose={onClose} onSaved={vi.fn()} onSalvaMargine={vi.fn()} />,
+    );
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+    await portaleTour()!.findByText("Obiettivo peso");
+
+    await utente.click(screen.getByRole("button", { name: "Salta" }));
+
+    expect(portaleTour()).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it.each(["peso-obiettivo-valore", "peso-obiettivo-margine", "peso-obiettivo-salva"])(
+    "WeightGoalModal_haLAncoraDataTour_%s",
+    (dataTour) => {
+      render(
+        <WeightGoalModal goalKg={null} margineKg={2} onClose={vi.fn()} onSaved={vi.fn()} onSalvaMargine={vi.fn()} />,
+      );
+
+      expect(document.querySelector(`[data-tour="${dataTour}"]`)).toBeInTheDocument();
+    },
+  );
 });

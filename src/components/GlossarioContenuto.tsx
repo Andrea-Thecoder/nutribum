@@ -39,6 +39,11 @@ const VOCI: { termine: string; spiegazione: string }[] = [
     spiegazione:
       "Quando salvi un limite, scegli da quando vale: \"Da ora in poi\" (non tocca il passato), \"Sempre\" (vale su tutta la cronologia), oppure fissato su \"Questa settimana\"/\"Questo mese\". Serve a calcolare correttamente quale limite era in vigore in un giorno passato, anche se lo cambi oggi.",
   },
+  {
+    termine: "~ (valore stimato)",
+    spiegazione:
+      "Quando aggiungi un alimento al catalogo, la checkbox \"Valori presi dall'etichetta nutrizionale\" segna se quei numeri vengono davvero dalla confezione o sono una stima (es. copiati da un sito, calcolati a mente). Nel Libro Alimenti la colonna lo mostra come \"Etichetta\"/\"Stima\"; nel Dettaglio Giorno un \"~\" accanto al nome segnala gli alimenti stimati usati in quel pasto.",
+  },
 ];
 
 export function GlossarioContenuto() {

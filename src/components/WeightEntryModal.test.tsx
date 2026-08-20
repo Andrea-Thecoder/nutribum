@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { WeightEntryModal } from "./WeightEntryModal";
 import { registraPeso } from "../lib/weight";
@@ -83,4 +83,44 @@ describe("WeightEntryModal", () => {
     expect(screen.getByText(/Uscire senza salvare/)).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
   });
+});
+
+// Il titolo del primo step del tour coincide col titolo della modale (entrambi "Registra peso"):
+// le asserzioni sul tour restano scoperte al portale separato di react-joyride.
+function portaleTour() {
+  const portale = document.getElementById("react-joyride-portal");
+  return portale ? within(portale) : null;
+}
+
+describe("WeightEntryModal - mini-tour", () => {
+  it("WeightEntryModal_clicSulPuntoInterrogativo_avviaIlTour", async () => {
+    const utente = userEvent.setup();
+    render(<WeightEntryModal valoreOggi={null} onClose={vi.fn()} onSaved={vi.fn()} />);
+
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+
+    expect(await portaleTour()!.findByText("Registra peso")).toBeInTheDocument();
+  });
+
+  it("WeightEntryModal_saltaIlTour_nonChiudeLaModale", async () => {
+    const onClose = vi.fn();
+    const utente = userEvent.setup();
+    render(<WeightEntryModal valoreOggi={null} onClose={onClose} onSaved={vi.fn()} />);
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+    await portaleTour()!.findByText("Registra peso");
+
+    await utente.click(screen.getByRole("button", { name: "Salta" }));
+
+    expect(portaleTour()).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it.each(["peso-registra-data", "peso-registra-valore", "peso-registra-salva"])(
+    "WeightEntryModal_haLAncoraDataTour_%s",
+    (dataTour) => {
+      render(<WeightEntryModal valoreOggi={null} onClose={vi.fn()} onSaved={vi.fn()} />);
+
+      expect(document.querySelector(`[data-tour="${dataTour}"]`)).toBeInTheDocument();
+    },
+  );
 });

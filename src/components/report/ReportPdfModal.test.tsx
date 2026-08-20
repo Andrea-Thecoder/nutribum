@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ReportPdfModal } from "./ReportPdfModal";
 import { generaReportPdf, type DatiFonteReport } from "./generaReportPdf";
@@ -102,4 +102,44 @@ describe("ReportPdfModal", () => {
     expect(await screen.findByText("disco pieno")).toBeInTheDocument();
     expect(onClose).not.toHaveBeenCalled();
   });
+});
+
+// Il titolo del primo step del tour coincide col titolo della modale (entrambi "Esporta report
+// PDF"): le asserzioni sul tour restano scoperte al portale separato di react-joyride.
+function portaleTour() {
+  const portale = document.getElementById("react-joyride-portal");
+  return portale ? within(portale) : null;
+}
+
+describe("ReportPdfModal - mini-tour", () => {
+  it("ReportPdfModal_clicSulPuntoInterrogativo_avviaIlTour", async () => {
+    const utente = userEvent.setup();
+    render(<ReportPdfModal fonte={fonteVuota()} onClose={vi.fn()} />);
+
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+
+    expect(await portaleTour()!.findByText("Esporta report PDF")).toBeInTheDocument();
+  });
+
+  it("ReportPdfModal_saltaIlTour_nonChiudeLaModale", async () => {
+    const onClose = vi.fn();
+    const utente = userEvent.setup();
+    render(<ReportPdfModal fonte={fonteVuota()} onClose={onClose} />);
+    await utente.click(screen.getByTitle("Cosa sono questi campi"));
+    await portaleTour()!.findByText("Esporta report PDF");
+
+    await utente.click(screen.getByRole("button", { name: "Salta" }));
+
+    expect(portaleTour()).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it.each(["report-modo", "report-periodo", "report-genera"])(
+    "ReportPdfModal_haLAncoraDataTour_%s",
+    (dataTour) => {
+      render(<ReportPdfModal fonte={fonteVuota()} onClose={vi.fn()} />);
+
+      expect(document.querySelector(`[data-tour="${dataTour}"]`)).toBeInTheDocument();
+    },
+  );
 });

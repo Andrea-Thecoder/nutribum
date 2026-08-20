@@ -235,3 +235,89 @@ export const stepsNuovaRicetta: Step[] = [
       "Almeno un ingrediente obbligatorio: per ognuno scegli l'alimento dal catalogo e la quantità (deve essere maggiore di zero). \"+ Aggiungi ingrediente\" ne aggiunge altri, la ✕ a fianco di ogni riga la rimuove.",
   },
 ];
+
+export const stepsReportPdf: Step[] = [
+  {
+    target: "body",
+    placement: "center",
+    title: "Esporta report PDF",
+    content:
+      "Un PDF con tabelle riassuntive (kcal/macro, peso, TDEE) e i grafici corrispondenti, solo per le dimensioni che hanno dati nel periodo scelto.",
+  },
+  {
+    target: '[data-tour="report-modo"]',
+    placement: "auto",
+    title: "Da mese a mese / Tutto il periodo",
+    content:
+      "\"Da mese a mese\" scarica solo l'intervallo scelto sotto. \"Tutto il periodo\" include l'intera cronologia disponibile, senza bisogno di scegliere date.",
+  },
+  {
+    target: '[data-tour="report-periodo"]',
+    placement: "auto",
+    title: "Da / A",
+    content: "Il mese di inizio non può essere dopo quello di fine: i due campi si limitano a vicenda.",
+  },
+  {
+    target: '[data-tour="report-genera"]',
+    placement: "auto",
+    title: "Genera PDF",
+    content: "Ti verrà chiesto dove salvare il file. \"Annulla\" chiude senza generare nulla.",
+  },
+];
+
+export const stepsRegistraPeso: Step[] = [
+  {
+    target: "body",
+    placement: "center",
+    title: "Registra peso",
+    content: "Aggiungi una misurazione di peso corporeo per una data a tua scelta.",
+  },
+  {
+    target: '[data-tour="peso-registra-data"]',
+    placement: "auto",
+    title: "Data",
+    content: "Di default oggi, ma puoi registrare (o correggere) il peso di un giorno passato.",
+  },
+  {
+    target: '[data-tour="peso-registra-valore"]',
+    placement: "auto",
+    title: "Peso (kg) *",
+    content:
+      "Obbligatorio, tra 0 e 500 kg. Se per quella data esiste già una misurazione, questo campo la mostra già pronta per essere corretta - salvare la sovrascrive invece di aggiungerne una seconda.",
+  },
+  {
+    target: '[data-tour="peso-registra-salva"]',
+    placement: "auto",
+    title: "Salva",
+    content: "Registra il peso. \"Annulla\" chiude senza salvare nulla.",
+  },
+];
+
+export const stepsObiettivoPeso: Step[] = [
+  {
+    target: "body",
+    placement: "center",
+    title: "Obiettivo peso",
+    content:
+      "Il peso che vuoi raggiungere: viene usato per la proiezione e per capire quanto manca nel grafico Peso Corporeo.",
+  },
+  {
+    target: '[data-tour="peso-obiettivo-valore"]',
+    placement: "auto",
+    title: "Peso obiettivo (kg)",
+    content: "Non obbligatorio: lascialo vuoto per rimuovere l'obiettivo esistente senza impostarne uno nuovo.",
+  },
+  {
+    target: '[data-tour="peso-obiettivo-margine"]',
+    placement: "auto",
+    title: "Margine di tolleranza (kg)",
+    content:
+      "Un peso entro obiettivo + questo margine conta comunque come \"raggiunto\": normali oscillazioni di acqua o cibo non ti fanno sembrare fuori obiettivo.",
+  },
+  {
+    target: '[data-tour="peso-obiettivo-salva"]',
+    placement: "auto",
+    title: "Salva",
+    content: "Salva obiettivo e margine. \"Annulla\" chiude senza cambiare nulla.",
+  },
+];

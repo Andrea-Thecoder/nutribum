@@ -4,6 +4,8 @@ import { registraPeso } from "../lib/weight";
 import { CalendarioPopover } from "./CalendarioPopover";
 import { useConfermaChiusura } from "./ConfermaModal";
 import { accettaDueDecimali } from "../lib/inputNumerico";
+import { TourAnteprimaPannello } from "./TourAnteprimaPannello";
+import { stepsRegistraPeso } from "../lib/tourImpostazioni";
 
 interface WeightEntryModalProps {
   // Peso già registrato per la data di default (oggi), se presente: precompila il campo così
@@ -31,6 +33,7 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [modificato, setModificato] = useState(false);
+  const [tourAperto, setTourAperto] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onClose);
 
   async function handleSubmit(e: FormEvent) {
@@ -67,21 +70,35 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={richiediChiusura}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        id="anteprima-tour-root"
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
-        <div className="mb-3 flex items-center justify-between">
+        {tourAperto && (
+          <TourAnteprimaPannello steps={stepsRegistraPeso} onCompletato={() => setTourAperto(false)} />
+        )}
+        <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Registra peso</h2>
-          <button
-            onClick={richiediChiusura}
-            className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setTourAperto(true)}
+              title="Cosa sono questi campi"
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ?
+            </button>
+            <button
+              onClick={richiediChiusura}
+              className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} onChange={() => setModificato(true)} className="flex flex-col gap-2 text-sm">
-          <label className="flex flex-col gap-0.5">
+          <label className="flex flex-col gap-0.5" data-tour="peso-registra-data">
             Data
             <CalendarioPopover
               value={data}
@@ -91,7 +108,7 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
               }}
             />
           </label>
-          <label className="flex flex-col gap-0.5">
+          <label className="flex flex-col gap-0.5" data-tour="peso-registra-valore">
             Peso (kg) *
             <input
               className={CAMPO}
@@ -120,6 +137,7 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
             <button
               type="submit"
               disabled={saving}
+              data-tour="peso-registra-salva"
               className="rounded-lg bg-blue-600 px-3 py-1.5 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {saving ? "Salvataggio…" : "Salva"}
