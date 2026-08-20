@@ -1,6 +1,6 @@
 [package]
 name = "nutrition-tracker"
-version = "0.3.0"
+version = "0.4.0"
 description = "Traccia calorie, macronutrienti e peso corporeo giorno per giorno"
 authors = ["Andrea Leone"]
 edition = "2021"
