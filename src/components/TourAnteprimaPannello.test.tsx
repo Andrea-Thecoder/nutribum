@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { TourAnteprimaPannello, scopedAllaDemo } from "./TourAnteprimaPannello";
+import { TourAnteprimaPannello } from "./TourAnteprimaPannello";
+import { scopedAllaDemo } from "../lib/scopedAllaDemo";
 import type { Step } from "react-joyride";
 
 // Almeno 2 step: su un tour di un solo step (contemporaneamente primo e ultimo) react-joyride non

@@ -119,7 +119,6 @@ export async function generaModuloFeedbackPdf(): Promise<Uint8Array> {
 
   etichetta("Hai consigli da darmi? Scrivilo qui!", false, cursoreY);
   campoTestoMultilinea("consigli", cursoreY - 4, 110);
-  cursoreY -= 130;
 
   // Indirizzo di invio, in fondo alla pagina.
   testoCentrato(`Invia il modulo compilato a: ${EMAIL_INVIO}`, MARGINE - 10, 10);

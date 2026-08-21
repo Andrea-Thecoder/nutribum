@@ -87,7 +87,7 @@ export function parseAlimentiJson(contenuto: string): AlimentiParsati {
   try {
     dati = JSON.parse(contenuto);
   } catch (err) {
-    throw new Error(`JSON non valido: ${err instanceof Error ? err.message : String(err)}`);
+    throw new Error(`JSON non valido: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
   if (!Array.isArray(dati)) {
     throw new Error("Il file JSON deve contenere un array di alimenti");

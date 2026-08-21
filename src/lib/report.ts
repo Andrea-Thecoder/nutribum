@@ -10,7 +10,7 @@ import {
 import type { VocePeso, PuntoStoricoObiettivoPeso } from "./weight";
 import { stimaTDEEAllaData, type RisultatoTDEE } from "./tdee";
 import type { PuntoStoricoProfilo, PuntoStoricoFitness } from "./profile";
-import { accumulaRiferimenti } from "../components/panels/KcalGiornoChart";
+import { accumulaRiferimenti } from "./accumulaRiferimenti";
 
 // null in dataDa/dataA significa "senza limite in quella direzione" (l'opzione "Tutto il periodo"
 // del modale non impone né un inizio né una fine, non serve incrociarlo col primo/ultimo dato reale).

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { TipoPannello } from "./layoutSchema";
 import { CalendarioPanel } from "../components/panels/CalendarioPanel";
 import { KcalGiornoChart } from "../components/panels/KcalGiornoChart";
@@ -11,12 +11,11 @@ import { RegistraPastoPanel } from "../components/panels/RegistraPastoPanel";
 import { LibroAlimentiPanel } from "../components/panels/LibroAlimentiPanel";
 import { AndamentoObiettiviChart } from "../components/panels/AndamentoObiettiviChart";
 import { ProgressoObiettiviChart } from "../components/panels/ProgressoObiettiviChart";
-import { ConfrontoPeriodiChart, SelettoreVistaConfronto, type VistaConfronto } from "../components/panels/ConfrontoPeriodiChart";
-import { PesoPanel } from "../components/panels/PesoPanel";
 import { AndamentoTDEEChart } from "../components/panels/AndamentoTDEEChart";
 import { CorrelazionePesoSforamentiChart } from "../components/panels/CorrelazionePesoSforamentiChart";
 import { GestioneRicettePanel } from "../components/panels/GestioneRicettePanel";
 import { TourAnteprimaPannello } from "../components/TourAnteprimaPannello";
+import { AnteprimaPesoCorporeo, AnteprimaConfrontoPeriodi } from "./anteprimaComponentiSpeciali";
 import {
   stepsCalendario,
   stepsDettaglioGiorno,
@@ -29,8 +28,6 @@ import {
   stepsProgressoObiettivi,
   stepsAndamentoTDEE,
   stepsCorrelazionePesoSforamenti,
-  stepsPesoCorporeo,
-  stepsConfrontoPeriodi,
   stepsRegistraPasto,
   stepsLibroAlimenti,
   stepsGestioneRicette,
@@ -40,8 +37,6 @@ import {
   GIORNI_DIMOSTRATIVI,
   GIORNI_ESEMPIO_CALENDARIO,
   PESO_DIMOSTRATIVO,
-  OBIETTIVO_PESO_DIMOSTRATIVO_KG,
-  STORICO_OBIETTIVO_PESO_DIMOSTRATIVO,
   STORICO_OBIETTIVI_KCAL_DIMOSTRATIVO,
   STORICO_PROFILO_DIMOSTRATIVO,
   STORICO_FITNESS_DIMOSTRATIVO,
@@ -49,7 +44,7 @@ import {
   RICETTE_DIMOSTRATIVE,
 } from "./datiDimostrativi";
 
-const NON_FARE_NIENTE = () => {};
+const nonFareNiente = () => {};
 
 // Data -> data-tour, costruita dalla stessa fonte di verità del mini-tour (DATA_TOUR_CELLE_CALENDARIO
 // in TourAnteprimaCalendario.tsx): ogni chiave di GIORNI_ESEMPIO_CALENDARIO diventa l'attributo
@@ -66,43 +61,6 @@ const DATA_TOUR_PER_DATA_CALENDARIO: Record<string, string> = Object.fromEntries
 // invece di un altro giorno scelto a caso dal dataset generato.
 const GIORNO_DETTAGLIO_DIMOSTRATIVO = GIORNI_ESEMPIO_CALENDARIO.kcalSforato;
 
-// Il toggle grafico/tabella vive nell'header del pannello in produzione (vedi headerExtraPannello
-// in App.tsx), non dentro il pannello stesso - qui nella modale "?" non c'è nessun header attorno,
-// quindi lo si renderizza esplicitamente sopra al grafico, con uno stato locale minimo solo per
-// farlo funzionare davvero (non è "vero" stato dell'app, sparisce alla chiusura della modale).
-function AnteprimaPesoCorporeo({ onChiudiModale }: { onChiudiModale: () => void }) {
-  const [vista, setVista] = useState<VistaConfronto>("grafico");
-  return (
-    <div id="anteprima-tour-root" className="flex h-full flex-col gap-2">
-      <TourAnteprimaPannello steps={stepsPesoCorporeo} onCompletato={onChiudiModale} />
-      <SelettoreVistaConfronto vista={vista} onChange={setVista} />
-      <div className="min-h-0 flex-1 overflow-auto">
-        <PesoPanel
-          peso={PESO_DIMOSTRATIVO}
-          obiettivoKg={OBIETTIVO_PESO_DIMOSTRATIVO_KG}
-          storicoObiettivo={STORICO_OBIETTIVO_PESO_DIMOSTRATIVO}
-          vista={vista}
-          focusGiorno={null}
-          margineKg={5}
-        />
-      </div>
-    </div>
-  );
-}
-
-function AnteprimaConfrontoPeriodi({ onChiudiModale }: { onChiudiModale: () => void }) {
-  const [vista, setVista] = useState<VistaConfronto>("grafico");
-  return (
-    <div id="anteprima-tour-root" className="flex h-full flex-col gap-2">
-      <TourAnteprimaPannello steps={stepsConfrontoPeriodi} onCompletato={onChiudiModale} />
-      <SelettoreVistaConfronto vista={vista} onChange={setVista} />
-      <div className="min-h-0 flex-1 overflow-auto">
-        <ConfrontoPeriodiChart giorni={GIORNI_DIMOSTRATIVI} peso={PESO_DIMOSTRATIVO} vista={vista} />
-      </div>
-    </div>
-  );
-}
-
 // Renderizza il componente REALE di ciascuna scheda alimentato dal dataset finto in
 // datiDimostrativi.ts - MAI dati reali dell'utente. I 3 tipi che scrivono davvero sul database
 // (registra-pasto, libro-alimenti, gestione-ricette) passano `anteprima` per neutralizzare
@@ -113,7 +71,7 @@ function AnteprimaConfrontoPeriodi({ onChiudiModale }: { onChiudiModale: () => v
 // onChiudiModale: chiamato dal mini-tour di ogni scheda a fine/salta/X (vedi TourAnteprimaPannello)
 // per chiudere anche la modale "?" che lo contiene, non solo il tour.
 export function anteprimaPannello(tipo: TipoPannello, onChiudiModale?: () => void): ReactNode {
-  const chiudi = onChiudiModale ?? NON_FARE_NIENTE;
+  const chiudi = onChiudiModale ?? nonFareNiente;
   switch (tipo) {
     case "calendario":
       return (
@@ -122,7 +80,7 @@ export function anteprimaPannello(tipo: TipoPannello, onChiudiModale?: () => voi
           <div className="min-h-0 flex-1">
             <CalendarioPanel
               giorni={GIORNI_DIMOSTRATIVI}
-              onApriGiorno={NON_FARE_NIENTE}
+              onApriGiorno={nonFareNiente}
               versioneObiettivi={0}
               peso={PESO_DIMOSTRATIVO}
               storicoProfilo={STORICO_PROFILO_DIMOSTRATIVO}
@@ -211,7 +169,7 @@ export function anteprimaPannello(tipo: TipoPannello, onChiudiModale?: () => voi
             <DettaglioGiornoPanel
               giorni={GIORNI_DIMOSTRATIVI}
               data={GIORNO_DETTAGLIO_DIMOSTRATIVO}
-              onElimina={NON_FARE_NIENTE}
+              onElimina={nonFareNiente}
               versioneObiettivi={0}
               peso={PESO_DIMOSTRATIVO}
               storicoProfilo={STORICO_PROFILO_DIMOSTRATIVO}
@@ -230,7 +188,7 @@ export function anteprimaPannello(tipo: TipoPannello, onChiudiModale?: () => voi
             <RegistraPastoPanel
               alimenti={ALIMENTI_DIMOSTRATIVI}
               ricette={RICETTE_DIMOSTRATIVE}
-              onSalvato={NON_FARE_NIENTE}
+              onSalvato={nonFareNiente}
               anteprima
             />
           </div>
@@ -244,7 +202,7 @@ export function anteprimaPannello(tipo: TipoPannello, onChiudiModale?: () => voi
             <GestioneRicettePanel
               ricette={RICETTE_DIMOSTRATIVE}
               alimenti={ALIMENTI_DIMOSTRATIVI}
-              onCambiato={NON_FARE_NIENTE}
+              onCambiato={nonFareNiente}
               anteprima
             />
           </div>
@@ -255,7 +213,7 @@ export function anteprimaPannello(tipo: TipoPannello, onChiudiModale?: () => voi
         <div id="anteprima-tour-root" className="flex h-full flex-col gap-2">
           <TourAnteprimaPannello steps={stepsLibroAlimenti} onCompletato={chiudi} />
           <div className="min-h-0 flex-1 overflow-auto">
-            <LibroAlimentiPanel alimenti={ALIMENTI_DIMOSTRATIVI} onCambiato={NON_FARE_NIENTE} anteprima />
+            <LibroAlimentiPanel alimenti={ALIMENTI_DIMOSTRATIVI} onCambiato={nonFareNiente} anteprima />
           </div>
         </div>
       );

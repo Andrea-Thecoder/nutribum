@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Periodo } from "../lib/aggregate";
 import { elencoIstanze, etichettaPeriodo, TUTTO_IL_PERIODO } from "../lib/aggregate";
 
@@ -25,12 +25,15 @@ export function SelettoreIstanza({
   const [aperto, setAperto] = useState(false);
   const [evidenziato, setEvidenziato] = useState(0);
   const opzioneRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const opzioni = elencoIstanze(giorni, periodo);
+  const opzioni = useMemo(() => elencoIstanze(giorni, periodo), [giorni, periodo]);
   const etichettaCorrente = istanza === TUTTO_IL_PERIODO ? "Tutto" : etichettaPeriodo(istanza, periodo);
 
   // Elenco unico (invece di renderizzare "Tutto" a parte dalle altre opzioni) per poter navigare
   // l'intera tendina con un solo indice, frecce comprese - stesso pattern di SelettorePersonalizzato.
-  const voci = mostraTutto ? [{ chiave: TUTTO_IL_PERIODO, etichetta: "Tutto" }, ...opzioni] : opzioni;
+  const voci = useMemo(
+    () => (mostraTutto ? [{ chiave: TUTTO_IL_PERIODO, etichetta: "Tutto" }, ...opzioni] : opzioni),
+    [mostraTutto, opzioni],
+  );
 
   function apri() {
     // Riparte dall'opzione già selezionata (non sempre dalla prima): con le frecce che applicano

@@ -276,6 +276,7 @@ export async function eliminaAlimento(id: number): Promise<void> {
     if (messaggio.toLowerCase().includes("foreign key")) {
       throw new Error(
         "Impossibile eliminare: l'alimento è usato in una o più voci del diario. Elimina prima quelle voci.",
+        { cause: err },
       );
     }
     throw err;

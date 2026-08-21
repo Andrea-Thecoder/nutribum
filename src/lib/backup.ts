@@ -206,7 +206,7 @@ export function validaBackupJson(contenuto: string): BackupCompleto {
   try {
     dati = JSON.parse(contenuto);
   } catch (err) {
-    throw new Error(`JSON non valido: ${err instanceof Error ? err.message : String(err)}`);
+    throw new Error(`JSON non valido: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
   const risultato = BackupCompletoSchema.safeParse(dati);
   if (!risultato.success) {

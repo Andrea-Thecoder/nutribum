@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { KcalGiornoChart, accumulaRiferimenti } from "./KcalGiornoChart";
+import { KcalGiornoChart } from "./KcalGiornoChart";
+import { accumulaRiferimenti } from "../../lib/accumulaRiferimenti";
 import type { Alimento, GiornoStorico } from "../../lib/schema";
 import type { PuntoStoricoObiettivo } from "../../lib/dailyGoal";
 import type { PuntoStoricoProfilo, PuntoStoricoFitness } from "../../lib/profile";

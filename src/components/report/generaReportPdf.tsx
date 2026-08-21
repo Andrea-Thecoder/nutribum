@@ -27,12 +27,14 @@ import {
   GraficoFibreSaleReport,
   GraficoPesoReport,
   GraficoTDEEReport,
+} from "./GraficiReport";
+import {
   LEGENDA_KCAL,
   LEGENDA_MACRO,
   LEGENDA_FIBRE_SALE,
   LEGENDA_PESO,
   LEGENDA_TDEE,
-} from "./GraficiReport";
+} from "../../lib/reportLegende";
 import { ReportDocument, type DatiReportPdf } from "./ReportDocument";
 
 const LARGHEZZA_GRAFICO_PX = 800;

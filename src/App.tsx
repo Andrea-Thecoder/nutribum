@@ -433,7 +433,7 @@ function App() {
           "Caricamento dati iniziali (storico, alimenti o layout) fallito all'avvio",
         ),
       );
-  }, []);
+  }, [ricaricaStorico, ricaricaAlimenti, ricaricaRicette, ricaricaPeso, ricaricaImpostazioni]);
 
   // Forma funzionale (calcola da "prev", non chiude su "pannelli"): così persistiLayout ha identità
   // stabile per sempre e gli handler che la usano possono restare stabili a loro volta, requisito
@@ -468,7 +468,7 @@ function App() {
     containerRef,
   );
 
-  function dimensioneDefault() {
+  const dimensioneDefault = useCallback(() => {
     const altezzaContenitore = containerRef.current?.clientHeight ?? 600;
     const altezzaPx = Math.min(altezzaContenitore * 0.5, CAP_ALTEZZA_PX);
     return {
@@ -480,7 +480,7 @@ function App() {
       // affiancati, entrambi leggibili) - sotto non si scende anche se la finestra è piccola.
       h: Math.max(9, Math.round(altezzaPx / ROW_HEIGHT)),
     };
-  }
+  }, [containerRef]);
 
   const handleAddPanel = useCallback(
     (tipo: TipoPannello) => {
@@ -494,7 +494,7 @@ function App() {
         return [...prev, nuovo];
       });
     },
-    [persistiLayout],
+    [persistiLayout, dimensioneDefault],
   );
 
   // A differenza di handleAddPanel (un pannello alla volta, incastrato nel primo spazio libero via
@@ -637,7 +637,7 @@ function App() {
         return [...prev, nuovo];
       });
     },
-    [persistiLayout],
+    [persistiLayout, dimensioneDefault],
   );
 
   // Usata dal click su una card giorno nel popup di sforamento: apre il dettaglio giorno E allinea
