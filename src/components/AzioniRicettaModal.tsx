@@ -1,5 +1,7 @@
+import { useId, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { RicettaConIngredienti } from "../lib/recipes";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 interface AzioniRicettaModalProps {
   ricetta: RicettaConIngredienti;
@@ -16,6 +18,10 @@ export function AzioniRicettaModal({
   onModifica,
   onElimina,
 }: AzioniRicettaModalProps) {
+  const idTitolo = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
+
   return createPortal(
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={onChiudi}>
       {/* Cuscinetto invisibile intorno alla modale: senza, un drag che parte dentro la modale ma
@@ -23,10 +29,15 @@ export function AzioniRicettaModal({
           scatto - questo margine assorbe il click prima che raggiunga lo sfondo. */}
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        ref={boxRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={idTitolo}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className="w-80 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
-        <h2 className="mb-3 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+        <h2 id={idTitolo} className="mb-3 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
           {ricetta.nome}
         </h2>
         <div className="flex flex-col gap-2">

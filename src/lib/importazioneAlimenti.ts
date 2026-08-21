@@ -122,7 +122,7 @@ export function parseAlimentiCsv(contenuto: string): AlimentiParsati {
     throw new Error("Il file CSV è vuoto");
   }
 
-  const intestazione = righe[0].map((h) => h.trim());
+  const intestazione = righe[0]!.map((h) => h.trim());
   const nomiCampiValidi = new Set<string>(CAMPI_CSV);
   const colonneSconosciute = intestazione.filter((h) => !nomiCampiValidi.has(h));
   if (colonneSconosciute.length > 0) {

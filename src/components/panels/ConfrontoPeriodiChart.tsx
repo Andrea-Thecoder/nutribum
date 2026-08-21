@@ -97,7 +97,7 @@ function ContenutoTooltipConfronto(props: {
   const { active, payload, isDark } = props;
   if (!active || !payload || payload.length === 0) return null;
   const stile = stileTooltip(isDark);
-  const d = payload[0].payload;
+  const d = payload[0]!.payload;
   if (d.b === null || d.a === null || d.percentuale === null) {
     return (
       <div style={stile.contentStyle}>

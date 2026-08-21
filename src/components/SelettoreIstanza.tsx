@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { Periodo } from "../lib/aggregate";
 import { elencoIstanze, etichettaPeriodo, TUTTO_IL_PERIODO } from "../lib/aggregate";
 
@@ -25,6 +25,9 @@ export function SelettoreIstanza({
   const [aperto, setAperto] = useState(false);
   const [evidenziato, setEvidenziato] = useState(0);
   const opzioneRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const idBase = useId();
+  const idListbox = `${idBase}-listbox`;
+  const idOpzione = (idx: number) => `${idBase}-opzione-${idx}`;
   const opzioni = useMemo(() => elencoIstanze(giorni, periodo), [giorni, periodo]);
   const etichettaCorrente = istanza === TUTTO_IL_PERIODO ? "Tutto" : etichettaPeriodo(istanza, periodo);
 
@@ -80,6 +83,13 @@ export function SelettoreIstanza({
       {aperto && <div className="fixed inset-0 z-10" onClick={() => setAperto(false)} />}
 
       <button
+        type="button"
+        role="combobox"
+        aria-label={etichettaCorrente}
+        aria-haspopup="listbox"
+        aria-expanded={aperto}
+        aria-controls={idListbox}
+        aria-activedescendant={aperto && voci[evidenziato] ? idOpzione(evidenziato) : undefined}
         onClick={() => (aperto ? setAperto(false) : apri())}
         // Con il menu chiuso basta che il bottone sia a fuoco (es. dopo un Tab) per cambiare
         // opzione con le frecce, senza doverlo prima aprire: stesso comportamento di un <select>
@@ -102,10 +112,18 @@ export function SelettoreIstanza({
       </button>
 
       {aperto && (
-        <div className="absolute left-0 top-full z-20 mt-1 max-h-56 w-48 overflow-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900">
+        <div
+          role="listbox"
+          id={idListbox}
+          className="absolute left-0 top-full z-20 mt-1 max-h-56 w-48 overflow-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+        >
           {voci.map((v, idx) => (
             <button
               key={v.chiave}
+              id={idOpzione(idx)}
+              role="option"
+              aria-selected={v.chiave === istanza}
+              type="button"
               ref={(el) => {
                 opzioneRefs.current[idx] = el;
               }}

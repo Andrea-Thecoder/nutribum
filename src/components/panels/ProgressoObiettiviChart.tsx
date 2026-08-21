@@ -81,7 +81,7 @@ function ContenutoTooltipProgresso(props: {
   const { active, payload, isDark } = props;
   if (!active || !payload || payload.length === 0) return null;
   const stile = stileTooltip(isDark);
-  const d = payload[0].payload;
+  const d = payload[0]!.payload;
   const unita = d.chiave.startsWith("Kcal") ? "kcal" : "g";
 
   return (

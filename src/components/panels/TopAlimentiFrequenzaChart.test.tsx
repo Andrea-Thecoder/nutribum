@@ -30,6 +30,6 @@ describe("TopAlimentiFrequenzaChart", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /Settimana del 11 mar/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Settimana del 11 mar/ })).toBeInTheDocument();
   });
 });

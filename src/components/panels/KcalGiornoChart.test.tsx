@@ -57,7 +57,7 @@ describe("KcalGiornoChart", () => {
     );
 
     expect(screen.getByText("Giorno")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Tutto/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Tutto/ })).toBeInTheDocument();
   });
 
   it("KcalGiornoChart_focusGiorno_selezionaQuelGiornoNelSelettoreIstanza", () => {
@@ -72,7 +72,7 @@ describe("KcalGiornoChart", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /1 feb 2024/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /1 feb 2024/ })).toBeInTheDocument();
   });
 });
 

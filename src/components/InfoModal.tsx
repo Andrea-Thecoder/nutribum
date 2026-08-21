@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 interface InfoModalProps {
   titolo: string;
@@ -27,6 +28,10 @@ export function InfoModal({
   larghezzaClasse = "w-96",
   chiudiSuClickFuori = true,
 }: InfoModalProps) {
+  const idTitolo = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
+
   return createPortal(
     <div
       className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100"
@@ -34,11 +39,16 @@ export function InfoModal({
     >
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
         <div
+          ref={boxRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={idTitolo}
+          tabIndex={-1}
           onClick={(e) => e.stopPropagation()}
           className={`flex max-h-[85vh] min-h-85 ${larghezzaClasse} flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900`}
         >
           <div className="mb-3 flex shrink-0 items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{titolo}</h2>
+            <h2 id={idTitolo} className="text-sm font-semibold text-slate-800 dark:text-slate-100">{titolo}</h2>
             <button
               onClick={onChiudi}
               className="rounded px-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-100"

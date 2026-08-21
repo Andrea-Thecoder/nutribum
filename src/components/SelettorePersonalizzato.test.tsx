@@ -13,20 +13,20 @@ describe("SelettorePersonalizzato", () => {
   it("SelettorePersonalizzato_nessunaOpzioneSelezionata_mostraIlPlaceholder", () => {
     render(<SelettorePersonalizzato valore="" opzioni={OPZIONI} onChange={vi.fn()} placeholder="Scegli…" />);
 
-    expect(screen.getByRole("button", { name: /Scegli…/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Scegli…/ })).toBeInTheDocument();
   });
 
   it("SelettorePersonalizzato_valoreSelezionato_mostraLaSuaEtichettaInvecedelPlaceholder", () => {
     render(<SelettorePersonalizzato valore="pranzo" opzioni={OPZIONI} onChange={vi.fn()} />);
 
-    expect(screen.getByRole("button", { name: /Pranzo/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Pranzo/ })).toBeInTheDocument();
   });
 
   it("SelettorePersonalizzato_clicSulBottone_apreLElencoDelleOpzioni", async () => {
     const utente = userEvent.setup();
     render(<SelettorePersonalizzato valore="" opzioni={OPZIONI} onChange={vi.fn()} />);
 
-    await utente.click(screen.getByRole("button"));
+    await utente.click(screen.getByRole("combobox"));
 
     expect(screen.getByText("Cena")).toBeInTheDocument();
   });
@@ -35,7 +35,7 @@ describe("SelettorePersonalizzato", () => {
     const onChange = vi.fn();
     const utente = userEvent.setup();
     render(<SelettorePersonalizzato valore="" opzioni={OPZIONI} onChange={onChange} />);
-    await utente.click(screen.getByRole("button"));
+    await utente.click(screen.getByRole("combobox"));
 
     await utente.click(screen.getByText("Cena"));
 
@@ -45,7 +45,7 @@ describe("SelettorePersonalizzato", () => {
   it("SelettorePersonalizzato_clicSuUnOpzione_richiudeLElenco", async () => {
     const utente = userEvent.setup();
     render(<SelettorePersonalizzato valore="" opzioni={OPZIONI} onChange={vi.fn()} />);
-    await utente.click(screen.getByRole("button"));
+    await utente.click(screen.getByRole("combobox"));
 
     await utente.click(screen.getByText("Cena"));
 
@@ -56,7 +56,7 @@ describe("SelettorePersonalizzato", () => {
     const utente = userEvent.setup();
     render(<SelettorePersonalizzato valore="" opzioni={OPZIONI} onChange={vi.fn()} disabled />);
 
-    await utente.click(screen.getByRole("button"));
+    await utente.click(screen.getByRole("combobox"));
 
     expect(screen.queryByText("Cena")).not.toBeInTheDocument();
   });

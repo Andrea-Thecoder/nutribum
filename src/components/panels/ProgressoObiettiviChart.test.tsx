@@ -59,7 +59,7 @@ describe("ProgressoObiettiviChart", () => {
 
     render(<ProgressoObiettiviChart {...PROPS_BASE} giorni={[creaGiorno("2020-01-01", 2500)]} />);
 
-    await screen.findByRole("button", { name: /1 gen 2020/ });
+    await screen.findByRole("combobox", { name: /1 gen 2020/ });
     expect(screen.queryByText(/Nessun limite impostato ancora/)).not.toBeInTheDocument();
   });
 
@@ -73,7 +73,7 @@ describe("ProgressoObiettiviChart", () => {
       />,
     );
 
-    await screen.findByRole("button", { name: /1 gen 2020/ });
+    await screen.findByRole("combobox", { name: /1 gen 2020/ });
     expect(screen.queryByText(/Nessun limite impostato ancora/)).not.toBeInTheDocument();
     expect(elencaStoricoObiettivo).not.toHaveBeenCalled();
   });
@@ -87,6 +87,6 @@ describe("ProgressoObiettiviChart", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /1 feb 2020/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /1 feb 2020/ })).toBeInTheDocument();
   });
 });

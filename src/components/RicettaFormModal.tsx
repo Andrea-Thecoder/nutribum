@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import type { AlimentoCatalogo } from "../lib/food";
 import { creaRicetta, aggiornaRicetta, type RicettaConIngredienti } from "../lib/recipes";
@@ -7,6 +7,7 @@ import { useConfermaChiusura } from "./ConfermaModal";
 import { accettaDueDecimali } from "../lib/inputNumerico";
 import { TourAnteprimaPannello } from "./TourAnteprimaPannello";
 import { stepsNuovaRicetta } from "../lib/tourImpostazioni";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 interface RicettaFormModalProps {
   ricetta?: RicettaConIngredienti;
@@ -49,6 +50,9 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato, antep
   const [modificato, setModificato] = useState(false);
   const [tourAperto, setTourAperto] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
+  const idTitolo = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
 
   function aggiungiRiga() {
     setModificato(true);
@@ -124,6 +128,11 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato, antep
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={richiediChiusura}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        ref={boxRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={idTitolo}
+        tabIndex={-1}
         id={anteprima ? undefined : "anteprima-tour-root"}
         onClick={(e) => e.stopPropagation()}
         className="flex max-h-[85vh] min-h-85 w-96 flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
@@ -132,7 +141,7 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato, antep
           <TourAnteprimaPannello steps={stepsNuovaRicetta} onCompletato={() => setTourAperto(false)} />
         )}
         <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+          <h2 id={idTitolo} className="text-sm font-semibold text-slate-800 dark:text-slate-100">
             {inModifica ? "Modifica ricetta" : "Nuova ricetta"}
           </h2>
           <div className="flex items-center gap-1">

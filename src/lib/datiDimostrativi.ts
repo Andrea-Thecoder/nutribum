@@ -34,7 +34,7 @@ const CATALOGO: Array<Omit<AlimentoCatalogo, "id">> = [
 export const ALIMENTI_DIMOSTRATIVI: AlimentoCatalogo[] = CATALOGO.map((a, i) => ({ ...a, id: i + 1 }));
 
 function alimentoDiario(catalogoIndex: number, quantita: number): Alimento {
-  const a = CATALOGO[catalogoIndex];
+  const a = CATALOGO[catalogoIndex]!;
   const fattore = quantita / 100;
   return {
     nome: a.nome,

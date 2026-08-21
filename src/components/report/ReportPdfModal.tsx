@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { generaReportPdf, type DatiFonteReport } from "./generaReportPdf";
 import { TourAnteprimaPannello } from "../TourAnteprimaPannello";
 import { stepsReportPdf } from "../../lib/tourImpostazioni";
+import { useFocusTrap } from "../../lib/useFocusTrap";
 
 interface ReportPdfModalProps {
   fonte: DatiFonteReport;
@@ -23,6 +24,9 @@ export function ReportPdfModal({ fonte, onClose }: ReportPdfModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [generando, setGenerando] = useState(false);
   const [tourAperto, setTourAperto] = useState(false);
+  const idTitolo = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -53,13 +57,18 @@ export function ReportPdfModal({ fonte, onClose }: ReportPdfModalProps) {
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        ref={boxRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={idTitolo}
+        tabIndex={-1}
         id="anteprima-tour-root"
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         {tourAperto && <TourAnteprimaPannello steps={stepsReportPdf} onCompletato={() => setTourAperto(false)} />}
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Esporta report PDF</h2>
+          <h2 id={idTitolo} className="text-sm font-semibold text-slate-800 dark:text-slate-100">Esporta report PDF</h2>
           <div className="flex items-center gap-1">
             <button
               type="button"
@@ -163,6 +172,6 @@ export function ReportPdfModal({ fonte, onClose }: ReportPdfModalProps) {
 
 function fineDelMese(meseYYYYMM: string): string {
   const [anno, mese] = meseYYYYMM.split("-").map(Number);
-  const ultimoGiorno = new Date(anno, mese, 0).getDate();
+  const ultimoGiorno = new Date(anno!, mese!, 0).getDate();
   return `${meseYYYYMM}-${String(ultimoGiorno).padStart(2, "0")}`;
 }

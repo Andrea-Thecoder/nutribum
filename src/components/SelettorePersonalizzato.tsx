@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 export interface OpzioneSelettore<T extends string | number> {
@@ -36,6 +36,9 @@ export function SelettorePersonalizzato<T extends string | number>({
   const bottoneRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const opzioneRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const idBase = useId();
+  const idListbox = `${idBase}-listbox`;
+  const idOpzione = (idx: number) => `${idBase}-opzione-${idx}`;
 
   const selezionata = opzioni.find((o) => o.valore === valore);
 
@@ -169,6 +172,12 @@ export function SelettorePersonalizzato<T extends string | number>({
         type="button"
         ref={bottoneRef}
         disabled={disabled}
+        role="combobox"
+        aria-label={selezionata?.etichetta ?? placeholder}
+        aria-haspopup="listbox"
+        aria-expanded={aperto}
+        aria-controls={idListbox}
+        aria-activedescendant={aperto && filtrate[evidenziato] ? idOpzione(evidenziato) : undefined}
         onClick={() => (aperto ? setAperto(false) : apri())}
         // Con il menu chiuso basta che il bottone sia a fuoco (es. dopo un Tab) per cambiare
         // opzione con le frecce, senza doverlo prima aprire: stesso comportamento di un <select>
@@ -196,6 +205,8 @@ export function SelettorePersonalizzato<T extends string | number>({
         createPortal(
           <div
             ref={dropdownRef}
+            role="listbox"
+            id={idListbox}
             style={{
               position: "fixed",
               left: posizione.left,
@@ -211,6 +222,7 @@ export function SelettorePersonalizzato<T extends string | number>({
               <input
                 autoFocus
                 type="text"
+                aria-label="Cerca opzione"
                 value={filtro}
                 onChange={(e) => setFiltro(e.target.value)}
                 placeholder="Cerca…"
@@ -224,6 +236,9 @@ export function SelettorePersonalizzato<T extends string | number>({
               {filtrate.map((o, idx) => (
                 <button
                   key={o.valore}
+                  id={idOpzione(idx)}
+                  role="option"
+                  aria-selected={o.valore === valore}
                   ref={(el) => {
                     opzioneRefs.current[idx] = el;
                   }}

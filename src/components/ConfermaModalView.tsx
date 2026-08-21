@@ -1,4 +1,6 @@
+import { useId, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 export function ConfermaModalView({
   messaggio,
@@ -11,6 +13,10 @@ export function ConfermaModalView({
   onConferma: () => void;
   onAnnulla: () => void;
 }) {
+  const idMessaggio = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
+
   return createPortal(
     <div
       className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100"
@@ -18,10 +24,15 @@ export function ConfermaModalView({
     >
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        ref={boxRef}
+        role="alertdialog"
+        aria-modal="true"
+        aria-describedby={idMessaggio}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
-        <p className="text-sm text-slate-700 dark:text-slate-200">{messaggio}</p>
+        <p id={idMessaggio} className="text-sm text-slate-700 dark:text-slate-200">{messaggio}</p>
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onAnnulla}

@@ -1,5 +1,6 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
+import { useFocusTrap } from "../lib/useFocusTrap";
 import {
   leggiProfilo,
   salvaProfilo,
@@ -49,6 +50,9 @@ export function ProfileModal({ peso, onClose, onSaved }: ProfileModalProps) {
   const [modificato, setModificato] = useState(false);
   const [tourAperto, setTourAperto] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onClose);
+  const idTitolo = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
 
   useEffect(() => {
     Promise.all([leggiProfilo(), elencaLivelliFitness(), leggiLivelloFitnessAttivo()])
@@ -63,7 +67,7 @@ export function ProfileModal({ peso, onClose, onSaved }: ProfileModalProps) {
           setLivelloId(attivo.id);
           setLivelloAttualeId(attivo.id);
         } else if (elenco.length > 0) {
-          setLivelloId(elenco[0].id);
+          setLivelloId(elenco[0]!.id);
         }
         setCaricato(true);
       })
@@ -134,13 +138,18 @@ export function ProfileModal({ peso, onClose, onSaved }: ProfileModalProps) {
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={richiediChiusura}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        ref={boxRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={idTitolo}
+        tabIndex={-1}
         id="anteprima-tour-root"
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         {tourAperto && <TourAnteprimaPannello steps={stepsProfilo} onCompletato={() => setTourAperto(false)} />}
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Profilo (per il TDEE)</h2>
+          <h2 id={idTitolo} className="text-sm font-semibold text-slate-800 dark:text-slate-100">Profilo (per il TDEE)</h2>
           <div className="flex items-center gap-1">
             <button
               type="button"

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { registraPeso } from "../lib/weight";
 import { CalendarioPopover } from "./CalendarioPopover";
@@ -6,6 +6,7 @@ import { useConfermaChiusura } from "./ConfermaModal";
 import { accettaDueDecimali } from "../lib/inputNumerico";
 import { TourAnteprimaPannello } from "./TourAnteprimaPannello";
 import { stepsRegistraPeso } from "../lib/tourImpostazioni";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 interface WeightEntryModalProps {
   // Peso già registrato per la data di default (oggi), se presente: precompila il campo così
@@ -35,6 +36,9 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
   const [modificato, setModificato] = useState(false);
   const [tourAperto, setTourAperto] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onClose);
+  const idTitolo = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -70,6 +74,11 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={richiediChiusura}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        ref={boxRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={idTitolo}
+        tabIndex={-1}
         id="anteprima-tour-root"
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
@@ -78,7 +87,7 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
           <TourAnteprimaPannello steps={stepsRegistraPeso} onCompletato={() => setTourAperto(false)} />
         )}
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Registra peso</h2>
+          <h2 id={idTitolo} className="text-sm font-semibold text-slate-800 dark:text-slate-100">Registra peso</h2>
           <div className="flex items-center gap-1">
             <button
               type="button"

@@ -27,7 +27,7 @@ describe("MacroGiornoChart", () => {
     render(<MacroGiornoChart giorni={[creaGiorno("2024-01-01")]} storicoObiettivi={[]} />);
 
     expect(screen.getByText("Giorno")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Tutto/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Tutto/ })).toBeInTheDocument();
   });
 
   it("MacroGiornoChart_focusGiorno_selezionaQuelGiornoNelSelettoreIstanza", () => {
@@ -39,6 +39,6 @@ describe("MacroGiornoChart", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /1 feb 2024/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /1 feb 2024/ })).toBeInTheDocument();
   });
 });

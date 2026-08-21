@@ -47,7 +47,7 @@ export async function leggiObiettivoPeso(): Promise<number | null> {
   const righe = await db.select<{ target_kg: number | null }[]>(
     `SELECT target_kg FROM weight_goal WHERE id = 1`,
   );
-  return righe.length === 0 ? null : righe[0].target_kg;
+  return righe.length === 0 ? null : righe[0]!.target_kg;
 }
 
 // Un solo obiettivo alla volta (il nuovo sovrascrive weight_goal), ma OGNI impostazione viene anche
@@ -221,8 +221,8 @@ export function calcolaStatoPositivoPeso(
 export function calcolaRitmoKgSettimana(voci: VocePeso[], finestraGiorni = GIORNI_FINESTRA_RITMO_PESO): number | null {
   if (voci.length < 2) return null;
   const recenti = voci.slice(-finestraGiorni);
-  const primo = recenti[0];
-  const ultimo = recenti[recenti.length - 1];
+  const primo = recenti[0]!;
+  const ultimo = recenti[recenti.length - 1]!;
   const giorniTrascorsi = differenceInCalendarDays(new Date(ultimo.data), new Date(primo.data));
   if (giorniTrascorsi < GIORNI_MINIMI_RITMO_PESO) return null;
   const kgPerGiorno = (ultimo.pesoKg - primo.pesoKg) / giorniTrascorsi;

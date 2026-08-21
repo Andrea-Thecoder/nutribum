@@ -48,7 +48,7 @@ function calcolaProiezione(
   const ritmoKgSettimana = calcolaRitmoKgSettimana(voci);
   if (ritmoKgSettimana === null) return null;
   const kgPerGiorno = ritmoKgSettimana / 7;
-  const ultimo = voci[voci.length - 1];
+  const ultimo = voci[voci.length - 1]!;
 
   if (giaNellObiettivo || kgPerGiorno >= -0.005) {
     return { ritmoKgSettimana, versoObiettivo: giaNellObiettivo, giorniStimati: null, dataStimata: null };
@@ -195,8 +195,8 @@ export const PesoPanel = memo(function PesoPanel({
   // Lo stato attuale (peso più recente, ritmo, proiezione) resta sempre sulla storia COMPLETA,
   // indipendentemente dal filtro periodo/istanza qui sotto: quel filtro riguarda solo cosa mostrano
   // grafico e tabella, non "dove sono adesso".
-  const ultimo = peso.length > 0 ? peso[peso.length - 1] : null;
-  const penultimo = peso.length > 1 ? peso[peso.length - 2] : null;
+  const ultimo = peso.length > 0 ? peso[peso.length - 1]! : null;
+  const penultimo = peso.length > 1 ? peso[peso.length - 2]! : null;
   const giaNellObiettivo =
     obiettivoKg !== null && ultimo !== null && nelObiettivoPeso(ultimo.pesoKg, obiettivoKg, margineKg);
   const proiezione = calcolaProiezione(peso, obiettivoKg, giaNellObiettivo);

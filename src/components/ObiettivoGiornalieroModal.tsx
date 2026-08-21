@@ -1,5 +1,6 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
+import { useFocusTrap } from "../lib/useFocusTrap";
 import {
   leggiObiettivo,
   salvaObiettivoKcal,
@@ -95,6 +96,9 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
   const [modificato, setModificato] = useState(false);
   const [tourAperto, setTourAperto] = useState(false);
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
+  const idTitolo = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
 
   // Solo per il tab kcal: profilo/livello attività per calcolare il TDEE live se l'utente spunta
   // "Usa TDEE calcolato" - vedi risultatoTDEE più sotto. Convivono con il valore manuale, non lo
@@ -242,6 +246,11 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={richiediChiusura}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        ref={boxRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={idTitolo}
+        tabIndex={-1}
         id="anteprima-tour-root"
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
@@ -250,7 +259,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
           <TourAnteprimaPannello steps={STEP_TOUR[tipo]} onCompletato={() => setTourAperto(false)} />
         )}
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{TITOLI[tipo]}</h2>
+          <h2 id={idTitolo} className="text-sm font-semibold text-slate-800 dark:text-slate-100">{TITOLI[tipo]}</h2>
           <div className="flex items-center gap-1">
             <button
               type="button"

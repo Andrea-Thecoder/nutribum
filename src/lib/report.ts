@@ -85,8 +85,8 @@ export interface RiepilogoPeso {
 
 export function riepilogoPeso(pesoRange: VocePeso[], obiettivoPesoKg: number | null): RiepilogoPeso | null {
   if (pesoRange.length === 0) return null;
-  const primo = pesoRange[0];
-  const ultimo = pesoRange[pesoRange.length - 1];
+  const primo = pesoRange[0]!;
+  const ultimo = pesoRange[pesoRange.length - 1]!;
   return {
     primoKg: primo.pesoKg,
     ultimoKg: ultimo.pesoKg,

@@ -23,7 +23,7 @@ export async function leggiProfilo(): Promise<Profilo | null> {
   const righe = await db.select<RigaProfilo[]>(
     `SELECT age_years, height_cm, sex FROM profile WHERE id = 1`,
   );
-  return righe.length === 0 ? null : mappaProfilo(righe[0]);
+  return righe.length === 0 ? null : mappaProfilo(righe[0]!);
 }
 
 // Niente bmr/peso qui: sono derivati (vedi lib/tdee.ts) e cambiano più spesso dell'anagrafica
@@ -116,7 +116,7 @@ export async function leggiLivelloFitnessAttivo(): Promise<LivelloFitness | null
      ORDER BY pf.created_at DESC
      LIMIT 1`,
   );
-  return righe.length === 0 ? null : mappaLivelloFitness(righe[0]);
+  return righe.length === 0 ? null : mappaLivelloFitness(righe[0]!);
 }
 
 // Append-only, come profile_history: il livello di attività può cambiare mantenendo la stessa

@@ -28,6 +28,6 @@ describe("FibreSaleChart", () => {
     render(<FibreSaleChart giorni={[creaGiorno("2024-01-01", { fibre_g: 5, sale_g: 1 })]} storicoObiettivi={[]} />);
 
     expect(screen.getByText("Giorno")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Tutto/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Tutto/ })).toBeInTheDocument();
   });
 });

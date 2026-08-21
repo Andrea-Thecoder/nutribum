@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 export interface OpzioneExportCancellazione {
   chiave: string;
@@ -59,15 +60,23 @@ export function EsportaPrimaDiCancellareModal({
   }
 
   const inCorso = elaborazione !== null;
+  const idTitolo = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
 
   return createPortal(
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={inCorso ? undefined : onChiudi}>
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        ref={boxRef}
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby={idTitolo}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-red-300 bg-white p-4 shadow-xl dark:border-red-800 dark:bg-slate-900"
       >
-        <h2 className="mb-2 text-sm font-semibold text-red-700 dark:text-red-400">{titolo}</h2>
+        <h2 id={idTitolo} className="mb-2 text-sm font-semibold text-red-700 dark:text-red-400">{titolo}</h2>
         <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{messaggio}</p>
 
         <div className="flex flex-col gap-2">

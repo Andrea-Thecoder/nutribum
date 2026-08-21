@@ -9,20 +9,20 @@ describe("SelettoreIstanza", () => {
   it("SelettoreIstanza_istanzaTutto_mostraLetichettaTutto", () => {
     render(<SelettoreIstanza giorni={GIORNI} periodo="mese" istanza="tutto" onChange={vi.fn()} />);
 
-    expect(screen.getByRole("button", { name: /Tutto/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Tutto/ })).toBeInTheDocument();
   });
 
   it("SelettoreIstanza_istanzaSpecifica_mostraLaSuaEtichettaFormattata", () => {
     render(<SelettoreIstanza giorni={GIORNI} periodo="mese" istanza="2024-01" onChange={vi.fn()} />);
 
-    expect(screen.getByRole("button", { name: /Gennaio 2024/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Gennaio 2024/ })).toBeInTheDocument();
   });
 
   it("SelettoreIstanza_mostraTuttoDefault_includeLopzioneTuttoNellaTendina", async () => {
     const utente = userEvent.setup();
     render(<SelettoreIstanza giorni={GIORNI} periodo="mese" istanza="tutto" onChange={vi.fn()} />);
 
-    await utente.click(screen.getByRole("button"));
+    await utente.click(screen.getByRole("combobox"));
 
     expect(screen.getByText("Tutto")).toBeInTheDocument();
   });
@@ -33,7 +33,7 @@ describe("SelettoreIstanza", () => {
       <SelettoreIstanza giorni={GIORNI} periodo="mese" istanza="2024-01" onChange={vi.fn()} mostraTutto={false} />,
     );
 
-    await utente.click(screen.getByRole("button"));
+    await utente.click(screen.getByRole("combobox"));
 
     expect(screen.queryByText("Tutto")).not.toBeInTheDocument();
   });
@@ -42,7 +42,7 @@ describe("SelettoreIstanza", () => {
     const onChange = vi.fn();
     const utente = userEvent.setup();
     render(<SelettoreIstanza giorni={GIORNI} periodo="mese" istanza="tutto" onChange={onChange} />);
-    await utente.click(screen.getByRole("button"));
+    await utente.click(screen.getByRole("combobox"));
 
     await utente.click(screen.getByText(/Gennaio 2024/));
 
@@ -52,7 +52,7 @@ describe("SelettoreIstanza", () => {
   it("SelettoreIstanza_clicSuUnopzione_richiudeLaTendina", async () => {
     const utente = userEvent.setup();
     render(<SelettoreIstanza giorni={GIORNI} periodo="mese" istanza="tutto" onChange={vi.fn()} />);
-    await utente.click(screen.getByRole("button"));
+    await utente.click(screen.getByRole("combobox"));
 
     await utente.click(screen.getByText(/Gennaio 2024/));
 

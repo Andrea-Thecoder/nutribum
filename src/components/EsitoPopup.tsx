@@ -27,6 +27,8 @@ export function EsitoPopup({ tipo, messaggio, onChiudi }: EsitoPopupProps) {
     <div className="pointer-events-none fixed inset-0 z-9999 flex items-center justify-center px-4">
       <button
         onClick={onChiudi}
+        role={tipo === "errore" ? "alert" : "status"}
+        aria-live={tipo === "errore" ? "assertive" : "polite"}
         className={`pointer-events-auto relative max-w-lg cursor-pointer rounded-xl border px-5 py-4 pr-9 text-left text-sm shadow-xl ${STILE_TIPO[tipo]}`}
       >
         {messaggio}

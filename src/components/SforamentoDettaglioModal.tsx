@@ -1,7 +1,9 @@
+import { useId, useRef } from "react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { createPortal } from "react-dom";
 import type { DettaglioGiornoSforato } from "../lib/dailyGoal";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 interface SforamentoDettaglioModalProps {
   titolo: string;
@@ -16,6 +18,10 @@ export function SforamentoDettaglioModal({
   onChiudi,
   onApriGiorno,
 }: SforamentoDettaglioModalProps) {
+  const idTitolo = useId();
+  const boxRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(boxRef);
+
   return createPortal(
     <div
       className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100"
@@ -23,11 +29,16 @@ export function SforamentoDettaglioModal({
     >
       <div onClick={(e) => e.stopPropagation()} className="min-h-0 p-[3vmin]">
       <div
+        ref={boxRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={idTitolo}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className="w-96 min-h-85 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{titolo}</h2>
+          <h2 id={idTitolo} className="text-sm font-semibold text-slate-800 dark:text-slate-100">{titolo}</h2>
           <button
             onClick={onChiudi}
             autoFocus

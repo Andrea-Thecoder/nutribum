@@ -146,7 +146,7 @@ const BackupCompletoSchema = z.object({
 
 export type BackupCompleto = z.infer<typeof BackupCompletoSchema>;
 
-const COLONNE: Record<string, string[]> = {
+const COLONNE = {
   food: [
     "id", "name", "unit_100", "kcal_100", "protein_100", "carbs_100", "fat_100",
     "sugar_100", "saturated_fat_100", "fiber_100", "salt_100", "from_label", "created_at",
@@ -168,7 +168,9 @@ const COLONNE: Record<string, string[]> = {
   profile_fitness: ["id", "profile_id", "fitness_level_id", "created_at"],
   recipes: ["id", "name", "created_at"],
   recipe_ingredients: ["id", "recipe_id", "food_id", "quantity"],
-};
+} satisfies Record<string, string[]>;
+
+type NomeTabella = keyof typeof COLONNE;
 
 // Ordine di cancellazione: tabelle con foreign key prima di quelle che referenziano (rispettato
 // anche se le altre non hanno vincoli, per uniformità). "fitness_level" esclusa di proposito.
@@ -180,7 +182,7 @@ const TABELLE_INDIPENDENTI = [
 
 export async function esportaBackupCompleto(): Promise<BackupCompleto> {
   const db = await getDb();
-  async function leggi<T>(tabella: string): Promise<T[]> {
+  async function leggi<T>(tabella: NomeTabella): Promise<T[]> {
     return db.select<T[]>(`SELECT ${COLONNE[tabella].join(", ")} FROM ${tabella} ORDER BY id`);
   }
   return {
@@ -239,7 +241,7 @@ export async function ripristinaBackupCompleto(backup: BackupCompleto): Promise<
   await svuotaTuttiIDati();
   const db = await getDb();
 
-  async function inserisci(tabella: string, righe: Record<string, unknown>[]): Promise<void> {
+  async function inserisci(tabella: NomeTabella, righe: Record<string, unknown>[]): Promise<void> {
     const colonne = COLONNE[tabella];
     const placeholders = colonne.map((_, i) => `$${i + 1}`).join(", ");
     for (const riga of righe) {

@@ -395,14 +395,14 @@ function App() {
       // Pannelli salvati da prima che esistessero i minimi per-tipo (o rimpiccioliti oltre il
       // minimo attuale) vengono riportati alla dimensione minima leggibile, invece di restare
       // bloccati troppo piccoli finché l'utente non li ridimensiona manualmente.
+      let modificato = false;
       const normalizzati = l.pannelli.map((p) => {
         const { w: minW, h: minH } = dimensioneMinima(p.tipo);
-        return p.w >= minW && p.h >= minH ? p : { ...p, w: Math.max(p.w, minW), h: Math.max(p.h, minH) };
+        if (p.w >= minW && p.h >= minH) return p;
+        modificato = true;
+        return { ...p, w: Math.max(p.w, minW), h: Math.max(p.h, minH) };
       });
       setPannelli(normalizzati);
-      const modificato = normalizzati.some(
-        (p, i) => p.w !== l.pannelli[i].w || p.h !== l.pannelli[i].h,
-      );
       if (modificato) salvaLayout({ schemaVersion: "1.0", pannelli: normalizzati });
     });
 
@@ -558,7 +558,7 @@ function App() {
           let usato = 0;
           const scelti: TipoPannello[] = [];
           while (usato < blocco.larghezza && coda.length > 0) {
-            const larghezza = dimensioneMinima(coda[0]).w;
+            const larghezza = dimensioneMinima(coda[0]!).w;
             if (usato + larghezza > blocco.larghezza) break;
             scelti.push(coda.shift()!);
             usato += larghezza;

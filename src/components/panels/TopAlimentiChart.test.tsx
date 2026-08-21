@@ -19,7 +19,7 @@ describe("TopAlimentiChart", () => {
   it("TopAlimentiChart_periodoGiornoDiDefault_selezionaIlGiornoPiuRecenteComeIstanza", () => {
     render(<TopAlimentiChart giorni={[creaGiorno("2024-01-01", "Pasta", 350), creaGiorno("2024-01-05", "Riso", 300)]} />);
 
-    expect(screen.getByRole("button", { name: /5 gen 2024/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /5 gen 2024/ })).toBeInTheDocument();
   });
 
   it("TopAlimentiChart_cambioPeriodo_selezionaLaPrimaIstanzaDelNuovoPeriodo", async () => {
@@ -28,7 +28,7 @@ describe("TopAlimentiChart", () => {
 
     await utente.click(screen.getByText("Mese"));
 
-    expect(screen.getByRole("button", { name: /Febbraio 2024/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Febbraio 2024/ })).toBeInTheDocument();
   });
 
   it("TopAlimentiChart_focusGiorno_tornaAlPeriodoGiornoESelezionaQuellaData", async () => {
@@ -45,6 +45,6 @@ describe("TopAlimentiChart", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /1 gen 2024/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /1 gen 2024/ })).toBeInTheDocument();
   });
 });

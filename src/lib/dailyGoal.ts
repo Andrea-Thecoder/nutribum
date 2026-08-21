@@ -47,7 +47,7 @@ export async function leggiObiettivo(): Promise<Goal | null> {
   const righe = await db.select<RigaGoal[]>(
     "SELECT kcal, kcal_min, protein_g, carbs_g, fat_g, fiber_g, salt_g FROM goal WHERE id = 1",
   );
-  return righe.length === 0 ? null : mappaGoal(righe[0]);
+  return righe.length === 0 ? null : mappaGoal(righe[0]!);
 }
 
 // I 3 macrogruppi del form (kcal / macro / altro) sono assi nutrizionali indipendenti (es. limite

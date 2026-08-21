@@ -101,11 +101,11 @@ export const RegistraPastoPanel = memo(function RegistraPastoPanel({
   }, [data, anteprima]);
 
   useEffect(() => {
-    if (alimentoId === "" && alimenti.length > 0) setAlimentoId(alimenti[0].id);
+    if (alimentoId === "" && alimenti.length > 0) setAlimentoId(alimenti[0]!.id);
   }, [alimenti, alimentoId]);
 
   useEffect(() => {
-    if (ricettaId === "" && ricette.length > 0) setRicettaId(ricette[0].id);
+    if (ricettaId === "" && ricette.length > 0) setRicettaId(ricette[0]!.id);
   }, [ricette, ricettaId]);
 
   const giaSalvateVisibili = giaSalvate.filter((v) => !idsDaEliminare.has(v.id));
