@@ -68,7 +68,7 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
 
-      # Pacchetto "pronto da scaricare" per un pubblico non tecnico (es. link su LinkedIn): zippa
+      # Pacchetto "pronto da scaricare" per un pubblico non tecnico: zippa
       # l'installer insieme al catalogo di esempio e alle istruzioni. Nome file FISSO (senza
       # versione), così /releases/latest/download/<nome>.zip resta valido release dopo release -
       # NON sostituisce gli installer nudi, quelli restano per l'updater (vedi latest.json).
