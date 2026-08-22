@@ -52,7 +52,7 @@ export function RicettaFormModal({ ricetta, alimenti, onChiudi, onSalvato, antep
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, richiediChiusura);
 
   function aggiungiRiga() {
     setModificato(true);

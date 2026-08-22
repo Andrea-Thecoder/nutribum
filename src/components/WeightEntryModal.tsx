@@ -38,7 +38,7 @@ export function WeightEntryModal({ valoreOggi, onClose, onSaved }: WeightEntryMo
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onClose);
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, richiediChiusura);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

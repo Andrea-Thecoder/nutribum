@@ -6,17 +6,25 @@ const SELETTORE_FOCUSABILI =
 // Porta il focus dentro la modale all'apertura (solo se non c'è già, per rispettare un eventuale
 // autoFocus già presente su un campo specifico) e lo intrappola dentro col Tab: senza, Tab
 // scapperebbe verso i pannelli sottostanti, invisibili dietro l'overlay ma ancora nel DOM.
-export function useFocusTrap(containerRef: RefObject<HTMLElement | null>) {
+//
+// Il fallback quando nulla ha già il focus è il contenitore stesso, NON "il primo elemento
+// cliccabile": in ogni modale l'header (bottone "?"/✕) precede il corpo nel DOM, quindi "il primo
+// cliccabile" sarebbe sempre "?" invece del campo pensato per l'autoFocus - risultato,
+// l'anello di focus del browser finiva sempre lì, sembrando un bottone diverso dagli altri.
+export function useFocusTrap(containerRef: RefObject<HTMLElement | null>, onEscape?: () => void) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     if (!container.contains(document.activeElement)) {
-      const primoFocusabile = container.querySelector<HTMLElement>(SELETTORE_FOCUSABILI);
-      (primoFocusabile ?? container).focus();
+      container.focus();
     }
 
-    function gestisciTab(e: KeyboardEvent) {
+    function gestisciTastiera(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        onEscape?.();
+        return;
+      }
       if (e.key !== "Tab" || !container) return;
       const focusabili = Array.from(container.querySelectorAll<HTMLElement>(SELETTORE_FOCUSABILI));
       const primo = focusabili[0];
@@ -31,7 +39,7 @@ export function useFocusTrap(containerRef: RefObject<HTMLElement | null>) {
       }
     }
 
-    container.addEventListener("keydown", gestisciTab);
-    return () => container.removeEventListener("keydown", gestisciTab);
-  }, [containerRef]);
+    container.addEventListener("keydown", gestisciTastiera);
+    return () => container.removeEventListener("keydown", gestisciTastiera);
+  }, [containerRef, onEscape]);
 }

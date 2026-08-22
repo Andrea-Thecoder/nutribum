@@ -60,7 +60,7 @@ export function AlimentoFormModal({ alimento, onChiudi, onSalvato, anteprima }: 
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, richiediChiusura);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

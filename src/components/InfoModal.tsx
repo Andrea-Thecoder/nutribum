@@ -30,7 +30,7 @@ export function InfoModal({
 }: InfoModalProps) {
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, onChiudi);
 
   return createPortal(
     <div

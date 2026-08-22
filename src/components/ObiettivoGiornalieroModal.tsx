@@ -98,7 +98,7 @@ export function ObiettivoGiornalieroModal({ tipo, peso, onChiudi, onSalvato }: O
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onChiudi);
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, richiediChiusura);
 
   // Solo per il tab kcal: profilo/livello attività per calcolare il TDEE live se l'utente spunta
   // "Usa TDEE calcolato" - vedi risultatoTDEE più sotto. Convivono con il valore manuale, non lo

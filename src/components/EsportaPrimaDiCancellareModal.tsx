@@ -62,7 +62,7 @@ export function EsportaPrimaDiCancellareModal({
   const inCorso = elaborazione !== null;
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, inCorso ? undefined : onChiudi);
 
   return createPortal(
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={inCorso ? undefined : onChiudi}>

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Joyride, STATUS, type EventData, type Step } from "react-joyride";
 import { useIsDarkMode } from "../lib/useIsDarkMode";
 import { localeTourCondiviso, stiliTourCondivisi, opzioniTourCondivise } from "../lib/tourStyle";
 import { scopedAllaDemo } from "../lib/scopedAllaDemo";
+import { useSaltaTourConEsc } from "../lib/useSaltaTourConEsc";
 
 interface TourAnteprimaPannelloProps {
   steps: Step[];
@@ -21,12 +22,16 @@ export function TourAnteprimaPannello({ steps, onCompletato }: TourAnteprimaPann
   const isDark = useIsDarkMode();
   const [run, setRun] = useState(true);
 
+  const salta = useCallback(() => {
+    setRun(false);
+    onCompletato();
+  }, [onCompletato]);
+
   function handleEvent(data: EventData) {
-    if (data.status === STATUS.FINISHED || data.status === STATUS.SKIPPED) {
-      setRun(false);
-      onCompletato();
-    }
+    if (data.status === STATUS.FINISHED || data.status === STATUS.SKIPPED) salta();
   }
+
+  useSaltaTourConEsc(run, salta);
 
   return (
     <Joyride

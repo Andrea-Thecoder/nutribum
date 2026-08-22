@@ -26,7 +26,7 @@ export function ReportPdfModal({ fonte, onClose }: ReportPdfModalProps) {
   const [tourAperto, setTourAperto] = useState(false);
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, onClose);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

@@ -37,7 +37,7 @@ export function WeightGoalModal({ goalKg, margineKg, onClose, onSaved, onSalvaMa
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onClose);
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, richiediChiusura);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

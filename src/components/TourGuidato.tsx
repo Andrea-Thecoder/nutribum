@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Joyride, STATUS, type EventData, type TourData } from "react-joyride";
 import { useIsDarkMode } from "../lib/useIsDarkMode";
 import { TOURS, type DatiStep } from "../lib/tours";
 import { localeTourCondiviso, stiliTourCondivisi, opzioniTourCondivise } from "../lib/tourStyle";
+import { useSaltaTourConEsc } from "../lib/useSaltaTourConEsc";
 
 interface TourGuidatoProps {
   // Contatore, non un booleano: ogni incremento (dal caricamento impostazioni al primo avvio, o dal
@@ -27,16 +28,20 @@ export function TourGuidato({ avviaRichiesta, onCompletato, onApriMenu }: TourGu
     if (avviaRichiesta > 0) setRun(true);
   }, [avviaRichiesta]);
 
+  const salta = useCallback(() => {
+    // Chiudere qui, non solo lasciarlo all'hook "before" del prossimo step (che con Salta/Fine
+    // non scatta mai, il tour finisce senza "prossimo step"): altrimenti un menu aperto
+    // dall'ultimo step attivo resterebbe aperto dopo la chiusura del tour.
+    onApriMenu(null);
+    setRun(false);
+    onCompletato();
+  }, [onApriMenu, onCompletato]);
+
   function handleEvent(data: EventData) {
-    if (data.status === STATUS.FINISHED || data.status === STATUS.SKIPPED) {
-      // Chiudere qui, non solo lasciarlo all'hook "before" del prossimo step (che con Salta/Fine
-      // non scatta mai, il tour finisce senza "prossimo step"): altrimenti un menu aperto
-      // dall'ultimo step attivo resterebbe aperto dopo la chiusura del tour.
-      onApriMenu(null);
-      setRun(false);
-      onCompletato();
-    }
+    if (data.status === STATUS.FINISHED || data.status === STATUS.SKIPPED) salta();
   }
+
+  useSaltaTourConEsc(run, salta);
 
   // Garantisce che il menu richiesto dallo step in arrivo sia aperto (o richiuso) PRIMA che
   // Joyride provi a cercarne il target - a differenza di reagire dentro onEvent, dove lo stato si

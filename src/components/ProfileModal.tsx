@@ -52,7 +52,7 @@ export function ProfileModal({ peso, onClose, onSaved }: ProfileModalProps) {
   const { richiediChiusura, elementoConferma } = useConfermaChiusura(modificato, onClose);
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, richiediChiusura);
 
   useEffect(() => {
     Promise.all([leggiProfilo(), elencaLivelliFitness(), leggiLivelloFitnessAttivo()])

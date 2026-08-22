@@ -13,7 +13,7 @@ interface AzioniAlimentoModalProps {
 export function AzioniAlimentoModal({ alimento, onChiudi, onModifica, onElimina }: AzioniAlimentoModalProps) {
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, onChiudi);
 
   return createPortal(
     <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/40 p-4 text-slate-900 dark:text-slate-100" onClick={onChiudi}>

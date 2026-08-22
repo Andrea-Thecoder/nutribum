@@ -15,7 +15,7 @@ export function ConfermaModalView({
 }) {
   const idMessaggio = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, onAnnulla);
 
   return createPortal(
     <div

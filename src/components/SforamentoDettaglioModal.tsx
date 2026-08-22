@@ -20,7 +20,7 @@ export function SforamentoDettaglioModal({
 }: SforamentoDettaglioModalProps) {
   const idTitolo = useId();
   const boxRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(boxRef);
+  useFocusTrap(boxRef, onChiudi);
 
   return createPortal(
     <div
