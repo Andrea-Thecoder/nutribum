@@ -249,7 +249,7 @@ export function SelettorePersonalizzato<T extends string | number>({
                     setAperto(false);
                   }}
                   className={
-                    "block w-full px-2 py-1.5 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 " +
+                    "block w-full px-2 py-1.5 text-left text-sm hover:bg-slate-200 dark:hover:bg-slate-800 " +
                     (o.valore === valore
                       ? "bg-blue-50 font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300"
                       : idx === evidenziato

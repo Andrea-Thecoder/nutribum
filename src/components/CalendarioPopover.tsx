@@ -80,7 +80,7 @@ export function CalendarioPopover({ value, onChange, max }: CalendarioPopoverPro
             <button
               type="button"
               onClick={() => setMeseVisualizzato((m) => subMonths(m, 1))}
-              className="rounded px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+              className="rounded px-2 py-1 text-sm text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800"
             >
               ‹
             </button>
@@ -91,7 +91,7 @@ export function CalendarioPopover({ value, onChange, max }: CalendarioPopoverPro
               type="button"
               onClick={() => setMeseVisualizzato((m) => addMonths(m, 1))}
               disabled={meseProssimoInteramenteFuturo}
-              className="rounded px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30 dark:text-slate-400 dark:hover:bg-slate-800"
+              className="rounded px-2 py-1 text-sm text-slate-500 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-30 dark:text-slate-400 dark:hover:bg-slate-800"
             >
               ›
             </button>
@@ -126,8 +126,8 @@ export function CalendarioPopover({ value, onChange, max }: CalendarioPopoverPro
                       : selezionato
                         ? "bg-blue-600 text-white hover:bg-blue-700"
                         : fuoriMese
-                          ? "text-slate-400 hover:bg-slate-100 dark:text-slate-600 dark:hover:bg-slate-800"
-                          : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800")
+                          ? "text-slate-400 hover:bg-slate-200 dark:text-slate-600 dark:hover:bg-slate-800"
+                          : "text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800")
                   }
                 >
                   {format(giorno, "d")}

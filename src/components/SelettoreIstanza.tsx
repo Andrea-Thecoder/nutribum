@@ -133,7 +133,7 @@ export function SelettoreIstanza({
                 setAperto(false);
               }}
               className={
-                "block w-full px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 " +
+                "block w-full px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800 " +
                 (idx === evidenziato ? "bg-slate-100 dark:bg-slate-800" : "")
               }
             >

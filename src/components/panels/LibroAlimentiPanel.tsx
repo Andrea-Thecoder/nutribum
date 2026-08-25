@@ -178,7 +178,7 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
         <button
           onClick={() => setPagina((p) => Math.max(0, p - 1))}
           disabled={paginaEffettiva === 0}
-          className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-30 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           ‹
         </button>
@@ -188,7 +188,7 @@ export const LibroAlimentiPanel = memo(function LibroAlimentiPanel({
         <button
           onClick={() => setPagina((p) => Math.min(totalePagine - 1, p + 1))}
           disabled={paginaEffettiva === totalePagine - 1}
-          className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-30 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-30 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           ›
         </button>

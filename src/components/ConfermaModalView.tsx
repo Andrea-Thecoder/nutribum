@@ -37,7 +37,7 @@ export function ConfermaModalView({
           <button
             onClick={onAnnulla}
             autoFocus
-            className="rounded px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="rounded px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             Annulla
           </button>

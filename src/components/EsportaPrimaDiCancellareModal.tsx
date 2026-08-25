@@ -100,7 +100,7 @@ export function EsportaPrimaDiCancellareModal({
           <button
             onClick={onChiudi}
             disabled={inCorso}
-            className="rounded px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="rounded px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             Annulla
           </button>

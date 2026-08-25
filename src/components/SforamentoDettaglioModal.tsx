@@ -42,7 +42,7 @@ export function SforamentoDettaglioModal({
           <button
             onClick={onChiudi}
             autoFocus
-            className="rounded px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            className="rounded px-2 py-1 text-sm text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             ✕
           </button>
