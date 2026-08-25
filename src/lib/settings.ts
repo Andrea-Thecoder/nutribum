@@ -20,6 +20,10 @@ export interface Impostazioni {
   // piatto (non un oggetto tipo tourCompletati.benvenuto) per restare coerente con lo stile del
   // resto del file e perché il merge col default qui sopra è shallow, non deep.
   tourBenvenutoCompletato: boolean;
+  // Default "sistema": segue il tema del sistema operativo (comportamento storico dell'app, prima
+  // che questa impostazione esistesse). "chiaro"/"scuro" sono una scelta manuale che sovrascrive il
+  // sistema finché non si torna a "sistema" - risolto in App.tsx (classe "dark" su <html>), non qui.
+  tema: "chiaro" | "scuro" | "sistema";
 }
 
 export const IMPOSTAZIONI_DEFAULT: Impostazioni = {
@@ -28,6 +32,7 @@ export const IMPOSTAZIONI_DEFAULT: Impostazioni = {
   comprimiSpazioAutomaticamente: false,
   mostraGriglia: true,
   tourBenvenutoCompletato: false,
+  tema: "sistema",
 };
 
 async function assicuraDirDati(): Promise<void> {

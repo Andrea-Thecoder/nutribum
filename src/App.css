@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Tema scelto manualmente (impostazioni, lib/settings.ts) invece che seguito automaticamente dal
+   sistema (default di Tailwind): "dark:" risponde alla classe "dark" su <html> (App.tsx la
+   applica/rimuove in base al tema salvato, ricadendo su prefers-color-scheme solo per "sistema"),
+   non più a @media (prefers-color-scheme: dark) direttamente. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 html,
 body,
 #root {

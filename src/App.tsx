@@ -52,7 +52,7 @@ import { foodsToJson, foodsToCsv } from "./lib/exportFoods";
 import { historyToCsv } from "./lib/exportDiary";
 import { weightToJson, weightToCsv } from "./lib/exportWeight";
 import { caricaLayout, salvaLayout } from "./lib/layoutStorage";
-import { caricaImpostazioni, salvaImpostazioni, IMPOSTAZIONI_DEFAULT } from "./lib/settings";
+import { caricaImpostazioni, salvaImpostazioni, IMPOSTAZIONI_DEFAULT, type Impostazioni } from "./lib/settings";
 import {
   esportaBackupCompleto,
   validaBackupJson,
@@ -269,6 +269,7 @@ function App() {
   // Idem: placeholder finché caricaImpostazioni() non risponde, valore vero in IMPOSTAZIONI_DEFAULT.
   const [comprimiSpazioAutomaticamente, setComprimiSpazioAutomaticamente] = useState(false);
   const [mostraGriglia, setMostraGriglia] = useState(true);
+  const [tema, setTema] = useState<Impostazioni["tema"]>("sistema");
   // Contatore, non un booleano: ogni incremento è una richiesta di (ri)partenza del tour guidato,
   // sia quella automatica al primo avvio (sotto, in ricaricaImpostazioni) sia quella manuale da
   // "Aiuto → Rivedi tutorial" - vedi il commento su TourGuidatoProps.avviaRichiesta per il perché.
@@ -332,10 +333,33 @@ function App() {
       setMargineObiettivoPesoKg(imp.margineObiettivoPesoKg);
       setComprimiSpazioAutomaticamente(imp.comprimiSpazioAutomaticamente);
       setMostraGriglia(imp.mostraGriglia);
+      setTema(imp.tema);
       // Solo se non è mai stato completato: un utente che ha già visto il tour non deve rivederlo
       // ad ogni avvio, solo dal menu Aiuto.
       if (!imp.tourBenvenutoCompletato) setAvviaTourRichiesta((n) => n + 1);
     });
+  }, []);
+
+  // Applica/rimuove la classe "dark" su <html> in base al tema scelto - unica fonte di verità per
+  // Tailwind (dark:, vedi @custom-variant in App.css) e per useIsDarkMode (usato nei grafici per i
+  // colori). Con tema "sistema" segue anche i cambi live di prefers-color-scheme, non solo il
+  // valore letto al mount.
+  useEffect(() => {
+    const radice = document.documentElement;
+    function applicaClasseDark() {
+      const scuro = tema === "scuro" || (tema === "sistema" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      radice.classList.toggle("dark", scuro);
+    }
+    applicaClasseDark();
+    if (tema !== "sistema") return;
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    mql.addEventListener("change", applicaClasseDark);
+    return () => mql.removeEventListener("change", applicaClasseDark);
+  }, [tema]);
+
+  const handleImpostaTema = useCallback(async (nuovoTema: Impostazioni["tema"]) => {
+    await salvaImpostazioni({ tema: nuovoTema });
+    setTema(nuovoTema);
   }, []);
 
   const handleTourBenvenutoCompletato = useCallback(async () => {
@@ -719,8 +743,8 @@ function App() {
   }, [persistiLayout]);
 
   // "Azzera impostazioni": tutto ciò che è preferenza dell'app (layout dashboard, margine
-  // obiettivo peso, comprimi spazio automaticamente, griglia visiva), non un dato nutrizionale -
-  // quello resta a "Cancella tutti i dati" più sotto.
+  // obiettivo peso, comprimi spazio automaticamente, griglia visiva, tema), non un dato
+  // nutrizionale - quello resta a "Cancella tutti i dati" più sotto.
   const handleAzzeraImpostazioni = useCallback(async () => {
     handleResetLayout();
     // Patch mirata (non tutto IMPOSTAZIONI_DEFAULT): "aggiornamenti automatici" è una scelta
@@ -730,10 +754,12 @@ function App() {
       margineObiettivoPesoKg: IMPOSTAZIONI_DEFAULT.margineObiettivoPesoKg,
       comprimiSpazioAutomaticamente: IMPOSTAZIONI_DEFAULT.comprimiSpazioAutomaticamente,
       mostraGriglia: IMPOSTAZIONI_DEFAULT.mostraGriglia,
+      tema: IMPOSTAZIONI_DEFAULT.tema,
     });
     setMargineObiettivoPesoKg(IMPOSTAZIONI_DEFAULT.margineObiettivoPesoKg);
     setComprimiSpazioAutomaticamente(IMPOSTAZIONI_DEFAULT.comprimiSpazioAutomaticamente);
     setMostraGriglia(IMPOSTAZIONI_DEFAULT.mostraGriglia);
+    setTema(IMPOSTAZIONI_DEFAULT.tema);
   }, [handleResetLayout]);
 
   const handleSvuotaDiario = useCallback(async () => {
@@ -899,6 +925,8 @@ function App() {
         onToggleComprimiSpazioAutomaticamente={handleToggleComprimiSpazioAutomaticamente}
         mostraGriglia={mostraGriglia}
         onToggleMostraGriglia={handleToggleMostraGriglia}
+        tema={tema}
+        onImpostaTema={handleImpostaTema}
         tipiEsistenti={pannelli.map((p) => p.tipo)}
         giorni={giorni}
         versioneObiettivi={versioneObiettivi}

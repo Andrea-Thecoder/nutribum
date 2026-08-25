@@ -40,6 +40,14 @@ import { useAggiornamenti } from "../lib/useAggiornamenti";
 import type { PuntoStoricoObiettivoPeso } from "../lib/weight";
 import type { PuntoStoricoProfilo, PuntoStoricoFitness } from "../lib/profile";
 
+type Tema = "chiaro" | "scuro" | "sistema";
+
+// Interruttore a un click (non tre voci di menu separate, scelta esplicita dell'utente): ogni
+// click passa allo stato successivo nel ciclo, come un vecchio interruttore a più posizioni.
+const TEMA_SUCCESSIVO: Record<Tema, Tema> = { chiaro: "scuro", scuro: "sistema", sistema: "chiaro" };
+const TEMA_ETICHETTA: Record<Tema, string> = { chiaro: "Chiaro", scuro: "Scuro", sistema: "Automatico" };
+const TEMA_ICONA: Record<Tema, string> = { chiaro: "☀️", scuro: "🌙", sistema: "🖥️" };
+
 interface NavBarProps {
   onImportato: () => void;
   onAddPanel: (tipo: TipoPannello) => void;
@@ -58,6 +66,8 @@ interface NavBarProps {
   onToggleComprimiSpazioAutomaticamente: () => void;
   mostraGriglia: boolean;
   onToggleMostraGriglia: () => void;
+  tema: Tema;
+  onImpostaTema: (tema: Tema) => void;
   tipiEsistenti: TipoPannello[];
   giorni: GiornoStorico[];
   versioneObiettivi: number;
@@ -161,6 +171,8 @@ export function NavBar({
   onToggleComprimiSpazioAutomaticamente,
   mostraGriglia,
   onToggleMostraGriglia,
+  tema,
+  onImpostaTema,
   tipiEsistenti,
   giorni,
   versioneObiettivi,
@@ -434,13 +446,13 @@ export function NavBar({
       {/* z-index molto alto e fisso: i pannelli della dashboard salgono di z-index illimitatamente
           ad ogni click (portaInPrimoPiano), la navbar deve restare sopra sempre, non solo finché
           nessun pannello supera un valore arbitrario più basso. */}
-      <div className="relative z-9999 flex items-center gap-1 px-3 py-2">
+      <div className="relative z-9999 flex items-center gap-1 px-3 py-2" onMouseLeave={closeAll}>
         <div className="relative">
           <button
             data-tour="navbar-file"
             onClick={() => toggleTopMenu("file")}
             onMouseEnter={() => switchMenuOnHover("file")}
-            className="rounded px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="rounded px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
             title="Operazioni sull'applicazione: impostazioni e chiusura"
           >
             File
@@ -452,7 +464,7 @@ export function NavBar({
                   data-tour="file-impostazioni"
                   onClick={() => setSettingsSubmenuOpen((a) => !a)}
                   onMouseEnter={() => setSettingsSubmenuOpen(true)}
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                   title="Apre le opzioni di configurazione dell'app: movimento pannelli e layout"
                 >
                   Impostazioni
@@ -463,7 +475,7 @@ export function NavBar({
                     <button
                       onClick={onToggleMostraGriglia}
                       title="Mostra sullo sfondo della board una griglia che indica dove si allineeranno i pannelli durante drag/resize, al posto dello sfondo pieno"
-                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Griglia visiva
                       <span className="w-4 shrink-0 text-center">{mostraGriglia ? "✓" : ""}</span>
@@ -472,11 +484,24 @@ export function NavBar({
                     <button
                       onClick={onToggleComprimiSpazioAutomaticamente}
                       title="Se attivo, dopo ogni trascinamento/ridimensionamento i pannelli non ancorati risalgono per chiudere gli spazi vuoti verticali. Nota: elimina anche eventuali sovrapposizioni volute tra pannelli (es. impilati con lo z-index), non solo i vuoti"
-                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Comprimi spazio automaticamente
                       <span className="w-4 shrink-0 text-center">{comprimiSpazioAutomaticamente ? "✓" : ""}</span>
                     </button>
+
+                    <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
+
+                    <button
+                      onClick={() => onImpostaTema(TEMA_SUCCESSIVO[tema])}
+                      title={`Tema attuale: ${TEMA_ETICHETTA[tema]}. Clicca per passare a ${TEMA_ETICHETTA[TEMA_SUCCESSIVO[tema]]}`}
+                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      Tema: {TEMA_ETICHETTA[tema]}
+                      <span className="w-5 shrink-0 text-center">{TEMA_ICONA[tema]}</span>
+                    </button>
+
+                    <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
 
                     <button
                       onClick={() => {
@@ -484,7 +509,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Ripristina la disposizione predefinita dei pannelli sulla board (i pannelli ancorati non vengono toccati)"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Reimposta layout pannelli
                     </button>
@@ -495,7 +520,7 @@ export function NavBar({
                       onClick={handleClickCercaAggiornamenti}
                       disabled={controlloAggiornamentiInCorso}
                       title="Controlla se è disponibile una nuova versione di NutriBum (richiede una connessione a internet; nessun dato dell'app viene inviato online)"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       {controlloAggiornamentiInCorso ? "Ricerca in corso…" : "Cerca aggiornamenti"}
                     </button>
@@ -503,7 +528,7 @@ export function NavBar({
                     <button
                       onClick={handleClickToggleAggiornamentiAutomatici}
                       title="Se attivo, l'app verifica da sola ad ogni avvio se è disponibile una nuova versione (richiede una connessione a internet; nessun dato dell'app viene inviato online)"
-                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Aggiornamenti automatici
                       <span className="w-4 shrink-0 text-center">{aggiornamentiAutomatici ? "✓" : ""}</span>
@@ -515,7 +540,7 @@ export function NavBar({
                       onClick={handleClickReimportaBackup}
                       disabled={caricamentoBackup}
                       title="Carica un backup completo esportato da NutriBum e sovrascrive tutti i dati attuali"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       {caricamentoBackup ? "Importazione…" : "Reimporta backup completo…"}
                     </button>
@@ -552,7 +577,7 @@ export function NavBar({
               <button
                 onClick={() => getCurrentWindow().close()}
                 title="Chiude l'applicazione"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Chiudi
               </button>
@@ -565,7 +590,7 @@ export function NavBar({
             data-tour="navbar-alimenti"
             onClick={() => toggleTopMenu("alimenti")}
             onMouseEnter={() => switchMenuOnHover("alimenti")}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
             title="Elenco degli alimenti disponibili (kcal, proteine, carboidrati, grassi per 100g o 100ml): qui importi, esporti o aggiungi alimenti al catalogo"
           >
             Scheda Alimenti
@@ -582,7 +607,7 @@ export function NavBar({
                   onMouseEnter={() => setFoodsSubmenu("import")}
                   disabled={caricamentoAlimenti}
                   title="Aggiunge nuovi alimenti al catalogo leggendoli da un file"
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   {caricamentoAlimenti ? "Importazione…" : "Importa alimenti"}
                   <span className="text-slate-400">›</span>
@@ -596,7 +621,7 @@ export function NavBar({
                       }}
                       disabled={caricamentoAlimenti}
                       title="Importa alimenti da un file JSON (array di oggetti con nome e valori nutrizionali per 100g o 100ml)"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Da JSON…
                     </button>
@@ -607,7 +632,7 @@ export function NavBar({
                       }}
                       disabled={caricamentoAlimenti}
                       title="Importa alimenti da un file CSV con intestazione (nome, unita, kcal_100, proteine_100, …)"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Da CSV…
                     </button>
@@ -620,7 +645,7 @@ export function NavBar({
                   onClick={() => setFoodsSubmenu((s) => (s === "export" ? null : "export"))}
                   onMouseEnter={() => setFoodsSubmenu("export")}
                   title="Salva l'intero catalogo alimenti su file, in una cartella a tua scelta"
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   Esporta alimenti
                   <span className="text-slate-400">›</span>
@@ -633,7 +658,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Crea un file JSON con tutti gli alimenti del catalogo e i loro valori nutrizionali per 100g o 100ml; ti verrà chiesto dove salvarlo"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       In JSON…
                     </button>
@@ -643,7 +668,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Crea un file CSV con tutti gli alimenti del catalogo, una riga per alimento; ti verrà chiesto dove salvarlo"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       In CSV…
                     </button>
@@ -660,7 +685,7 @@ export function NavBar({
                 }}
                 onMouseEnter={() => setFoodsSubmenu(null)}
                 title="Apre il modulo per inserire manualmente un nuovo alimento nel catalogo"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Aggiungi singolo alimento
               </button>
@@ -672,7 +697,7 @@ export function NavBar({
                 }}
                 onMouseEnter={() => setFoodsSubmenu(null)}
                 title="Apre il modulo per creare una nuova ricetta (combinazione di alimenti riusabile)"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Nuova ricetta…
               </button>
@@ -685,7 +710,7 @@ export function NavBar({
             data-tour="navbar-diario"
             onClick={() => toggleTopMenu("diario")}
             onMouseEnter={() => switchMenuOnHover("diario")}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
             title="Il registro di ciò che mangi ogni giorno: qui importi/esporti lo storico dei pasti e imposti i limiti giornalieri"
           >
             Diario Alimentare
@@ -701,7 +726,7 @@ export function NavBar({
                     setDiarySubmenu(null);
                   }}
                   title="Imposta un limite giornaliero (kcal, macronutrienti o altro) da monitorare"
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   Imposta limite giornaliero di…
                   <span className="text-slate-400">›</span>
@@ -714,7 +739,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Imposta il limite di calorie giornaliere"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Kcal…
                     </button>
@@ -724,7 +749,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Imposta i limiti giornalieri di grassi, proteine e carboidrati"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Macronutrienti…
                     </button>
@@ -734,7 +759,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Imposta i limiti giornalieri di sale e fibre"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Altro…
                     </button>
@@ -750,7 +775,7 @@ export function NavBar({
                 }}
                 onMouseEnter={() => setLimiteSubmenuAperto(false)}
                 title="Anagrafica (età, altezza, sesso, livello di attività) usata per stimare il TDEE - poi lo puoi usare come limite kcal dalla modale 'Imposta limite giornaliero di… → Kcal'"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Profilo (per il TDEE)…
               </button>
@@ -767,7 +792,7 @@ export function NavBar({
                   }}
                   disabled={caricamento}
                   title="Aggiunge voci al diario alimentare leggendole da un file"
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   {caricamento ? "Importazione…" : "Importa diario alimentare"}
                   <span className="text-slate-400">›</span>
@@ -781,7 +806,7 @@ export function NavBar({
                       }}
                       disabled={caricamento}
                       title="Importa uno o più giorni di diario da file JSON (puoi selezionare più file insieme)"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Da JSON… (uno o più file)
                     </button>
@@ -792,7 +817,7 @@ export function NavBar({
                       }}
                       disabled={caricamento}
                       title="Importa un giorno di diario da un file CSV"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Da CSV…
                     </button>
@@ -808,7 +833,7 @@ export function NavBar({
                     setLimiteSubmenuAperto(false);
                   }}
                   title="Salva il diario alimentare su file, in una cartella a tua scelta"
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   Esporta diario alimentare
                   <span className="text-slate-400">›</span>
@@ -821,7 +846,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Crea un file JSON con l'intero storico del diario alimentare; ti verrà chiesto dove salvarlo"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       In JSON…
                     </button>
@@ -831,7 +856,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Crea un file CSV con una riga per ogni voce registrata (data, orario, pasto, alimento, quantità, valori nutrizionali); ti verrà chiesto dove salvarlo"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       In CSV…
                     </button>
@@ -845,7 +870,7 @@ export function NavBar({
                   closeAll();
                 }}
                 title="Genera un report PDF con tabelle riassuntive e grafici (kcal/macro, peso, TDEE) per un periodo a scelta"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Esporta report PDF…
               </button>
@@ -859,7 +884,7 @@ export function NavBar({
             data-tour="navbar-peso"
             onClick={() => toggleTopMenu("peso")}
             onMouseEnter={() => switchMenuOnHover("peso")}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
             title="Storico delle tue misurazioni di peso corporeo: qui imposti l'obiettivo, importi o esporti lo storico"
           >
             Diario del Peso
@@ -874,7 +899,7 @@ export function NavBar({
                 }}
                 onMouseEnter={() => setWeightSubmenu(null)}
                 title="Registra il peso corporeo per una data a scelta"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Imposta peso…
               </button>
@@ -886,7 +911,7 @@ export function NavBar({
                 }}
                 onMouseEnter={() => setWeightSubmenu(null)}
                 title="Imposta il peso corporeo che vuoi raggiungere, usato per la proiezione nel grafico del peso"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Imposta obiettivo peso…
               </button>
@@ -900,7 +925,7 @@ export function NavBar({
                   onMouseEnter={() => setWeightSubmenu("import")}
                   disabled={weightLoading}
                   title="Aggiunge misurazioni di peso al diario leggendole da un file"
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   {weightLoading ? "Importazione…" : "Importa storico peso"}
                   <span className="text-slate-400">›</span>
@@ -914,7 +939,7 @@ export function NavBar({
                       }}
                       disabled={weightLoading}
                       title="Importa lo storico peso da un file JSON (array di misurazioni con data e peso in kg)"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Da JSON…
                     </button>
@@ -925,7 +950,7 @@ export function NavBar({
                       }}
                       disabled={weightLoading}
                       title="Importa lo storico peso da un file CSV con colonne data e peso_kg"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       Da CSV…
                     </button>
@@ -938,7 +963,7 @@ export function NavBar({
                   onClick={() => setWeightSubmenu((s) => (s === "export" ? null : "export"))}
                   onMouseEnter={() => setWeightSubmenu("export")}
                   title="Salva lo storico delle misurazioni di peso su file, in una cartella a tua scelta"
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   Esporta storico peso
                   <span className="text-slate-400">›</span>
@@ -951,7 +976,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Crea un file JSON con tutte le misurazioni di peso registrate; ti verrà chiesto dove salvarlo"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       In JSON…
                     </button>
@@ -961,7 +986,7 @@ export function NavBar({
                         closeAll();
                       }}
                       title="Crea un file CSV con una riga per misurazione (data, peso_kg); ti verrà chiesto dove salvarlo"
-                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                       In CSV…
                     </button>
@@ -978,7 +1003,7 @@ export function NavBar({
             data-tour="navbar-aiuto"
             onClick={() => toggleTopMenu("aiuto")}
             onMouseEnter={() => switchMenuOnHover("aiuto")}
-            className="rounded px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="rounded px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
             title="Glossario dei termini usati nell'app, come inviare un feedback, informazioni sulla versione"
           >
             Aiuto
@@ -991,7 +1016,7 @@ export function NavBar({
                   closeAll();
                 }}
                 title="Spiegazione dei termini usati nell'app (TDEE, BMR, sforamento, ecc.)"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Glossario
               </button>
@@ -1001,7 +1026,7 @@ export function NavBar({
                   closeAll();
                 }}
                 title="Come segnalare un problema o un suggerimento"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Invia feedback
               </button>
@@ -1011,7 +1036,7 @@ export function NavBar({
                   closeAll();
                 }}
                 title="Nome e versione dell'app"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Informazioni
               </button>
@@ -1022,7 +1047,7 @@ export function NavBar({
                   closeAll();
                 }}
                 title="Rifà il tour guidato di benvenuto (navbar e dashboard)"
-                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 Rivedi tutorial
               </button>
@@ -1055,7 +1080,7 @@ export function NavBar({
                   menu.chiudi();
                 }}
                 title="Aggiunge tutte le schede mancanti, disposte 3 per riga (dove possibile) con la stessa altezza nella stessa riga"
-                className="block w-full px-3 py-1.5 text-left text-sm font-medium text-blue-600 hover:bg-slate-100 dark:text-blue-400 dark:hover:bg-slate-800"
+                className="block w-full px-3 py-1.5 text-left text-sm font-medium text-blue-600 hover:bg-slate-200 dark:text-blue-400 dark:hover:bg-slate-800"
               >
                 Aggiungi tutte le schede
               </button>
@@ -1067,7 +1092,7 @@ export function NavBar({
                     onAddPanel(def.tipo);
                     menu.chiudi();
                   }}
-                  className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="block w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   {def.titolo}
                 </button>

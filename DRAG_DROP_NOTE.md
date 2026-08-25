@@ -1,7 +1,7 @@
 # Drag & drop dashboard - note sessione (2026-07-22)
 
-> Riguarda `nutrition-tracker/src/lib/useDragResize.ts`, `App.tsx`, `PanelChrome.tsx`.
-> Vedi anche `PROGETTO.md`, che già segnalava: "drag/resize custom, non la libreria -
+> Riguarda `src/lib/useDragResize.ts`, `App.tsx`, `PanelChrome.tsx`.
+> Vedi anche `../PROGETTO.md`, che già segnalava: "drag/resize custom, non la libreria -
 > non funzionava su WebKitGTK". Questa sessione conferma quel punto (vedi "Tentativo
 > fallito" sotto) e documenta il resto del lavoro fatto sulle prestazioni del drag.
 

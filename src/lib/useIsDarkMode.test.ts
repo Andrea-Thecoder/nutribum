@@ -1,67 +1,34 @@
 import { act, renderHook } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { useIsDarkMode } from "./useIsDarkMode";
-
-type Listener = () => void;
-
-// Stub locale (non quello globale di setup.ts, sempre matches:false): serve controllare il valore
-// e simulare l'evento "change" per verificare che il hook si aggiorni davvero, non solo al mount.
-function installaMatchMediaControllabile(matchesIniziale: boolean) {
-  let matches = matchesIniziale;
-  const listeners = new Set<Listener>();
-  const originale = window.matchMedia;
-  window.matchMedia = ((query: string) =>
-    ({
-      matches,
-      media: query,
-      onchange: null,
-      addEventListener: (_: string, listener: Listener) => listeners.add(listener),
-      removeEventListener: (_: string, listener: Listener) => listeners.delete(listener),
-      addListener: () => {},
-      removeListener: () => {},
-      dispatchEvent: () => false,
-    }) as unknown as MediaQueryList) as typeof window.matchMedia;
-
-  return {
-    cambiaValore: (nuovoValore: boolean) => {
-      matches = nuovoValore;
-      listeners.forEach((l) => l());
-    },
-    ripristina: () => {
-      window.matchMedia = originale;
-    },
-  };
-}
 
 describe("useIsDarkMode", () => {
   afterEach(() => {
-    vi.restoreAllMocks();
+    document.documentElement.classList.remove("dark");
   });
 
-  it("useIsDarkMode_prefersColorSchemeChiaro_ritornaFalse", () => {
-    const stub = installaMatchMediaControllabile(false);
+  it("useIsDarkMode_classeDarkAssenteSuHtml_ritornaFalse", () => {
     const { result } = renderHook(() => useIsDarkMode());
 
     expect(result.current).toBe(false);
-    stub.ripristina();
   });
 
-  it("useIsDarkMode_prefersColorSchemeScuro_ritornaTrue", () => {
-    const stub = installaMatchMediaControllabile(true);
+  it("useIsDarkMode_classeDarkPresenteSuHtml_ritornaTrue", () => {
+    document.documentElement.classList.add("dark");
+
     const { result } = renderHook(() => useIsDarkMode());
 
     expect(result.current).toBe(true);
-    stub.ripristina();
   });
 
-  it("useIsDarkMode_eventoChangeDelSistema_aggiornaIlValoreRitornato", () => {
-    const stub = installaMatchMediaControllabile(false);
+  it("useIsDarkMode_classeDarkAggiuntaDopoIlMount_aggiornaIlValoreRitornato", async () => {
     const { result } = renderHook(() => useIsDarkMode());
-    expect(result.current).toBe(false);
 
-    act(() => stub.cambiaValore(true));
+    await act(async () => {
+      document.documentElement.classList.add("dark");
+      await Promise.resolve();
+    });
 
     expect(result.current).toBe(true);
-    stub.ripristina();
   });
 });
