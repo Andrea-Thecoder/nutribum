@@ -43,6 +43,20 @@ describe("getDb", () => {
     await expect(getDb()).rejects.toThrow("Impossibile connettersi al database: file bloccato");
   });
 
+  it("getDb_connessioneFallitaPerChecksumMigrazione_ilMessaggioSuggerisceLaCausa", async () => {
+    vi.mocked(Database.load).mockRejectedValue(new Error("checksum mismatch for migration 1"));
+    const { getDb } = await importaDbFresco();
+
+    await expect(getDb()).rejects.toThrow(/migration già applicata modificata/);
+  });
+
+  it("getDb_connessioneFallitaPerMotivoNonDiMigrazione_ilMessaggioNonMenzionaLeMigration", async () => {
+    vi.mocked(Database.load).mockRejectedValue(new Error("file bloccato"));
+    const { getDb } = await importaDbFresco();
+
+    await expect(getDb()).rejects.not.toThrow(/migration/);
+  });
+
   it("getDb_dopoUnaConnessioneFallita_unaNuovaChiamataRiprovaInvecediRestareBloccata", async () => {
     vi.mocked(Database.load).mockRejectedValueOnce(new Error("file bloccato"));
     const { getDb } = await importaDbFresco();
